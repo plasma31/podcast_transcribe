@@ -28,7 +28,7 @@ class PodcastTranscriber:
             self.whisper_model = whisper.load_model(model_size, device=self.device)
             self.pipeline = Pipeline.from_pretrained(
                 "pyannote/speaker-diarization",
-                use_auth_token="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"
+                use_auth_token="new_token"
             )
             
             if use_gpu and torch.cuda.is_available():
