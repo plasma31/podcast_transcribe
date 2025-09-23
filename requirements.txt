@@ -1,0 +1,23 @@
+# Core ML libraries
+torch>=2.0.0
+torchaudio>=2.0.0
+torchvision>=0.15.0
+
+# Whisper (for transcription)
+openai-whisper
+
+# Pyannote (for diarization)
+pyannote.audio
+
+# Speaker embeddings backend
+speechbrain
+
+# Audio handling
+ffmpeg-python
+librosa
+soundfile
+
+# Utilities
+numpy
+scipy
+requests
