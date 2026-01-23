@@ -1,0 +1,4084 @@
+[
+  {
+    "ID": NaN,
+    "Podcast Name": "Eierlikör und Jugendhilfe - Theoretisch in die Praxis ",
+    "Hosts des Podcasts": "Prof. Dr. Maik Sawatzki, Prof. Dr. Jana Demski, Dr. Oliver Bokelmann",
+    "Handlungsfeld": "Jugendhilfe ",
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": 18.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://jugendhilfe.podigee.io/archive",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": true,
+    "podcast_id": 89614,
+    "episode_count": 25,
+    "episodes_downloaded": 25,
+    "error": null,
+    "failed_ep": [],
+    "downloaded": [
+      {
+        "title": "Sonderfolge - Buchvorstellung: Supervision in der Sozialen Arbeit",
+        "id": 14596617
+      },
+      {
+        "title": "Folge 19 - Familien als Adressat*innen der Kinder- und Jugendhilfe",
+        "id": 14580804
+      },
+      {
+        "title": "Folge 18 - Lebensphase Jugend",
+        "id": 14487776
+      },
+      {
+        "title": "Sonderfolge - Buchvorstellung: Kinder- und Jugendhilfe (UTB-Band)",
+        "id": 14487774
+      },
+      {
+        "title": "Folge 17 - Lebensphase Kindheit",
+        "id": 14487772
+      },
+      {
+        "title": "Folge 16 - Kindertageseinrichtungen und Kindertagespflege",
+        "id": 14487770
+      },
+      {
+        "title": "Folge 15 - Schulsozialarbeit: Rolle, Auftrag, Realität",
+        "id": 14487768
+      },
+      {
+        "title": "Live-Podcast vom Deutschen Kinder- und Jugendhilfetag - Forum Berufseinstieg (Folge 14)",
+        "id": 14487766
+      },
+      {
+        "title": "Folge 13 - Schutzkonzepte – mehr als Zettel in einem Ordner?!",
+        "id": 14487762
+      },
+      {
+        "title": "Folge 12 - Hilfe für junge Volljährige",
+        "id": 14487760
+      },
+      {
+        "title": "Folge 11 - Inobhutnahme - Schutz und Perspektiven für junge Menschen",
+        "id": 14487758
+      },
+      {
+        "title": "Folge 10 - Kinderschutz und Kindeswohlgefährdung",
+        "id": 14487756
+      },
+      {
+        "title": "Folge 9 - Hilfeplan, Hilfeplanung, Hilfe...?",
+        "id": 14487754
+      },
+      {
+        "title": "Sonderfolge - Der 17. Kinder- und Jugendbericht (mit Prof. Dr. Karin Böllert)",
+        "id": 14487752
+      },
+      {
+        "title": "Sonderfolge - Jugendbeteiligung & Jugendpolitik",
+        "id": 14487750
+      },
+      {
+        "title": "Sonderfolge - Die Arbeitsgemeinschaft für Kinder- und Jugendhilfe (AGJ)",
+        "id": 14487748
+      },
+      {
+        "title": "Folge 8 - Vollzeitpflege - ein Zuhause außerhalb der Herkunftsfamilie",
+        "id": 14487746
+      },
+      {
+        "title": "Folge 7 - Stationäre Hilfen zur Erziehung",
+        "id": 14487744
+      },
+      {
+        "title": "Folge 6 - Erziehungsbeistand und Soziale Gruppenarbeit",
+        "id": 14487742
+      },
+      {
+        "title": "Folge 5 - Sozialpädagogische Familienhilfe (SPFH)",
+        "id": 14487740
+      },
+      {
+        "title": "Folge 4 - Erziehungs- und Familienberatung - arbeiten auf der Sonnenseite?",
+        "id": 14487738
+      },
+      {
+        "title": "Folge 3 - Kinder- und Jugendarbeit - nur Kickern und Kaffee trinken?",
+        "id": 14487736
+      },
+      {
+        "title": "Folge 2 - Das rote Tuch Jugendamt",
+        "id": 14487734
+      },
+      {
+        "title": "Folge 1 - Traumjob Jugendhilfe?!",
+        "id": 14487733
+      },
+      {
+        "title": "Folge 0 - Einführung",
+        "id": 14487730
+      }
+    ]
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "Erdbeerfrösche und Teppichäpfel\n",
+    "Hosts des Podcasts": "Jessica Frenzl, Teresa Grote",
+    "Handlungsfeld": "Theorien der Sozialen Arbeit",
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": 117.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://erdbeerfroescheundteppichaepfel.podigee.io/",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": null,
+    "episode_count": 0,
+    "episodes_downloaded": 0,
+    "error": "No podcast found on fyyd",
+    "failed_ep": [],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "Geschichte Sozialen Arbeit ",
+    "Hosts des Podcasts": NaN,
+    "Handlungsfeld": "Geschichte Sozialer Arbeit, Theorie",
+    "Durchschnittliche Dauer einer Folge": 71.0,
+    "Anzahl der Folgen ": 13.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://letscast.fm/sites/geschichte-der-sozialen-arbeit-bf4495ad",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": 73503,
+    "episode_count": 366,
+    "episodes_downloaded": 0,
+    "error": null,
+    "failed_ep": [
+      {
+        "title": "Schwarz-Rot: Neustart ohne Euphorie! (Express)",
+        "id": 13789600
+      },
+      {
+        "title": "Mit Wüst in der Wüste!   (Express)",
+        "id": 13764385
+      },
+      {
+        "title": "Koalitionsvertrag: Der kleine Wurf! (Express)",
+        "id": 13708661
+      },
+      {
+        "title": "Die Schicksalstage der Union! (Express)",
+        "id": 13644232
+      },
+      {
+        "title": "Milliardenkredite: Guter Bundesrat ist teuer!  (Express)",
+        "id": 13603410
+      },
+      {
+        "title": "Schuldenbremse: Merz verzockt Glaubwürdigkeit - SPD knackt den Jackpot!  (Express)",
+        "id": 13529875
+      },
+      {
+        "title": "Regieren für Dummies: So funktioniert Schwarz-Rot!  (Express)",
+        "id": 13501010
+      },
+      {
+        "title": "Endlich Schluss: Wahlkrampf 2025!  (Express)",
+        "id": 13467506
+      },
+      {
+        "title": "Rohrkrepierer-Gesetz von Merz im Bundestag: Nur Verlierer und ein Gewinner! (Express)",
+        "id": 13384022
+      },
+      {
+        "title": "Lame Duck Olaf Scholz: Die Kanzlerdämmerung!  (Express)",
+        "id": 13353583
+      },
+      {
+        "title": "Nanny-Staat und Verwaltungsraupe-Nimmersatt: Können wir uns das noch leisten?  (Express)",
+        "id": 13324002
+      },
+      {
+        "title": "Sitzt die Union beim Wahlkampf schon wieder im Schlafwagen?  (Express)",
+        "id": 13296460
+      },
+      {
+        "title": "Wahlprogramme im Schonwaschgang ohne Zeitenwende! (Express)",
+        "id": 13223809
+      },
+      {
+        "title": "Black-Box Syrien: Mit Boris Pistorius im Nachbarland Irak!  (Express)",
+        "id": 13194545
+      },
+      {
+        "title": "Der Wahlkampf hat begonnen: Klein aber gemein! (Express)",
+        "id": 13156000
+      },
+      {
+        "title": "Die Brandmauer: AfD-Zusammenarbeit tabu oder diskutabel? (Express)",
+        "id": 13123283
+      },
+      {
+        "title": "Hat die FDP das Ampel-Aus provoziert, Wolfgang Kubicki? (Express)",
+        "id": 13092267
+      },
+      {
+        "title": "Der Wahltermin steht: Wie die Parteien sich jetzt vorbereiten!   (Express)",
+        "id": 13063471
+      },
+      {
+        "title": "Wie ist die CDU bei Neuwahlen aufgestellt, Carsten Linnemann? (Express)",
+        "id": 13026466
+      },
+      {
+        "title": "Wer ist für den Totalschaden bei VW verantwortlich? (Express)",
+        "id": 13001293
+      },
+      {
+        "title": "Wie genießbar ist die Brombeer-Koalition für die CDU? (Express)",
+        "id": 12973710
+      },
+      {
+        "title": "SPD: Eine Partei auf der Suche nach sich selbst!  (Express)",
+        "id": 12938963
+      },
+      {
+        "title": "Nach Habecks Konjunkturprognose: Ist Deutschland reformunfähig?  (Express)",
+        "id": 12914884
+      },
+      {
+        "title": "Kann man den \"Tag der Deutschen Einheit\" abschaffen?  (Express)",
+        "id": 12882854
+      },
+      {
+        "title": "Können die Grünen Volkspartei?  (Express)",
+        "id": 12854863
+      },
+      {
+        "title": "Kann Merz Kanzler?  (Express)",
+        "id": 12822762
+      },
+      {
+        "title": "Should I stay or should I go? Knipst die FDP die Ampel aus?  (Express)",
+        "id": 12795149
+      },
+      {
+        "title": "Was kann sich Olaf Scholz von Angela Merkel abschauen, Danyal Bayaz? (Express)",
+        "id": 12620693
+      },
+      {
+        "title": "Ist Ihr Ausstieg aus der Politik unumkehrbar, Katja Suding? (Express)",
+        "id": 12595531
+      },
+      {
+        "title": "Haben Ostdeutsche die kritische Auseinandersetzung mit der DDR verpasst, Jan Redmann? (Express)",
+        "id": 12571188
+      },
+      {
+        "title": "Wieso verlassen Sie gerade jetzt die politische Bühne, Michael Roth? (Express)",
+        "id": 12546193
+      },
+      {
+        "title": "Wer könnte einen Waffenstillstand in der Ukraine verhandeln, Michael Kretschmer?  (Express)",
+        "id": 12522192
+      },
+      {
+        "title": "Inside-AfD, Afghanistan-Abschiebungen und Showdown beim Bundeshaushalt! (Express)",
+        "id": 12490247
+      },
+      {
+        "title": "Kabinettsumbildung, Realitätsverlust, Wahlschlappe mit Ansage? SPD und Grüne in der Krise! (Express)",
+        "id": 12463863
+      },
+      {
+        "title": "Ampel-Dämmerung, Haushaltskrise, Minderheitsregierung? Die Nachwehen der Europawahl!  (Express)",
+        "id": 12436777
+      },
+      {
+        "title": "Schicksalswahl, Machtspiele, Postengeschacher - Es lebe Europa!  (Express)",
+        "id": 12404479
+      },
+      {
+        "title": "Notstand, Reformstau, Zahlendreher - Pflege in der Krise (Express)",
+        "id": 12376738
+      },
+      {
+        "title": "Truppenbesuch, Zeitenwende, Friedenskanzler - Quo vadis SPD? (Express)",
+        "id": 12350951
+      },
+      {
+        "title": "Gewalt gegen Politiker, Gerichtsurteile zur AfD (Express)",
+        "id": 12325544
+      },
+      {
+        "title": "Die Neuerfindung der CDU! (Express)",
+        "id": 12289698
+      },
+      {
+        "title": "Vergangenheitsbewältigung im Zeichen der Zeitenwende: Die SPD und ihre Beziehung zu Moskau (Express)",
+        "id": 12259862
+      },
+      {
+        "title": "Liebesgrüße aus Peking: Wie umgehen mit der Spionage aus China?  (Express)",
+        "id": 12232364
+      },
+      {
+        "title": "Wie muss man über Ausländerkriminalität in Deutschland sprechen?  (Express)",
+        "id": 12173275
+      },
+      {
+        "title": "Brauchen wir eine Aufarbeitung der Corona-Politik in Deutschland?  (Express)",
+        "id": 12139562
+      },
+      {
+        "title": "Zu TAURUS-Risiken und Nebenwirkungen fragen Sie bitte nicht Ihre Bundesregierung, sondern das Pioneer Hauptstadt Team! (Express)",
+        "id": 12076940
+      },
+      {
+        "title": "Ist Marie-Agnes Strack-Zimmermann die “Oma Courage” Europas?  (Express)",
+        "id": 12048039
+      },
+      {
+        "title": "Das neue Rentenpaket ist keine Reform, sondern nur ein \"Reförmchen\"!  (Express)",
+        "id": 12015324
+      },
+      {
+        "title": "Ist Bundeskanzler Olaf Scholz zu schwach?  (Express)",
+        "id": 11987301
+      },
+      {
+        "title": "Wo hakt es beim Cannabis-Gesetz?",
+        "id": 11955445
+      },
+      {
+        "title": "Wo hakt es beim Cannabis-Gesetz?  (Express)",
+        "id": 11955447
+      },
+      {
+        "title": "Steigt die FDP aus der Ampel aus?",
+        "id": 11926489
+      },
+      {
+        "title": "Steigt die FDP aus der Ampel aus?  (Express)",
+        "id": 11926491
+      },
+      {
+        "title": "Hauptstadt – Das Briefing: Deutsch-amerikanische Bündnisse und mögliche neue Koalitionen im Bundestag",
+        "id": 11894704
+      },
+      {
+        "title": "Hauptstadt Das Briefing: Mit Karina Mößbauer und Jörg Thadeusz",
+        "id": 11853027
+      },
+      {
+        "title": "Hauptstadt – Das Briefing: Mit Karina Mößbauer und Jörg Thadeusz",
+        "id": 11846764
+      },
+      {
+        "title": "Hauptstadt Das Briefing: Mit Karina Mößbauer und Jörg Thadeusz",
+        "id": 11788898
+      },
+      {
+        "title": "Podcast Warm-UP mit Karina Mößbauer und Jörg Thadeusz",
+        "id": 11756822
+      },
+      {
+        "title": "Zum Abschied ein Sparpaket (Express)",
+        "id": 11554733
+      },
+      {
+        "title": "Das Bundesverfassungsgericht schockt die Ampel (Express)",
+        "id": 11525679
+      },
+      {
+        "title": "Die Ampel nach dem Asylkompromiss (Express)",
+        "id": 11498246
+      },
+      {
+        "title": "Der Befreiungsschlag des Robert Habeck (Express)",
+        "id": 11466418
+      },
+      {
+        "title": "Gefährliche Relativierungen in der Israel-Frage (Express)",
+        "id": 11439362
+      },
+      {
+        "title": "Ist jüdisches Leben hier sicher? (Express)",
+        "id": 11411793
+      },
+      {
+        "title": "Olaf Scholz und der Krieg in Israel (Express)",
+        "id": 11084242
+      },
+      {
+        "title": "Der Migrations-Plan (Express)",
+        "id": 10890936
+      },
+      {
+        "title": "Alle gegen die Grünen (Express)",
+        "id": 10863873
+      },
+      {
+        "title": "2 Jahre Ampel: Die Bilanz (Express)",
+        "id": 10836011
+      },
+      {
+        "title": "Das Gespenst Wagenknecht-Partei  (Express)",
+        "id": 10808066
+      },
+      {
+        "title": "Wie der Kanzler mit dem Deutschlandpakt aus der Krise kommen will (Express)",
+        "id": 10777750
+      },
+      {
+        "title": "Koalition des kleinsten Kompromisses (Express)",
+        "id": 10750918
+      },
+      {
+        "title": "“Ich werde nicht für Entertainment bezahlt”",
+        "id": 10733680
+      },
+      {
+        "title": "Das Selbstbestimmungs-Gesetz spaltet (Express)",
+        "id": 10717701
+      },
+      {
+        "title": "“Wo wir verwundbar sind, müssen wir Abhängigkeiten reduzieren”",
+        "id": 10708417
+      },
+      {
+        "title": "“Wo wir verwundbar sind, müssen wir Abhängigkeiten reduzieren” (Express)",
+        "id": 10708416
+      },
+      {
+        "title": "Der Ampel-Knall (Express)",
+        "id": 10694626
+      },
+      {
+        "title": "Faesers Wahlkampf-Populismus  (Express)",
+        "id": 10671774
+      },
+      {
+        "title": "Faesers Wahlkampf-Populismus",
+        "id": 11562401
+      },
+      {
+        "title": "Faesers Wahlkampf-Populismus",
+        "id": 11562404
+      },
+      {
+        "title": "Faesers Wahlkampf-Populismus",
+        "id": 10672085
+      },
+      {
+        "title": "Faesers Wahlkampf-Populismus",
+        "id": 10672086
+      },
+      {
+        "title": "Faesers Wahlkampf-Populismus",
+        "id": 10672087
+      },
+      {
+        "title": "“Wir müssen die Digitalisierung in der Bildung zentraler denken” (Express)",
+        "id": 10649387
+      },
+      {
+        "title": "Die Ampel und die Rezession (Express)",
+        "id": 10617823
+      },
+      {
+        "title": "Was die Ampel mit der Rente plant (Express)",
+        "id": 10590597
+      },
+      {
+        "title": "Der Union droht eine neue Richtung-Diskussion (Express)",
+        "id": 10566089
+      },
+      {
+        "title": "“Trotz SPD und Grünen, bin ich ganz der Alte” (Express)",
+        "id": 10544569
+      },
+      {
+        "title": "Heizgesetz und Elterngeld: Die Ampel-Kernschmelze (Express)",
+        "id": 10540781
+      },
+      {
+        "title": "Wie hältst du es mit der AfD? (Express)",
+        "id": 10512857
+      },
+      {
+        "title": "Das Merz-Problem der CDU (Express)",
+        "id": 10475882
+      },
+      {
+        "title": "Die Union in der Identitätskrise (Express)",
+        "id": 10449340
+      },
+      {
+        "title": "Aufstieg der Rechtspopulisten (Express)",
+        "id": 10418500
+      },
+      {
+        "title": "Das Comeback der Wutbürger (Express)",
+        "id": 10369118
+      },
+      {
+        "title": "Die Ampel auf dem Weg zur Gurkentruppe (Express)",
+        "id": 10344847
+      },
+      {
+        "title": "Scholz’ Kehrtwende in der Ukraine-Politik",
+        "id": 10318824
+      },
+      {
+        "title": "„Wir schaffen das? Den Satz würde ich nicht sagen!“ (Express)",
+        "id": 10298520
+      },
+      {
+        "title": "Schwarz-Grüne Zeitenwende? (Express)",
+        "id": 10294939
+      },
+      {
+        "title": "Der Kanzler und die neue Flüchtlingskrise",
+        "id": 10267331
+      },
+      {
+        "title": "Schadet Habeck der Wirtschaft? (Express)",
+        "id": 10240753
+      },
+      {
+        "title": "Keine “German Angst” sondern “German Mut” (Express)",
+        "id": 10238847
+      },
+      {
+        "title": "Autobahn oder Deutsche Bahn, Volker Wissing? (Express)",
+        "id": 10214001
+      },
+      {
+        "title": "Rot-Grün: Zwei Köche im Clinch (Express)",
+        "id": 10209628
+      },
+      {
+        "title": "Ukraine-Hilfe? „As long as it takes“ (Express)",
+        "id": 10196317
+      },
+      {
+        "title": "Die China-Taiwan-Krise (Express)",
+        "id": 10181373
+      },
+      {
+        "title": "“Wir brauchen Verhandlungen mit Russland” (Express)",
+        "id": 10154404
+      },
+      {
+        "title": "Die Grünen im rot-gelben Ampel-Loch (Express)",
+        "id": 10126017
+      },
+      {
+        "title": "Tempolimit für Klimaschutz?  (Express)",
+        "id": 10103513
+      },
+      {
+        "title": "Prof. Karl Lauterbach zu Krankenhausreform und Vertrauensverlust nach Corona (Express)",
+        "id": 10101413
+      },
+      {
+        "title": "Die Corona-Abrechnung (Express)",
+        "id": 10096987
+      },
+      {
+        "title": "Der Staat und seine Reformfähigkeit (Express)",
+        "id": 10069913
+      },
+      {
+        "title": "Wie umgehen mit der Letzten Generation (Express)",
+        "id": 10043718
+      },
+      {
+        "title": "Gelbe und Grüne stellen Ampel auf Rot (Express)",
+        "id": 10016846
+      },
+      {
+        "title": "Müssen Sie als ARD-Chef mehr verdienen als der Bundeskanzler, Kai Gniffke? Kompakt",
+        "id": 9994595
+      },
+      {
+        "title": "Die Ampel im Realitäts-Check (Express)",
+        "id": 9989918
+      },
+      {
+        "title": "Spezial: Die Bilanz der Münchner Sicherheitskonferenz (Express)",
+        "id": 9971237
+      },
+      {
+        "title": "Sicherheitskonferenz in unsicheren Zeiten (Express)",
+        "id": 9961222
+      },
+      {
+        "title": "Der Karnevals-Clash zwischen Union und FDP",
+        "id": 9919841
+      },
+      {
+        "title": "Der Karnevals-Clash zwischen Union und FDP (Express)",
+        "id": 9919840
+      },
+      {
+        "title": "Lula, Russland und die Kampfjets (Express)",
+        "id": 9882688
+      },
+      {
+        "title": "Machen Aktien meine Rente sicher, Christian Hecker? (Express)",
+        "id": 9859576
+      },
+      {
+        "title": "Deutsche Panzer im Ukraine-Krieg (Express)",
+        "id": 9855540
+      },
+      {
+        "title": "“Wir wollen vor den Grünen ins Ziel gehen” (Express)",
+        "id": 9847564
+      },
+      {
+        "title": "“Wir wollen vor den Grünen ins Ziel gehen”",
+        "id": 9847565
+      },
+      {
+        "title": "Verkleinerung des Bundestags: Meisterstück oder Mogelpackung? (Express)",
+        "id": 9825470
+      },
+      {
+        "title": "Verkleinerung des Bundestags: Meisterstück oder Mogelpackung? - Kompakt",
+        "id": 9825248
+      },
+      {
+        "title": "Die Frühjahrs-Offensive der Ampel (Express)",
+        "id": 9796765
+      },
+      {
+        "title": "In Berlin gesellt sich zum Chaos der Krawall (Express)",
+        "id": 9768529
+      },
+      {
+        "title": "Was 2022 war und 2023 kommt (Express)",
+        "id": 9745425
+      },
+      {
+        "title": "Ein System-Wettbewerb zwischen dem Westen und China (Express)",
+        "id": 9733181
+      },
+      {
+        "title": "“Ich bin ein Sozialliberaler” (Express)",
+        "id": 9726853
+      },
+      {
+        "title": "Die Rangliste der Politik (Express)",
+        "id": 9723696
+      },
+      {
+        "title": "Geld regiert die Ampel",
+        "id": 9699312
+      },
+      {
+        "title": "Geld regiert die Ampel (Express)",
+        "id": 9699313
+      },
+      {
+        "title": "“Sergej Lawrow lügt” (Express)",
+        "id": 9673363
+      },
+      {
+        "title": "“Ich hab mir das erste Jahr auch ruhiger vorgestellt” (Express)",
+        "id": 9673364
+      },
+      {
+        "title": "Kann Lauterbach mehr als Corona? (Express)",
+        "id": 9668628
+      },
+      {
+        "title": "1 Jahr Ampel - Die Bilanz (Express)",
+        "id": 9637106
+      },
+      {
+        "title": "Das Ende von Hartz IV (Express)",
+        "id": 9605334
+      },
+      {
+        "title": "Kriegsgipfel in Bali (Express)",
+        "id": 9579424
+      },
+      {
+        "title": "\"Wir senden manchmal über die Köpfe der Menschen hinweg\" (Express)",
+        "id": 9550002
+      },
+      {
+        "title": "Die gehemmte Union (Express)",
+        "id": 9549800
+      },
+      {
+        "title": "Der Kanzler und die China-Frage (Express)",
+        "id": 9520541
+      },
+      {
+        "title": "Die Iran-Proteste haben alles geändert (Express)",
+        "id": 9492290
+      },
+      {
+        "title": "Chronologie des Chaos (Express)",
+        "id": 9458313
+      },
+      {
+        "title": "„Unsere Sanktionen gegen Russland sind primitiv“ - Kompakt",
+        "id": 9430873
+      },
+      {
+        "title": "Der Nuklear-Streit (Express)",
+        "id": 9426985
+      },
+      {
+        "title": "“Spaß ist immer notwendig” (Express)",
+        "id": 9405992
+      },
+      {
+        "title": "Ampel-Versagen in der Bund-Länder-Zusammenarbeit (Express)",
+        "id": 9403314
+      },
+      {
+        "title": "“Bis zu zwei Drittel der Chemie-Industrie sind akut gefährdet” (Express)",
+        "id": 9378409
+      },
+      {
+        "title": "“Bis zu zwei Drittel der Chemie-Industrie sind akut gefährdet” ",
+        "id": 9378410
+      },
+      {
+        "title": "Reicht der Doppel-Wumms? (Express)",
+        "id": 9375884
+      },
+      {
+        "title": "Reicht der Doppel-Wumms?",
+        "id": 9375885
+      },
+      {
+        "title": "Wie senken Sie den Gas-Preis wieder, Christian Lindner?",
+        "id": 9348181
+      },
+      {
+        "title": "Wie senken Sie den Gas-Preis wieder, Christian Lindner? (Express)",
+        "id": 9348183
+      },
+      {
+        "title": "Pro und contra Schuldenbremse (Express)",
+        "id": 9345320
+      },
+      {
+        "title": "Habeck & Lindner: Eine innige Feindschaft (Express)",
+        "id": 9316023
+      },
+      {
+        "title": "„Wir müssen besser werden“ (Express)",
+        "id": 9292717
+      },
+      {
+        "title": "Opposition im Angriffsmodus (Express)",
+        "id": 9290042
+      },
+      {
+        "title": "Milliarden für Millionen (Express)",
+        "id": 9260824
+      },
+      {
+        "title": "“Es wird Wohlstandsverluste geben”",
+        "id": 9251076
+      },
+      {
+        "title": "\"Die Union ist Opfer ihrer eigenen Erfolgsgeschichte geworden\" - EXPRESS",
+        "id": 9238645
+      },
+      {
+        "title": "\"Nicht alle Probleme mit Steuergeld lösen\" (Express)",
+        "id": 9238646
+      },
+      {
+        "title": "Habecks Waterloo (Express)",
+        "id": 9236076
+      },
+      {
+        "title": "Habecks Waterloo",
+        "id": 9236075
+      },
+      {
+        "title": "Woche des Grauens für Olaf Scholz (Express)",
+        "id": 9197705
+      },
+      {
+        "title": "Olaf Scholz und seine Krisen (Express)",
+        "id": 9145515
+      },
+      {
+        "title": "Deutschland droht ein Corona-Flickenteppich (Express)",
+        "id": 9115755
+      },
+      {
+        "title": "Habeck & Baerbock: Zwei Grüne stellen die Konservativen ins Abseits (Express)",
+        "id": 9090542
+      },
+      {
+        "title": "„Ist die Rente sicher, Herr Prof. Feld?“ (Express)",
+        "id": 9060852
+      },
+      {
+        "title": "Streit um die Vermögensabgabe (Express)",
+        "id": 9058185
+      },
+      {
+        "title": "“Gibt es gute Schulden, Herr Professor Feld?” (Express)",
+        "id": 9030533
+      },
+      {
+        "title": "Klimaschutz? Ja, aber wie? (Express)",
+        "id": 9027970
+      },
+      {
+        "title": "“2023 droht ein weiterer Preisschock” (Express)",
+        "id": 9004386
+      },
+      {
+        "title": "“Die Mutter aller Reformen“ (Express)",
+        "id": 9000824
+      },
+      {
+        "title": "Angst vor der Gas-Triage",
+        "id": 8976880
+      },
+      {
+        "title": "Angst vor der Gas-Triage (Express)",
+        "id": 8976885
+      },
+      {
+        "title": "Die neue sozialdemokratische Außenpolitik (Express)",
+        "id": 8945623
+      },
+      {
+        "title": "Olaf Scholz in Kiew (Express)",
+        "id": 8920531
+      },
+      {
+        "title": "Die roten Rivalinnen (Express)",
+        "id": 8891287
+      },
+      {
+        "title": "Scholz sortiert die deutsche Außenpolitik um",
+        "id": 8827038
+      },
+      {
+        "title": "Was Scholz in Afrika erreichen will",
+        "id": 8815706
+      },
+      {
+        "title": "“Putin setzt darauf, dass wir zögern”",
+        "id": 8813267
+      },
+      {
+        "title": "“Wir waren blauäugig” (Express)",
+        "id": 8802557
+      },
+      {
+        "title": "Grüner Jubel, liberaler Katzenjammer (Express)",
+        "id": 8800217
+      },
+      {
+        "title": "Die Grünen jubeln, die FDP droht fast hinten runterzufallen",
+        "id": 8800221
+      },
+      {
+        "title": "“Putin war ein kleiner Ganove” (Express)",
+        "id": 8773722
+      },
+      {
+        "title": "Nordrhein-Westfalen vor der Landtagswahl (Express)",
+        "id": 8770630
+      },
+      {
+        "title": "Die schwierige Reise nach Kiew (Express)",
+        "id": 8744988
+      },
+      {
+        "title": "“Glasfaser für alle“ (Express)",
+        "id": 8720339
+      },
+      {
+        "title": "Die Zweifel an der Sinnhaftigkeit von Gepard-Lieferungen (Express)",
+        "id": 8717172
+      },
+      {
+        "title": "Die kritischen Kehrtwenden der FDP (Express)",
+        "id": 8686659
+      },
+      {
+        "title": "Schwere Woche für die Grünen (Express)",
+        "id": 8658650
+      },
+      {
+        "title": "Butscha: Das europäische Kriegsverbrechen (Express)",
+        "id": 8611022
+      },
+      {
+        "title": "Die Störfälle der Ampel (Express)",
+        "id": 8607374
+      },
+      {
+        "title": "\"Wir müssen intelligenter werden bei den Sanktionen\" (Express)",
+        "id": 8566915
+      },
+      {
+        "title": "Kriegs-Eskalation oder Entspannung? (Express)",
+        "id": 8566919
+      },
+      {
+        "title": "Entlastungs-Bazooka und Ukraine-Flüchtlinge (Express)",
+        "id": 8498394
+      },
+      {
+        "title": "Ampel zwischen Putins Krieg und Selenskyjs Rede (Express)",
+        "id": 8450649
+      },
+      {
+        "title": "“Putin hat uns belogen” (Express)",
+        "id": 8412230
+      },
+      {
+        "title": "Putins Krieg und Deutschlands Sorgen (Express)",
+        "id": 8381535
+      },
+      {
+        "title": "\"Es ist eine große Chance für die Stadt\" (Express)",
+        "id": 8381381
+      },
+      {
+        "title": "Zeitenwende erzwingt Kehrtwende (Express)",
+        "id": 8373253
+      },
+      {
+        "title": "“Putin will unseren Staat zerstören” (Express)",
+        "id": 8343119
+      },
+      {
+        "title": "Krieg gegen die Ukraine (Express)",
+        "id": 8337697
+      },
+      {
+        "title": "\"Was Putin macht, ist Propaganda\" (Express)",
+        "id": 8303857
+      },
+      {
+        "title": "Duell und Vertrauensbruch (Express)",
+        "id": 8267464
+      },
+      {
+        "title": "Olaf Scholz unter Druck (Express)",
+        "id": 8225899
+      },
+      {
+        "title": "Ampel außenpolitisch in Bedrängnis (Express)",
+        "id": 8182524
+      },
+      {
+        "title": "Die Impfpflicht-Debatte",
+        "id": 8143971
+      },
+      {
+        "title": "Zündstoff für die Ampel (Express)",
+        "id": 8102921
+      },
+      {
+        "title": "Zündstoff für die Ampel",
+        "id": 8102938
+      },
+      {
+        "title": "“Es wäre nicht klug”",
+        "id": 8100534
+      },
+      {
+        "title": "Verdammt zum Aufbruch",
+        "id": 8100535
+      },
+      {
+        "title": "Verdammt zum Aufbruch (Express)",
+        "id": 8058675
+      },
+      {
+        "title": "“Es wäre armselig, wenn wir versuchen einfach möglichst wenig aufzufallen”",
+        "id": 8100536
+      },
+      {
+        "title": "Von Niedergängen, Aufstiegen und Überraschungen (Express)",
+        "id": 8027165
+      },
+      {
+        "title": "Von Niedergängen, Aufstiegen und Überraschungen",
+        "id": 8100537
+      },
+      {
+        "title": "“Matthias hat uns gerettet”",
+        "id": 8100538
+      },
+      {
+        "title": "„Wir sind immer in Krisen“",
+        "id": 8100539
+      },
+      {
+        "title": "Rising Stars und Comebacks (Express)",
+        "id": 7997810
+      },
+      {
+        "title": "Rising Stars und Comebacks",
+        "id": 8100540
+      },
+      {
+        "title": "“Ich bin eben anders als andere”",
+        "id": 8100541
+      },
+      {
+        "title": "Die Scholz-Baerbock-Doktrin",
+        "id": 8100542
+      },
+      {
+        "title": "Die Scholz-Baerbock-Doktrin (Express)",
+        "id": 7947194
+      },
+      {
+        "title": "“Wir sehen eine auch von mir unterschätzte Radikalisierung im rechten Spektrum”",
+        "id": 8100543
+      },
+      {
+        "title": "“Wir sehen eine auch von mir unterschätzte Radikalisierung im rechten Spektrum” (Express)",
+        "id": 7938081
+      },
+      {
+        "title": "“Ich wusste, dass das kein Zuckerschlecken ist”",
+        "id": 8100544
+      },
+      {
+        "title": "\"Wir kommen aus zehn Jahren Paradies\"",
+        "id": 8100545
+      },
+      {
+        "title": "Die Ära Scholz beginnt",
+        "id": 8100546
+      },
+      {
+        "title": "Die Ära Scholz beginnt (Express)",
+        "id": 7904966
+      },
+      {
+        "title": "Jedes dritte Auto ist Elektro",
+        "id": 8100547
+      },
+      {
+        "title": "Das Kabinett der Fragezeichen",
+        "id": 8100548
+      },
+      {
+        "title": "Das Kabinett der Fragezeichen (Express)",
+        "id": 7870435
+      },
+      {
+        "title": "“Ich habe auch Fehler gemacht”",
+        "id": 8100549
+      },
+      {
+        "title": "Zwischen Pathos und Pragmatismus (Express)",
+        "id": 7841330
+      },
+      {
+        "title": "Zwischen Pathos und Pragmatismus",
+        "id": 8100550
+      },
+      {
+        "title": "„It was a tragedy to see the return of Taliban to Kabul“",
+        "id": 8100551
+      },
+      {
+        "title": "“Ich habe richtig Bock auf diese Erneuerung”",
+        "id": 8100552
+      },
+      {
+        "title": "Politik im Corona-Griff",
+        "id": 8100553
+      },
+      {
+        "title": "Politik im Corona-Griff (Express)",
+        "id": 7812316
+      },
+      {
+        "title": "Lackmustest für die Ampel",
+        "id": 8100554
+      },
+      {
+        "title": "Lackmustest für die Ampel (Express)",
+        "id": 7759382
+      },
+      {
+        "title": "Erneuerung und Auseinandersetzung (Express)",
+        "id": 7721322
+      },
+      {
+        "title": "Erneuerung und Auseinandersetzung",
+        "id": 8100555
+      },
+      {
+        "title": "Die Top-Themen der Koalitionsverhandlungen (Express)",
+        "id": 7679868
+      },
+      {
+        "title": "Die Top-Themen der Koalitionsverhandlungen",
+        "id": 8100556
+      },
+      {
+        "title": "Die Macht-Architektur (Express)",
+        "id": 7645974
+      },
+      {
+        "title": "Die Macht-Architektur",
+        "id": 8100557
+      },
+      {
+        "title": "Olaf Scholz auf dem Weg ins Kanzleramt (Express)",
+        "id": 7613215
+      },
+      {
+        "title": "Olaf Scholz auf dem Weg ins Kanzleramt",
+        "id": 8100558
+      },
+      {
+        "title": "Rückzug auf Raten - Kompakt",
+        "id": 8100559
+      },
+      {
+        "title": "Rückzug auf Raten",
+        "id": 8100560
+      },
+      {
+        "title": "“Man muss mit den Taliban arbeiten”",
+        "id": 8100561
+      },
+      {
+        "title": "“Wir wollen die Gewinner-Koalition” (Express)",
+        "id": 7546259
+      },
+      {
+        "title": "“Wir wollen die Gewinner-Koalition”",
+        "id": 8100562
+      },
+      {
+        "title": "“Ich genieße den Moment!” - Das letzte Interview von SPD-Kandidat Olaf Scholz vor der BTW",
+        "id": 8100563
+      },
+      {
+        "title": "“Wir brauchen ein aktives Außenministerium”",
+        "id": 8100564
+      },
+      {
+        "title": "Deutschland wenige Stunden vor der “Richtungswahl” (Express)",
+        "id": 7511392
+      },
+      {
+        "title": "Deutschland wenige Stunden vor der “Richtungswahl”",
+        "id": 7511373
+      },
+      {
+        "title": "“Olaf Scholz ist kein Stürmer” (Express)",
+        "id": 7480457
+      },
+      {
+        "title": "“Olaf Scholz ist kein Stürmer”",
+        "id": 8100565
+      },
+      {
+        "title": "Wohin steuert die FDP? (Express)",
+        "id": 7470633
+      },
+      {
+        "title": "Wohin steuert die FDP?",
+        "id": 7470634
+      },
+      {
+        "title": "\"Sie können selbst mit einem Abitur aus Nordrhein-Westfalen Bundeskanzler werden\"",
+        "id": 8100566
+      },
+      {
+        "title": "“Bei den Einbürgerungen ist viel Luft nach oben”",
+        "id": 8100567
+      },
+      {
+        "title": "Im Sog des Abstiegs (Express)",
+        "id": 7437397
+      },
+      {
+        "title": "Im Sog des Abstiegs",
+        "id": 8100568
+      },
+      {
+        "title": "“Es gibt natürlich eine Unternehmensethik”",
+        "id": 8100569
+      },
+      {
+        "title": "“Die Programmreform ist kein Kürzungsplan”",
+        "id": 8100570
+      },
+      {
+        "title": "Laschets Team und Scholz’ Kabinett (Express)",
+        "id": 7405747
+      },
+      {
+        "title": "Laschets Team und Scholz’ Kabinett",
+        "id": 8100571
+      },
+      {
+        "title": "\"Die NATO hat sich bis auf die Knochen blamiert\" - Ex-Außenminister Sigmar Gabriel über den gescheiterten Afghanistan-Einsatz und die Folgen für die deutsche Sicherheitspolitik",
+        "id": 8100572
+      },
+      {
+        "title": "“Eine große Schande” (Express)",
+        "id": 7373438
+      },
+      {
+        "title": "“Eine große Schande”",
+        "id": 8100573
+      },
+      {
+        "title": "“Mein Herz blutet”",
+        "id": 8100574
+      },
+      {
+        "title": "\"Habe mich wie auf Entzug gefühlt\"",
+        "id": 8100575
+      },
+      {
+        "title": "Die Konsequenzen des Afghanistan-Debakels für die deutsche Politik",
+        "id": 8100576
+      },
+      {
+        "title": "Die Konsequenzen des Afghanistan-Debakels für die deutsche Politik (Express)",
+        "id": 7338796
+      },
+      {
+        "title": "\"Kein Lockdown mehr für Geimpfte\"",
+        "id": 8100577
+      },
+      {
+        "title": "“Es kommen immer mehr junge Menschen ins Krankenhaus”",
+        "id": 8100578
+      },
+      {
+        "title": "“Es ist ein ganz bitterer Moment”",
+        "id": 8100579
+      },
+      {
+        "title": "Sozial-liberale Höhenflüge (Express)",
+        "id": 7306251
+      },
+      {
+        "title": "Sozial-liberale Höhenflüge",
+        "id": 8100580
+      },
+      {
+        "title": "Stadt gegen Provinz - Das ist die neue soziale Frage! ",
+        "id": 8100581
+      },
+      {
+        "title": "Die Stolperfallen des Armin Laschet (Express)",
+        "id": 7271670
+      },
+      {
+        "title": "Die Stolperfallen des Armin Laschet",
+        "id": 8100582
+      },
+      {
+        "title": "“Und da war klar: Ich kann nicht mehr!\"",
+        "id": 8100583
+      },
+      {
+        "title": "Die Legislaturperiode der Abschiede (Express)",
+        "id": 7245128
+      },
+      {
+        "title": "Die Legislaturperiode der Abschiede: Was bleibt von Angela Merkel und wer folgt ihr?",
+        "id": 8100584
+      },
+      {
+        "title": "Grüne im Kampagnenloch",
+        "id": 8100585
+      },
+      {
+        "title": "Grüne im Kampagnenloch (Express)",
+        "id": 7212856
+      },
+      {
+        "title": "„Merkel hat Europa sehr gut getan\"",
+        "id": 8100586
+      },
+      {
+        "title": "Die Flut verändert alles",
+        "id": 8100587
+      },
+      {
+        "title": "Die Flut verändert alles (Express)",
+        "id": 7173220
+      },
+      {
+        "title": "“Durchseuchung der Schulen ist falsche Strategie” ",
+        "id": 8100588
+      },
+      {
+        "title": "“Durchseuchung der Schulen ist falsche Strategie” (Express)",
+        "id": 7141379
+      },
+      {
+        "title": "Im Schlafwagen zum Wahlsieg (Express)",
+        "id": 7137755
+      },
+      {
+        "title": "Im Schlafwagen zum Wahlsieg",
+        "id": 8100496
+      },
+      {
+        "title": "“Es wird einen Unterschied zwischen Geimpften und Nicht-Geimpften geben”",
+        "id": 8100497
+      },
+      {
+        "title": "“Ohne Toleranz keine Demokratie” (Express)",
+        "id": 7106614
+      },
+      {
+        "title": "“Ohne Toleranz keine Demokratie”",
+        "id": 8100498
+      },
+      {
+        "title": "Das schwarz-grüne Kabinett ",
+        "id": 8100499
+      },
+      {
+        "title": "Das schwarz-grüne Kabinett (Express)",
+        "id": 7103479
+      },
+      {
+        "title": "Abschied von der ewigen Kanzlerin",
+        "id": 7068609
+      },
+      {
+        "title": "Abschied von der ewigen Kanzlerin (Express)",
+        "id": 7068610
+      },
+      {
+        "title": "Das Staats-Theater (Express)",
+        "id": 7033664
+      },
+      {
+        "title": "Das Staats-Theater",
+        "id": 8100500
+      },
+      {
+        "title": "Was von der GroKo bleibt (Express)",
+        "id": 7000105
+      },
+      {
+        "title": "Was von der GroKo bleibt",
+        "id": 8100501
+      },
+      {
+        "title": "„Wir brauchen eine Staatsreform“ (Express)",
+        "id": 6969089
+      },
+      {
+        "title": "\"Wir brauchen eine Staatsreform“",
+        "id": 8100502
+      },
+      {
+        "title": "Das Ende des Grünen-Hypes (Express)",
+        "id": 6965062
+      },
+      {
+        "title": "Das Ende des Grünen-Hypes",
+        "id": 8100503
+      },
+      {
+        "title": "“Schwerster Wahlkampf, den wir jemals hatten”",
+        "id": 8100504
+      },
+      {
+        "title": "“Schwerster Wahlkampf, den wir jemals hatten” (Express)",
+        "id": 6930847
+      },
+      {
+        "title": "Wettbewerbsfähigkeit Europas stärken (Express)",
+        "id": 6894233
+      },
+      {
+        "title": "Wettbewerbsfähigkeit Europas stärken",
+        "id": 8100505
+      },
+      {
+        "title": "\"Kohle wird täglich gebraucht\" (Express)",
+        "id": 6882900
+      },
+      {
+        "title": "\"Kohle wird täglich gebraucht\"",
+        "id": 8100506
+      },
+      {
+        "title": "Der lange Weg zur Bundeswehrreform (Express)",
+        "id": 6881674
+      },
+      {
+        "title": "Der lange Weg zur Bundeswehrreform",
+        "id": 8100507
+      },
+      {
+        "title": "Der liberale Aufschwung (Express)",
+        "id": 6848352
+      },
+      {
+        "title": "Der liberale Aufschwung",
+        "id": 8100508
+      },
+      {
+        "title": "Die FDP im Aufwind",
+        "id": 8100509
+      },
+      {
+        "title": "Die FDP im Aufwind (Express)",
+        "id": 6842898
+      },
+      {
+        "title": "Der Friedensgipfel",
+        "id": 6814983
+      },
+      {
+        "title": "Der einsame Kampf des Olaf Scholz (Express)",
+        "id": 6813814
+      },
+      {
+        "title": "Der einsame Kampf des Olaf Scholz",
+        "id": 6813815
+      },
+      {
+        "title": "Annalena im Wunderland (Express)",
+        "id": 6777540
+      },
+      {
+        "title": "Annalena im Wunderland",
+        "id": 8100510
+      },
+      {
+        "title": "Kanzlerkandidat der Schmerzen (Express)",
+        "id": 6743311
+      },
+      {
+        "title": "Kanzlerkandidat der Schmerzen",
+        "id": 8100511
+      },
+      {
+        "title": "Wer wird Kanzlerkandidat? (Express)",
+        "id": 6700552
+      },
+      {
+        "title": "Wer wird Kanzlerkandidat?",
+        "id": 8100512
+      },
+      {
+        "title": "Die zerstörerische K-Frage (Express)",
+        "id": 6672947
+      },
+      {
+        "title": "Die zerstörerische K-Frage",
+        "id": 8100513
+      },
+      {
+        "title": "Die drei Probleme des KSK",
+        "id": 8100514
+      },
+      {
+        "title": "Die drei Probleme des KSK (Express)",
+        "id": 6639849
+      },
+      {
+        "title": "„Hoffnung auf Normalität”",
+        "id": 8100515
+      },
+      {
+        "title": "„Natürlich sind Fehler passiert“",
+        "id": 8100516
+      },
+      {
+        "title": "Die Kanzlerinnendämmerung (Express)",
+        "id": 6602084
+      },
+      {
+        "title": "Die Kanzlerinnendämmerung",
+        "id": 8100517
+      },
+      {
+        "title": "„Die Menschen brennen auf Kino und Theater“ (Express)",
+        "id": 6560145
+      },
+      {
+        "title": "„Die Menschen brennen auf Kino und Theater“",
+        "id": 8100518
+      },
+      {
+        "title": "Ampel im Bund - Vision oder Utopie?",
+        "id": 8100519
+      },
+      {
+        "title": "Ampel im Bund - Vision oder Utopie? (Express)",
+        "id": 6550974
+      },
+      {
+        "title": "Union in der Krise (Express)",
+        "id": 6506894
+      },
+      {
+        "title": "Union in der Krise",
+        "id": 8100520
+      },
+      {
+        "title": "Das Corona-Versagen",
+        "id": 8100521
+      },
+      {
+        "title": "Das Corona-Versagen (Express)",
+        "id": 6467532
+      },
+      {
+        "title": "\"Wir würden Leben retten, wenn wir die Impfstrategie ändern\" (Express)",
+        "id": 6435974
+      },
+      {
+        "title": "\"Wir würden Leben retten, wenn wir die Impfstrategie ändern\"",
+        "id": 8100522
+      },
+      {
+        "title": "Höhenflug oder Abstiegskampf",
+        "id": 8100523
+      },
+      {
+        "title": "Höhenflug oder Abstiegskampf (Express)",
+        "id": 6430939
+      },
+      {
+        "title": "Der transatlantische Graben",
+        "id": 8100524
+      },
+      {
+        "title": "Der transatlantische Graben (Express)",
+        "id": 6393281
+      },
+      {
+        "title": "Der grüne Weg zur Macht (Express)",
+        "id": 6356751
+      },
+      {
+        "title": "Der grüne Weg zur Macht",
+        "id": 8100525
+      },
+      {
+        "title": "Schicksalsgemeinschaft mit bewegter Geschichte: Die Schwesterparteien CDU und CSU",
+        "id": 8100526
+      },
+      {
+        "title": "Schicksalsgemeinschaft mit bewegter Geschichte: Die Schwesterparteien CDU und CSU",
+        "id": 8100527
+      },
+      {
+        "title": "Schicksalsgemeinschaft mit bewegter Geschichte: Die Schwesterparteien CDU und CSU (Express)",
+        "id": 6316527
+      },
+      {
+        "title": "Hinter den Kulissen: Seilziehen um Lockerungen und Öffnungen",
+        "id": 8100528
+      },
+      {
+        "title": "Hinter den Kulissen: Seilziehen um Lockerungen und Öffnungen (Express)",
+        "id": 6279172
+      },
+      {
+        "title": "Startschuss zum Wahlkampf",
+        "id": 8100529
+      },
+      {
+        "title": "Startschuss zum Wahlkampf (Express)",
+        "id": 6234849
+      },
+      {
+        "title": "Armin Laschet: Merkels Erbe",
+        "id": 6220095
+      },
+      {
+        "title": "Trailer Hauptstadt - Der Podcast",
+        "id": 6220107
+      }
+    ],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "Kaffee und Krisen - Soziale Arbeit ungefiltert ",
+    "Hosts des Podcasts": "Anna Saamen, Markus Herzog",
+    "Handlungsfeld": "Praxisalltag",
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": 7.0,
+    "Sprache ": "deutsch ",
+    "Webseite": "https://www.podcast.de/podcast/3629149/kaffee-und-krisen-soziale-arbeit-aber-ungefiltert",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": null,
+    "episode_count": 0,
+    "episodes_downloaded": 0,
+    "error": "No podcast found on fyyd",
+    "failed_ep": [],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "Klischeebruch - Realtalk zur Sozialen Arbeit ",
+    "Hosts des Podcasts": "Henning, Aileen",
+    "Handlungsfeld": "Handlungsfelder",
+    "Durchschnittliche Dauer einer Folge": 36.0,
+    "Anzahl der Folgen ": 6.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://www.youtube.com/@klischeebruch_podcast/featured",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": null,
+    "episode_count": 0,
+    "episodes_downloaded": 0,
+    "error": "No podcast found on fyyd",
+    "failed_ep": [],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "RELEFANT - Aktuelles für die Soziale Arbeit",
+    "Hosts des Podcasts": "verschiedene Hosts",
+    "Handlungsfeld": "aktuelles, politische Diskurse und Soziale Arbeit ",
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": 38.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://www.podcast.de/podcast/3369159/relefant-aktuelles-fuer-die-soziale-arbeit",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": null,
+    "episode_count": 0,
+    "episodes_downloaded": 0,
+    "error": "No podcast found on fyyd",
+    "failed_ep": [],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "sozial ",
+    "Hosts des Podcasts": "Regula Freuler, Tim Tausendfreund",
+    "Handlungsfeld": "Aufgaben Sozialer Arbeit ",
+    "Durchschnittliche Dauer einer Folge": 21.0,
+    "Anzahl der Folgen ": 28.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://sozial.podigee.io/",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": true,
+    "podcast_id": 72202,
+    "episode_count": 318,
+    "episodes_downloaded": 292,
+    "error": null,
+    "failed_ep": [
+      {
+        "title": "PSD 317 GEFÄHRLICHE RATGEBER - warum durch die &quot;kausale Falle&quot; Erfolgsratgeber in der Praxis scheitern, wenn sie komplexe Systeme trivialisieren, wie fünf Schritte vom Beobachten zum Irrtum führen können - und was man dagegen tun kann.",
+        "id": 14736088
+      },
+      {
+        "title": "INFORMATIONSVERARBEITUNG - mal systemisch gedacht. Eine versöhnliche Idee zur Kritik am Konstruktivismus und die Beantwortung der Frage, ob es wirklich keine Wahrheit gibt.",
+        "id": 8364621
+      },
+      {
+        "title": "LEERE GESPRÄCHE - ein Psychiater im Interview brachte mich auf diese spannende Idee. Er sagte seine Patientengespräche sind &quot;leer&quot; und werden erst in der Praxis &quot;gefüllt&quot;, durch die Kommunikation. Die Füllung kommt im Verlauf.",
+        "id": 7383356
+      },
+      {
+        "title": "PARADOXIEN  &quot;Sei spontan!&quot; ist ein Beispiel, das Paul Watzlawick als paradox bezeichnet. Was sind eigentlich Paradoxien, wo kommen sie vor, wer macht sie und vor allem - wie können sie gelöst werden. Auch Niklas Luhmann hat dazu spannende I..",
+        "id": 7349134
+      },
+      {
+        "title": "Strukturen schaffen Nachhaltigkeit. Strukturen haben eine große Bedeutung für Unternehmen und Organisationen. Strukturen entstehen durch anschlußfähige Kommunikation. Durch Beobachten von Strukturen ergeben sich Optionen für sinnvolle Interventionen",
+        "id": 7315912
+      },
+      {
+        "title": "Ideen wirkungsvoll umsetzen in drei Schritten. Erfahren Sie, wie ein Unternehmen aus einer initialen Idee &quot;nur&quot; aus anschlußfähiger Kommunikation entsteht. Ich habe dazu drei Stufen unterschieden: Vertrauen, Kommunikation und Strukturen.",
+        "id": 7253539
+      },
+      {
+        "title": "Achtung Vorbilder! Unternehmen wie Apple, Tesla, Spotify, ... und Menschen wie Jobs, Gates, Zuckerberg, Musk, .... Vorbilder gibt es viele. Sie kommen als Buch, als Film, als Video, als Blog- viele Vorbilder können wir nutzen, um uns (neu) zu orienti...",
+        "id": 7149545
+      },
+      {
+        "title": "Dimensionen von Sinn: systemisch und moralisch. Ich zeige in der Episode den Unterschied und die Gemeinsamkeiten. Systemisch nach Luhmann ist Sinn Form und Medium, aber was bedeutet das konkret? Moralisch ist Sinn die Wertung von richtig und falsch.",
+        "id": 7081175
+      },
+      {
+        "title": "Die Kommunikationstoolbox - basierend auf konstruktivistischen Gedanken von Ernst von Glasersfeld. Beobachten, Erkenntnis und Lernen sind zunächst passiv. Erfahren Sie in der Episode die Herleitung vom passiven Beobachter und aktiven &quot;Handler&qu...",
+        "id": 6976907
+      },
+      {
+        "title": "&quot;Sei authentisch!&quot;, aber ist Authentizität tatsächlich immer gut? Was heißt es eigentlich authentisch zu sein? Immer so zu handeln wie mal selbst will? Ohne Rücksicht auf die Anderen? Geht das in &quot;sozialen Systemen&quot; überhaupt?",
+        "id": 6682058
+      },
+      {
+        "title": "Motivation und ihre Nebenwirkungen- systemische Schleifen zeigen ungewollte Effekte durch die Motivation von Dritten auf. Lernen Sie, warum sich der Motivierende über den zu Motivierenden &quot;erhebt&quot; und dadurch &quot;geschicktes Verhalten&quo...",
+        "id": 6614502
+      },
+      {
+        "title": "So schaffen Sie mehr Gestaltungsspielraum für sich und für Dritte! Externalisierung = Ohnmacht, Internalisierung = Macht?! In dieser Episode möchte ich mich mit Ex- und Internalisierung bei Einzelnen, aber auch in  sozialen Systemen beschäftigen.",
+        "id": 6572566
+      },
+      {
+        "title": "Zeitreise mit Luhmann (IV) - Spannende Zeitperspektiven in Verbindung mit  Umweltschutz oder die Bedeutung der Unterscheidung von Zeitdimensionen. Erfahren Sie, warum das &quot;große Thema&quot; auch im Kleinen nützlich ist. Lernen Sie die Wirkmechan..",
+        "id": 6406059
+      },
+      {
+        "title": "Zeitreise mit Luhmann (III) und die Auswirkung auf Changes. Erfahren Sie, was bei der Initiierung, Umsetzung und für die Nachhaltigkeit von Veränderungen zu beachten ist. Lernen Sie zeittheoretisch, warum nur in der Gegenwart gehandelt werden kann.",
+        "id": 6368861
+      },
+      {
+        "title": "Zeitreise mit Luhmann (II) Beobachtungen im Fluss der Zeit. Lernen Sie unterschiedliche Veränderungsdynamiken und Geschwindigkeiten im Fluss der Zeit kennen. Erfahren Sie wertvolles zur besonderen Rolle des Beobachters und was es bedeutet, zu beobach...",
+        "id": 6332056
+      },
+      {
+        "title": "Luhmann´s Sinndimensionen: die Sachdimension, die Zeitdimension und die Soziale Dimension - im Dreiklang, um den Sinn zu finden.... Im Podcast zeige ich die Doppelhorizonte der drei Dimensionen auf. Es gegeben sich sechs Felder einer Sinnbewertung.",
+        "id": 6253468
+      },
+      {
+        "title": "Silodenken!? &quot;Silos&quot; gibt es nicht nur in Organisationen, wir können sie überall beobachten: in der Firma, in der Gesellschaft, im Verein und sogar in der Familie. Silos entstehen dann, wenn die Kommunikation gestört ist oder nicht mehr erf.",
+        "id": 6104289
+      },
+      {
+        "title": "&quot;Gutes Denken&quot; basiert auf guten Analysen. Erfahren Sie die schrittweise Systematik der Analyse mit ihren drei Stufen. Lernen Sie, wie man innere &quot;Landkarten&quot; bildet, um sich selbst und als System besser &quot;orientieren&quot; zu...",
+        "id": 5823226
+      },
+      {
+        "title": "&quot;Fachleute&quot; können schnell an Führung scheitern, denn Führung ist mehr als Aufgaben verteilen und kontrollieren. Führung ist eine eigene &quot;Wissenschaft&quot; (die Lehre von &quot;Sozialen Systemen&quot;). Führung kann mit verschiedenen",
+        "id": 5823223
+      },
+      {
+        "title": "&quot;Der Prophet im eigenen Land zählt nicht viel!&quot; - den Spruch kennen Sie bestimmt. Im Podcast zeige ich Ihnen, warum er auch stimmt. Auf Basis der Theorie des systemischen Beobachters wird deutlich, wo die Grenzen des &quot;internen Beobacht...",
+        "id": 5823220
+      },
+      {
+        "title": "&quot;Triviale Maschinen&quot; oder warum Systeme &quot;Nichttriviale Maschinen&quot; sind. Erfahren Sie mehr zur Idee von Heinz von Foerster. Erfahren Sie von unserer erlernten und kulturell bedingten Neigung zu &quot;trivialisieren&quot; und was wi...",
+        "id": 5823219
+      },
+      {
+        "title": "Beobachter beim Beobachten beobachten - das ist ein mächtiges und aufschlußreiches &quot;Tool&quot; für Ihre Beobachtungs- und Kommunikationskompetenz. Erfahren Sie im Podcast mehr über die die Beobachtung 2. Ordnung, die Luhmann beschrieben hat.",
+        "id": 5823214
+      },
+      {
+        "title": "Beobachtung, Beobachter, blinde Flecken und das Beobachtungssystem. Es geht es um die Luhmann´s Theorie zur Beobachtung. Es geht um den Operanten, die Beobachtung und das Subjekt, den Beobachter und geht um die Frage, wer eigentlich ein Beobachter is...",
+        "id": 5823212
+      },
+      {
+        "title": "Kann Intelligenz &quot;künstlich&quot; sein, gibt es eine künstliche Intelligenz (KI)? Haben Sie Angst vor KI oder freuen Sie sich auf die neuen Möglichkeiten? Im Podcast zeige ich die Grundidee der KI, aber vor allem, wie in Systemen &quot;Intellige.",
+        "id": 5823208
+      },
+      {
+        "title": "Mit dem Tetralemma, lösen Sie Dilemmas auf! Die Wahl zwischen zwei Optionen kann eine Qual sein. Das Tretralemma hilft das Problem zu lösen, in dem mehr Optionen erarbeitet werden. Lernen Sie die Methode von Matthias Varga von Kibéd und I. Sparrer ke.",
+        "id": 5823207
+      },
+      {
+        "title": "Luhmann (Teil 9) Was ist &quot;Gegenwart&quot;? Wie lange dauert das &quot;Jetzt&quot;? Hören Sie Luhmanns Gedanken dazu. Erfahren Sie eine daraus abgeleitete tolle Methode für Ihre eigene Nutzung, aber auch für die Anwendung in verschiedenen Situati.",
+        "id": 5823203
+      }
+    ],
+    "downloaded": [
+      {
+        "title": "PSD 316 ICH LIEBE DICH – wie private Bekenntnisse und berufliche Versprechen denselben Mustern folgen, warum Aufklärung und Nachfrage mal gut und mal schlecht sein kann und wie man das eine vom anderen unterscheidet.",
+        "id": 14707119
+      },
+      {
+        "title": "PSD 315 SINGULARITÄT – warum Organisationen, Unternehmen, Märkte und Führungssysteme auf &quot;geglätteten Illusionen&quot; beruhen und was passiert, wenn wir beginnen, das Ungeglättete zu sehen.",
+        "id": 14657340
+      },
+      {
+        "title": "PSD 314 ERFOLGREICH KOMMUNIZIEREN – wie Anschlussfähigkeit, Multiplikatoren und Wiederholung aus bloßen Worten wirksame Interventionen in sozialen Systemen machen.",
+        "id": 14624884
+      },
+      {
+        "title": "PSD 313 TOXISCHEN KOLLEGEN KONSTRUIEREN – wie psychische und soziale Dynamiken aus nervigen Verhaltensweisen ein Teamproblem machen und welche sechs Schritte zur Deeskalation führen.",
+        "id": 14583557
+      },
+      {
+        "title": "PSD 312 VOM GRÜNEN GRAS BEIM NACHBARN – warum Start-Up`s die Stabilität der Tanker beneiden und Konzerne von der Flexibilität der Schnellboote träumen – beide nie alles haben können und wie es trotzdem besser geht.",
+        "id": 14544342
+      },
+      {
+        "title": "PSD 311 FUNKTIONALE ANALYSE VERSTEHEN – verstehe die fünf Prinzipien der funktionalen Analyse und lerne ein 3-Schritt-Modell, mit dem du Business-Phänomene systematisch und systemisch analysierst, Ursachen trennst und Nebenfolgen minimierst.",
+        "id": 14516697
+      },
+      {
+        "title": "PSD 310 ANALYSEWERKZEUGE – warum NIKLAS LUHMANN die funktionale Analyse nutzt und warum sieben weitere Methoden (kausal, teleologisch, historisch, strukturell, hermeneutisch, kritisch, kybernetisch) dein Organisations-Denken schärfen.",
+        "id": 14485234
+      },
+      {
+        "title": "PSD 309 ILLUSION FÜHRUNGSPERSÖNLICHKEIT – Warum Systeme meist stärker sind als die Personen der Trainer, Manager oder charismatischen Einzelnen, und weshalb Ausnahmen wie Mandela, King oder Thunberg doch ganze Gesellschaften bewegen können.",
+        "id": 14442925
+      },
+      {
+        "title": "PSD 308 NEBEL ÜBER DEM SYSTEM – warum wir uns oft auf schwierige Führungskräfte fixieren, dabei Strukturen und Regeln übersehen und wie die Frage nach der Ausnahme neue Perspektiven eröffnet.",
+        "id": 14413110
+      },
+      {
+        "title": "PSD 307 UNKLARE WISSENSCHAFT? – drei Forschende, drei Wahrheiten, null Gewissheit. Gedanken von Heinz von Förster, Humberto Maturana und Niklas Luhmann können den Widerspruch auflösen.",
+        "id": 14385715
+      },
+      {
+        "title": "PSD 306 KONSTELLATIONEN VERSTEHEN – Wie ein Ei, eine Feder und ein Hammer dir helfen, systemische Dynamiken zu erkennen, Blockaden zu lösen und dein schöpferisches Potenzial freizusetzen. Mein systemisches Gespräch mit Alfred Bast (Teil III).",
+        "id": 14351665
+      },
+      {
+        "title": "PSD 305 DU BIST NICHT DAS PROBLEM – Probleme liegen oft in den Konstellation, in denen du denkst, fühlst und handelst. Zeit, den Rahmen zu sehen, nicht nur den Inhalt. Mein systemisches Gespräch mit Alfred Bast (Teil II).",
+        "id": 14319295
+      },
+      {
+        "title": "PSD 304 ZWISCHENMENSCHLICHES – Du siehst die Menschen. Was du nicht siehst, wirkt aber stärker als das, was du beobachtest. Mein systemisches Gespräch mit Alfred Bast (Teil I)",
+        "id": 14291921
+      },
+      {
+        "title": "PSD 303 KLEINE SCHRITTE, GROSSE WIRKUNG – wie du mit systemischem Denken und Handeln nachhaltige Veränderungen gestaltest – ohne Reformstau und Widerstände (Change III)",
+        "id": 14261147
+      },
+      {
+        "title": "PSD 302 GERECHTIGKEIT ZÄHLT - warum echte Veränderung Transparenz, Regeln und Beteiligung braucht – und was du vom Gerichtssaal für deinen Alltag lernen kannst (Change II)",
+        "id": 14228560
+      },
+      {
+        "title": "PSD 301 VERÄNDERUNG VERSTEHEN – warum lineare Changemodelle (z.B. von J.P. Kotter oder Kübler - Ross) an ihre Grenzen stoßen und was du über echte systemische Veränderungsprozesse wissen solltest (Change I)",
+        "id": 14189131
+      },
+      {
+        "title": "PSD 300 NEUGIER ENTZÜNDEN – wie aus einem Gedanken im Kopf ein Podcast wurde, der seit 300 Folgen Herzen und Systeme bewegt und was das mit 516,667 zu tun hat",
+        "id": 14159023
+      },
+      {
+        "title": "PSD 299 EIGENTUM VERSTEHEN – warum du auch ohne Besitz Teil des Spiels bist und wie Luhmanns systemisches Denken den Blick auf Wirtschaft, Gesellschaft und Zugehörigkeit verändert",
+        "id": 14135217
+      },
+      {
+        "title": "PSD 298 KNAPPHEIT VERSTEHEN – wie Luhmanns systemische Sicht auf einen alltäglichen Begriff dein Denken erweitert und dir neue Gelassenheit im Umgang mit Mangel schenkt",
+        "id": 14110148
+      },
+      {
+        "title": "PSD 297 ZEITGEWINN DURCH MACHT - wie du mit Luhmanns Gedanken zur Macht  klüger führst und Zeit sparst – ohne die das Vertrauen zu verlieren (Macht III)",
+        "id": 14080559
+      },
+      {
+        "title": "PSD 296 MACHT NEU VERSTEHEN - entdecke, wie Macht Verständigung erleichtert – und warum sie als Kommunikationsmedium mehr verbindet, als sie trennt. (Macht II)",
+        "id": 14047498
+      },
+      {
+        "title": "PSD 295 ZEMENTIERTE MACHT - wie Systeme Macht ausüben – auch wenn die Mächtigen längst gegangen sind. (Macht I)",
+        "id": 14016334
+      },
+      {
+        "title": "PSD 294 HEURISTIKEN LANGSAM DENKEN – wie du unbewusste Denkmuster (in dir und in deinen Teams) erkennst, reflektierst und zu besseren Entscheidungen kommst.",
+        "id": 13989574
+      },
+      {
+        "title": "PSD 293 WORTE SIND WELTEN - was Goethes Faust, der Konstruktivismus und dein nächstes Meeting gemeinsam haben",
+        "id": 13948442
+      },
+      {
+        "title": "PSD 292 FÜHRUNG NEU DENKEN - Was Menschen wirklich zum Folgen bewegt – und wie ein einfaches Spiel systemisch zeigt, was im Führungsalltag zählt.",
+        "id": 13921154
+      },
+      {
+        "title": "PSD 291 SPIEL MIT MIR! - wie du mit spielerischen Methoden komplexe Themen leichter vermittelst – und damit echtes Lernen ermöglichst.",
+        "id": 13894035
+      },
+      {
+        "title": "PSD 290 DENKFALLEN ERKENNEN – warum wir die Welt nicht so sehen, wie sie ist, sondern wie wir sie uns konstruieren, und warum es wichtig ist, diese inneren Bilder zu hinterfragen",
+        "id": 13863415
+      },
+      {
+        "title": "PSD 289 BLINDSTELLEN - wie die unsichtbare Welt Unternehmen zu Fall bringen kann und was die Welt-Umwelt-Differenz nach Niklas Luhmann damit zu tun hat.",
+        "id": 13833275
+      },
+      {
+        "title": "PSD 288 KÜNSTLICHE INTELLIGENZ– nur eine smarte Bibliothek oder doch echte Intelligenz? Mein systemischer Blick auf fünf Jahre Entwicklung",
+        "id": 13802195
+      },
+      {
+        "title": "PSD 287 GESICHTSVERLUST VERMEIDEN - wie dir systemische Umwelten und ein kleiner Trick dabei helfen Gesichtsverlust bei dir und bei anderen zu vermeiden.",
+        "id": 13773289
+      },
+      {
+        "title": "PSD 286 MATRIX?! - Leben wir in unserer eigenen Programmierung oder wie wirklich ist unsere Wirklichkeit - eine Reise von Kant bis zum Küchenstuhl.",
+        "id": 13745265
+      },
+      {
+        "title": "PSD 285 ZERRBILDER - du siehst die Welt verzerrt - aber das Wissen darüber hilft entspannter durchs Leben zu gehen.",
+        "id": 13719464
+      },
+      {
+        "title": "PSD 284 PERSONAL - Niklas Luhmann zeigt mit der dritten &quot;entscheidbaren Entscheidungsprämisse&quot; was in Organisationen zum Personal entschieden werden kann.",
+        "id": 13685293
+      },
+      {
+        "title": "PSD 283 PROGRAMME - Niklas Luhmann bezeichnet sie als entscheidbare Entscheidungsprämissen. Wie funktionieren sie?",
+        "id": 13653922
+      },
+      {
+        "title": "PSD 282 KOMMUNIKATIONSWEGE - Niklas Luhmann bezeichnet sie als entscheidbare Entscheidungsrämisse. Sie sind ein mächtiges strategisches, aber auch operatives Werkzeug der Führung.",
+        "id": 13625871
+      },
+      {
+        "title": "PSD 281 SYSTEMARBEIT - Verantwortliche und Führungskräfte sollten mehr AN statt IN der Organisation arbeiten, so eine weit verbreitete Idee. Ist das so?",
+        "id": 13574106
+      },
+      {
+        "title": "PSD 280 VERTRAUEN - heute geht es um das Vertrauen in soziale Systeme, welches unser Leben erleichtert, aber a",
+        "id": 13541173
+      },
+      {
+        "title": "PSD 279 HIERARCHIE ODER NICHT? - was ist die richtige Entscheidung - oder gibt es eine perfekte Mischung?",
+        "id": 13511264
+      },
+      {
+        "title": "PSD 278 HOCHLEISTUNGSTEAMS, die Mischung machts! - Was ist besser, eine fixe oder eine flexible Zuordnung des Personals?",
+        "id": 13478290
+      },
+      {
+        "title": "PSD 277 WENIGER STRESS MIT SYSTEMISCHER FÜHRUNG - erkenne und nutze systemische Werkzeuge in der Führung",
+        "id": 13448571
+      },
+      {
+        "title": "PSD 276 NUTZE VERSCHWÖRUNGSTHEORIEN! - um an deinem Unglück zu arbeiten. Zitate und Ideen aus Paul Watzlawicks &quot;Anleitung zum Unglücklicksein&quot; (Teil II)",
+        "id": 13418786
+      },
+      {
+        "title": "PSD 275 MACHE MEHR DESSELBEN! - auch wenn es zuvor schon so nicht klappte. Zitate und Ideen aus Paul Watzlawicks &quot;Anleitung zum Unglücklicksein&quot; (Teil I)",
+        "id": 13390187
+      },
+      {
+        "title": "PSD 274 STATUSSYMBOLE - die persönliche Wahrnehmung und die Falle, die darin lauert. Über die Bedeutung von Statussymbolen im Business.",
+        "id": 13362697
+      },
+      {
+        "title": "PSD 273 BEOBACHTER ZWEITER ORDNUNG - wir beobachten fast nichts aus &quot;erster Hand&quot;. Unser erlerntes Wissen ist fast immer &quot;Second Hand&quot;",
+        "id": 13333534
+      },
+      {
+        "title": "PSD 272 KÖNNEN WIR WAHRHEIT BEOBACHTEN? - über die Limitierungen unserer aller Beobachtungskompetenz und der verborgene Reiz subjektiver Wahrheiten",
+        "id": 13305753
+      },
+      {
+        "title": "PSD 271 MEINE REISE - oder wie ich zum Systemischen kam. Zwei Episoden mit typischen Probleme und zwei Lösungen, die für mich neu waren...",
+        "id": 13279741
+      },
+      {
+        "title": "PSD 270 SINNDIMENSIONEN - eine SINNvolle Checkliste für dein Denken und die Moderation von Diskussionen. Nutze die Systemtheorie für deine praktische Arbeit.",
+        "id": 13255496
+      },
+      {
+        "title": "PSD 269 ERWARTUNGSERWARTUNGEN - wie sie Systeme stabilisieren und trotzdem für Enttäuschungen sorgen können.",
+        "id": 13236072
+      },
+      {
+        "title": "PSD 268 GELINGENDE BERATUNG - und die Aufklärung eines Missverständnisses in der Abgrenzung von Beratung und Coaching.",
+        "id": 13204717
+      },
+      {
+        "title": "PSD 267 ERREICHE DEINE ZIELE LEICHTER UND WOOP DEIN LEBEN - nutze eine wissenschaftliche Methode zur Zielerreichnung für dein Team - und für dich!",
+        "id": 13172062
+      },
+      {
+        "title": "PSD 266 LANDKARTEN DIE IN DIE IRRE FÜHREN - erkenne und löse Konflikte, die durch verschiedene &quot;Landkarten&quot; entstehen.",
+        "id": 13136878
+      },
+      {
+        "title": "PSD 265 ANPASSUNG? DAS KÖNNEN WIR NICHT! LERNEN KÖNNEN WIR. Diese Erkenntnis stellt unser gewohntes Weltbild auf den Kopf. Mit einem Kopfstand ist aber alles wieder korrekt.  (Niklas Luhmann,  Organisation und Entscheidung, Teil IV)",
+        "id": 13103736
+      },
+      {
+        "title": "PSD 264 FLASCHENGEISTER - und was wir von ihnen über geschlossene Systeme lernen können. (Niklas Luhmann,  Organisation und Entscheidung, Teil III)",
+        "id": 13073783
+      },
+      {
+        "title": "PSD 263 KLATSCH UND TRATSCH - faszinierend und gehasst. Selbst Luhmann hat sich dem Thema angenommen und eine klare Einordnung des Themas vorzuschlagen. (Niklas Luhmann,  Organisation und Entscheidung, Teil II)",
+        "id": 13039989
+      },
+      {
+        "title": "PSD 262 ENTSCHEIDUNGEN - oder was ist eigentlich eine Organisation? Niklas Luhmann zur Bedeutung von Entscheidungen in Organisationen. (Niklas Luhmann,  Organisation und Entscheidung, Teil I)",
+        "id": 13011481
+      },
+      {
+        "title": "PSD 261 ESKALATIONEN - an der Kundenschnittstelle richtig erkennen und behandeln.",
+        "id": 12984368
+      },
+      {
+        "title": "PSD 260 BIST DU IM LEAD? - eine scheinbar einfache Frage nach der Verantwortung - mit vielen Antwortoptionen.",
+        "id": 12952309
+      },
+      {
+        "title": "PSD 259 BESUCHER KLAGENDE KUNDEN - Steve de Shazer zeigt die jeweils passende Intervention.",
+        "id": 12921945
+      },
+      {
+        "title": "PSD 258 DIE UMWELT - ist im Systemischen viel mehr als &quot;die Natur&quot; und hilft dem Fokussieren. In dieser Episode habe ich &quot;vertikale&quot; und &quot;horizontale&quot; Umwelten anzubieten.",
+        "id": 12892790
+      },
+      {
+        "title": "PSD 257 COPORRATE PURPOSE – gibt es in Unternehmen einen höheren Zweck, als Geld zu verdienen? Die systemische Antwort ist: Ja!",
+        "id": 12865345
+      },
+      {
+        "title": "PSD 256 PROZESSE LÖSUNGSORIENTIERT ENTWICKELN – lerne mit den Ideen von Steve de Shazer und Insoo Kim Berg wie Prozessveränderungen besser und nachhaltiger funktionieren",
+        "id": 12832298
+      },
+      {
+        "title": "PSD 255 LÖSUNGSORIENTIERTE STRATEGIEN ENTWICKELN – lerne mit den Ideen von Steve de Shazer und Insoo Kim Berg wie Strategieprojekte besser und nachhaltiger funktionieren",
+        "id": 12804818
+      },
+      {
+        "title": "PSD 254 FREIRÄUME UND GRENZEN – wie kann die Führung sie setzen und nutzen?",
+        "id": 12772933
+      },
+      {
+        "title": "PSD 253 BUNTE WELT – Erziehung sollte sie ermöglichen, aber macht sie nicht genau das Gegenteil?",
+        "id": 12743613
+      },
+      {
+        "title": "PSD 252 ETHIK UND MORAL – Begriffe mit einem großen Unterschied, die dennoch gern synonym genutzt werden. Sie zu Unterscheiden gibt neue Optionen!",
+        "id": 12708137
+      },
+      {
+        "title": "PSD 251 PROBLEME MEISTERN - über die Zirkularität von Problem und Lösung in Organisationen.",
+        "id": 12681186
+      },
+      {
+        "title": "PSD 250 AHA - MOMENTE ZUM JUBILÄUM - eine Geschichte über die Anschlussfähigkeit, die Unberechenbarkeit und das kommunikative Lernen",
+        "id": 12651436
+      },
+      {
+        "title": "PSD 249 RECRUITINGTOOL – wie wählen Menschen. „ihre“ Organisationen aus und wie können diese Mechanismen genutzt werden.",
+        "id": 12633513
+      },
+      {
+        "title": "PSD 248 FÜNF GRÜNDE, MITGLIED EINER ORGANISATION WERDEN ZU WOLLEN - wer sie kennt, kann sie zu seinem Vorteil nutzen!",
+        "id": 12604744
+      },
+      {
+        "title": "PSD 247 ALLES, WAS GESAGT WIRD, SAGT EIN BEOBACHTER.  Der Gedanke von Humberto Maturana ist weitreichend. Ich möchte es am Beispiel des Feedback deutlich machen.",
+        "id": 12580532
+      },
+      {
+        "title": "PSD 246 KEINE SILOS! - Subsysteme sind die Lösung für Probleme - und die Ursache für andere, zum Beispiel für Silos. Erfahre, wie du mit „Inklusiven Kreisen“ Silodenken vermeidest, obwohl das System mit Subsystemen strukturiert ist.",
+        "id": 12555230
+      },
+      {
+        "title": "PSD 245 TALENTE UND KÖNNER?! - wie wichtig sind diese begabten Menschen für eine Organisation oder für ein Unternehmen. Ich habe eine kritische Perspektive. Und ein alternatives Angebot.",
+        "id": 12527606
+      },
+      {
+        "title": "PSD 244 FEHLENTSCHEIDUNGEN - durch irgendwen oder irgendwann gibt es immer Widerstand gegen Entscheidungen. Das ist aber kein Problem, sondern Teil der Logik von Entscheidungen.",
+        "id": 12500502
+      },
+      {
+        "title": "PSD 243 ENTSCHEIDUNGEN - was ist das eigentlich? Ich möchte eine Unterscheidung zur Aus(Wahl) anbieten. Lerne dadurch passende Methoden für den jeweiligen Fall zu nutzen.",
+        "id": 12473093
+      },
+      {
+        "title": "PSD 242 KRITIK AN NEW WORK METHODEN - Luhmann setzt sich kritisch mit Methoden auseinander, die wir aus New Work kennen (und schätzen?)",
+        "id": 12447403
+      },
+      {
+        "title": "PSD 241 GEFÄHRLICHE EMOTIONEN - Niklas Luhmann empfiehlt formalen Organisationen auf eine &quot;emotionale Stabilisierung&quot; zu verzichten.",
+        "id": 12414183
+      },
+      {
+        "title": "PSD 240 STORYCYCLE und NARRATIVE INTERVIEWS - oder die Nutzung von Geschichten in der Organisationsentwicklung. Das Interview mit Prof. Dr. Müller, Teil 2",
+        "id": 12387380
+      },
+      {
+        "title": "PSD 239 NARRATIVE IN VERÄNDERUNGEN - oder wie Geschichten uns und unsere Welt verändern können. Das Interview mit Prof. Dr. Michael Müller, Teil 1",
+        "id": 12360213
+      },
+      {
+        "title": "PSD 238 STRATEGIE aber Richtig! - Nutze systemische Prinzipien für eine wirkungsvolle Strategie.",
+        "id": 12333274
+      },
+      {
+        "title": "PSD 237 NEBENFOLGEN - jedes Angebot hat ungeplante Nebenfolgen - wer sie kennt, kann sie Minimieren.",
+        "id": 12298651
+      },
+      {
+        "title": "PSD 236 ANEKDOTISCHE EVIDENZ - &quot;Hörensagen&quot; hat zwar eine schwache Aussagekraft, ist aber trotzdem sehr beliebt. Erfahre, wie du ihr gekonnt begegnen kannst.",
+        "id": 12270143
+      },
+      {
+        "title": "PSD 235 GEFÄHRLICHE BEISPIELE - Chancen und Risiken bei der Nutzung von Beispielen, denn gerade ihr Vorteil kann auch ein Nachteil sein...",
+        "id": 12242193
+      },
+      {
+        "title": "PSD 234 REGELABWEICHUNG UND BRAUCHBARE ILLIGALLITÄT - Prof. Dr. Stefan Kühl erklärt, warum das für professionelle Organisationen so wichtig (Systemisches Interview mit Prof. Dr. Stefan Kühl, Teil 3)",
+        "id": 12209266
+      },
+      {
+        "title": "PSD 233 MOBBING gegen Minder- und Höchstleister - eine Folge flacher Hierarchien?! (Systemisches Interview mit Prof. Dr. Stefan Kühl, Teil 2)",
+        "id": 12182133
+      },
+      {
+        "title": "PSD 232 PROFESSIONELLER FEHLER - so nennt es Prof. Dr. Stefan Kühl, wenn Berater Präferenzen für Organisationsformen haben. (Systemisches Interview mit Prof. Dr. Kühl, Teil 1)",
+        "id": 12148937
+      },
+      {
+        "title": "PSD 231 ZIRKULARITÄT STATT KAUSALITÄT - eine systemische Wunderwaffe zur Versöhnung?",
+        "id": 12121802
+      },
+      {
+        "title": "PSD 230 Unsinn ist Unsinn - über den Sinn des Sinns (Luhmanns Sinn Teil 2)",
+        "id": 12087669
+      },
+      {
+        "title": "PSD 229 SINNVOLLES ÜBER SINN - oder wie Niklas Luhmann den Sinn vom Subjekt befereit (Luhmanns Sinn Teil 1)",
+        "id": 12060246
+      },
+      {
+        "title": "PSD 228 SYSTEMISCH KONSTRUKTIVISTISCH - was ist das und wie hängt das zusammen?",
+        "id": 12029266
+      },
+      {
+        "title": "PSD 227 MANAGEMENTSYSTEME - was ist das und wie passen sie zu sozialen Systemen?",
+        "id": 11998206
+      },
+      {
+        "title": "PSD 226 ERLEBENSRÄUME STATT ERZÄHLRÄUME - über Narrative und deren wirksame Veränderung spreche im zweiten Teil des systemischen Interviews mit Christine Erlach.",
+        "id": 11966963
+      },
+      {
+        "title": "PSD 225 WER FRAGT, DER FÜHRT! - ABER IST DAS AUCH IMMER NÜTZLICH? Unter anderem um diese Frage geht es im &quot;Systemischen Interview&quot; mit Christine Erlach.",
+        "id": 11936490
+      },
+      {
+        "title": "PSD 224 FÜNF NEUE FÜHRUNGSIDEEN - im Spannungsfeld zwischen Fomalität und Kultur",
+        "id": 11910026
+      },
+      {
+        "title": "PSD 223 DIE DREI BAUSTEINE EINES ERFOLGREICHEN WORKSHOPS - und wie dazu die Bedürfnispyramide von Maslow verwendet werden kann. (Systemische Workshops II)",
+        "id": 11863534
+      },
+      {
+        "title": "PSD 222 WORKSHOP(s) - werden überbewertet!",
+        "id": 11835584
+      },
+      {
+        "title": "PSD 221 STATUSSYMBOLE - oder was Rolex, Logos und ein toller Body mit symbolisch generalisierten Kommunikationsmedien zu tun haben.",
+        "id": 11799867
+      },
+      {
+        "title": "PSD 220 MEINE NIEDERLAGE - Narrative im Profifußball und meine Zeit als Aufsichtsrat des VfR Aalen.",
+        "id": 11768602
+      },
+      {
+        "title": "PSD 219 AUSWEGLOSIGKEIT MEISTERN! - so bekommst du festgefahrene Strukturen wireder fit!",
+        "id": 11729181
+      },
+      {
+        "title": "PSD 218 NARRATIVE INTELLIGENZ - ein wichtiger Hebel für die Arbeit am und mit Systemen.",
+        "id": 11705727
+      },
+      {
+        "title": "PSD 217 NARRATIVE - gestalte die Organisationskultur mit sinnstiftenden Erzählungen!",
+        "id": 11680366
+      },
+      {
+        "title": "PSD 216 WENN DU NUR EINEN HAMMER HAST, DANN SIND ALLE PROBLEME NÄGEL (Paul Watzlawick) – Checklisten das beste Mittel gegen blinde Flecken, auch gegen deine :-)",
+        "id": 11652929
+      },
+      {
+        "title": "PSD 215 VORBILDER WIRKEN! - über die Vorbildwirkung von Führenden (Organisationskultur VIII)",
+        "id": 11625286
+      },
+      {
+        "title": "PSD 214 AUSWEGE AUS DER OHNMACHT – fünf praktische Ideen für gelingende Interventionen in formalen Organisationen (Organisationskultur VII)",
+        "id": 11594520
+      },
+      {
+        "title": "PSD 213 ENTSCHEIDUNGSPRÄMISSEN – die Typen von Entscheidungsprämissen sind ein wertvolles „Tool“ für systemisch Denkende (Organisationskultur VI)",
+        "id": 11563432
+      },
+      {
+        "title": "PSD 212 ILLEGAL – verhält sich, wer gegen formale Regeln verstößt, so bezeichnet es Niklas Luhmann (Organisationskultur V)",
+        "id": 11535775
+      },
+      {
+        "title": "PSD 211 UNGEREGELTES und UNREGELBARES – über entschiedene und nicht entschiedene Entscheidungsprämissen (Organisationskultur IV)",
+        "id": 11508368
+      },
+      {
+        "title": "PSD 210 ORGANISATIONSKULTUR – viel diskutiert und kritisiert, dennoch ein Buch mit 7 Siegeln (Organisationskultur III)",
+        "id": 11479280
+      },
+      {
+        "title": "PSD 209 FORMALE OHNMACHT – es geht weniger formal, als du denkst! (Organisationskultur II)",
+        "id": 11448931
+      },
+      {
+        "title": "PSD 208 KOMMUNIKATION, ein Denkfehler und seine Folgen. (Organisationskultur I)",
+        "id": 11421658
+      },
+      {
+        "title": "PSD 207 STRATEGIE - stelle deine Angebote in den Mittelpunkt deiner Strategie und erreiche drei Vorteile damit!",
+        "id": 11240475
+      },
+      {
+        "title": "PSD 206 STRATEGIE - aber richtig! Systemische Prinzipien für wirksame und lebendige Strategien. (Strategie I)",
+        "id": 10899354
+      },
+      {
+        "title": "PSD 205 Sechs sofort nutzbare Prinzipien für deine systemische Arbeit! - lerne die phantastischen Merksätze von Steve de Shazer und Insoo Kim Berg kennen! (Lösungsorientierte Therapie - Teil II)",
+        "id": 10873102
+      },
+      {
+        "title": "PSD 204 LÖSUNGSORIENTIERTE THERAPIE nach Steve de Shazer und Insoo Kim Berg (Lösungsorientierte Therapie - Teil I)",
+        "id": 10845918
+      },
+      {
+        "title": "PSD 203 UNTERSCHEIDUNGSFRAGEN - nutze die Kraft der Unterschiede für deine Fragen (Systemische Fragen VII)",
+        "id": 10818682
+      },
+      {
+        "title": "PSD 202 DIE WUNDERFRAGE - erlebe die Karft der berühmten Frage nach Steve de Shazer (Systemische Fragen VI)",
+        "id": 10792641
+      },
+      {
+        "title": "PSD 201 HYPOTHETISCHE FRAGEN - erfahre, warum Probleme auch nützlich sein können - und deshalb nicht gelöst werden WOLLEN (Systemische Fragen V)",
+        "id": 10760474
+      },
+      {
+        "title": "WOW!!! 200 Episoden, heute gibt es mal eine Blick hinter die Kulissen....",
+        "id": 10731244
+      },
+      {
+        "title": "SKALIERUNGSFRAGEN - über eine Skale, die auch mein Leben veränderte (Systemische Fragen IV)",
+        "id": 10703014
+      },
+      {
+        "title": "SELBSTCOACHING mit zirkulären Fragen (Systemische Fragen III)",
+        "id": 10679599
+      },
+      {
+        "title": "ZIRKULÄRE TRIADISCHE FRAGEN (I) - bringe Licht ins Dunkel dieser spannenden Methode. (Systemische Fragen II)",
+        "id": 10657538
+      },
+      {
+        "title": "SYSTEMISCHE FRAGEN - lerne das mächtige Tool kennen und erfahre von meinen Irrtum! (Systemische Fragen I)",
+        "id": 10632231
+      },
+      {
+        "title": "MACHT - kenne die Formel der Macht, abgeleitet aus systemischen Erkenntnissen",
+        "id": 10604174
+      },
+      {
+        "title": "INTEGRALIST - Spezialist und Generalist gleichzeitig, geht das?",
+        "id": 10575648
+      },
+      {
+        "title": "FILTER - oder wie wir unsere Wahrnehmung vernebeln",
+        "id": 10550088
+      },
+      {
+        "title": "IRRITATIONEN - oder die Antwort auf die Frage, wie du Systeme doch beeinflussen kannst (Luhmann X)",
+        "id": 10525619
+      },
+      {
+        "title": "STRUKTURELLE KOPPLUNGEN - das Nadelöhr zwischen System und Umwelt (Luhmann IX)",
+        "id": 10492490
+      },
+      {
+        "title": "AUTOPOIESIS - der Kern der Systeme und eine gute Frage nach dem Sinn des Lebens (Luhmann VIII)",
+        "id": 10459731
+      },
+      {
+        "title": "GEDULD - oder eine &quot;Zeitreise&quot; in sieben Etappen (Luhmann VII)",
+        "id": 10433786
+      },
+      {
+        "title": "PARADOXIEN - und deren Auflösung durch den BEOBACHTER (Luhmann VI)",
+        "id": 10376975
+      },
+      {
+        "title": "PHÄNOMENE - die erstaunliche Basis unseres Denkens und unserer Kommunikation. Damit lässt sich was machen! (Luhmann V)",
+        "id": 10354350
+      },
+      {
+        "title": "LUHMANN IN DER PRAXIS - Selbst- und Teamrefelxion als Anwendung des Reentry (Luhmann IV)",
+        "id": 10328058
+      },
+      {
+        "title": "SELBSTREFLEXION der Kommunikation - das Reentry praktisch genutzt, Gedanken von Niklas Luhmann (Luhmann III)",
+        "id": 10303263
+      },
+      {
+        "title": "(VERKRUSTETE) STRUKTUREN - eine spannende Rundreise von der Natur in´s soziale System (Luhmann II)",
+        "id": 10277594
+      },
+      {
+        "title": "UNDHEIT - ein weitreichende Beobachtung von Niklas Luhmann (Luhmann I)",
+        "id": 10249649
+      },
+      {
+        "title": "MASCHINEN(METAPHER) führen uns in die Irre....",
+        "id": 10219147
+      },
+      {
+        "title": "ERGEBNISSE - denke vom Ende her und erreiche mehr!",
+        "id": 10192142
+      },
+      {
+        "title": "SYSTEMKONSTRUKTIONEN - können Systeme auch konstruieren?",
+        "id": 10162530
+      },
+      {
+        "title": "ANPASSUNG - Gedanken des Konstruktivisten  Ernst von Glasersfeld und eine Umkehrung der Vorzeichen",
+        "id": 10136836
+      },
+      {
+        "title": "WORKSHOP - Prozessworkshops gelingend gestalten",
+        "id": 10106554
+      },
+      {
+        "title": "PROZESSE I - ein &quot;must have&quot; für systemische Wirkung",
+        "id": 10079757
+      },
+      {
+        "title": "KIPPPUNKTE - eine systemische Metaperspektive auf ein allgegenwärtiges Wort",
+        "id": 10053236
+      },
+      {
+        "title": "DUMM - ist es schlau andere als dumm zu bezeichnen?",
+        "id": 10026460
+      },
+      {
+        "title": "VIABILITÄT - &quot;Gangbarkeit&quot; macht dir das Leben leichter!",
+        "id": 10000376
+      },
+      {
+        "title": "AUSDISKUTIERT - drei Wege die wirklich dazu führen.",
+        "id": 9971234
+      },
+      {
+        "title": "&quot;EINFACH MITGEDACHT?&quot; - über den Zusammenhang von Mensch und System",
+        "id": 9936332
+      },
+      {
+        "title": "SUPERPOWER - ein kraftvolles systemisches Denkmodell",
+        "id": 9890121
+      },
+      {
+        "title": "PROGNOSEN - gibt es verlässliche Vorhersagen?",
+        "id": 9864684
+      },
+      {
+        "title": "PURPOSE DRIVEN ORGANIZATIONS - eine SINNvolle Idee!?",
+        "id": 9836628
+      },
+      {
+        "title": "SYSTEMZWECK - Gedanken von Niklas Luhmann zu Systemdifferenzierung und dem Systemzweck.",
+        "id": 9807861
+      },
+      {
+        "title": "ROLLE ALS MITGLIED - Gedanken von Niklas Luhmann zu einer herausragenden Rolle.",
+        "id": 9777661
+      },
+      {
+        "title": "HALLO DU! - meine ganz persönliche Geschichte über den Umgang mit dem DU.",
+        "id": 9754106
+      },
+      {
+        "title": "DIE WEIHNACHTSGESCHICHTE - ist eine sehr wirkungsvolle, eine mächtige Geschichte.",
+        "id": 9730842
+      },
+      {
+        "title": "AUSWEGLOS?! - die systemische Haltung hilft!",
+        "id": 9707294
+      },
+      {
+        "title": "NEUTRALITÄT - über ein bedeutendes Prinzip systemischer Arbeit.",
+        "id": 9679032
+      },
+      {
+        "title": "LERNEN (Teil 2) - wie und warum lernen soziale Systeme?",
+        "id": 9646558
+      },
+      {
+        "title": "LERNEN (Teil 1) - wie funktioniert Lernen mit systemischen Perspektiven?",
+        "id": 9614391
+      },
+      {
+        "title": "TACHELES UND KLARTEXT - eine wirkungsvolle Methode der Kommunikation?",
+        "id": 9587918
+      },
+      {
+        "title": "FUNKTIONSSYSTEME (II) - eine Anwendung der Systemtheorie von Niklas Luhmann und eine tolle Methode für systemisch Denkende.",
+        "id": 9559858
+      },
+      {
+        "title": "FUNKTIONSSYSTEME (I) - eine Anwendung der Systemtheorie von Niklas Luhmann und eine tolle Methode für systemisch Denkende.",
+        "id": 9533085
+      },
+      {
+        "title": "ZUFALL - er wird häufig strapaziert, aber ist alles Zufall, was als Zufall bezeichnet wird?  Eine systemische Perspektive auf den Zufall.",
+        "id": 9503554
+      },
+      {
+        "title": "ETHIK - Gesinnungsethik oder Verantwortungsethik, ein bedeutsamer Unterschied.",
+        "id": 9473226
+      },
+      {
+        "title": "MENSCH und SYSTEM - ein schwieriger Zusammenhang. Die Theorie hat eine klare Position dazu - und erhält regelmäßig viel Widerstand...",
+        "id": 9442491
+      },
+      {
+        "title": "SELBSTORGANISATION – ist sie die „bessere Organisation?",
+        "id": 9411524
+      },
+      {
+        "title": "ABSPRACHEN – ist es ein &quot;Wunderwort&quot;, wenn man die Welt so sieht?",
+        "id": 9384503
+      },
+      {
+        "title": "KAUSALITÄT – das ist eine dominante Denkfigur unserer Zeit. Aber ist sie auch stimmig?",
+        "id": 9355200
+      },
+      {
+        "title": "TOTSCHWEIGEN! - geht das und kann das sinnvoll sein?",
+        "id": 9326188
+      },
+      {
+        "title": "WAHRHEIT bedeutet Krieg! ... so sagt es Heinz von Förster in seinem Buch &quot;Die Wahrheit ist die Erfindung eines Lügners&quot;.",
+        "id": 9307591
+      },
+      {
+        "title": "MACHT ist, wenn andere das tun, was ich möchte.",
+        "id": 9268071
+      },
+      {
+        "title": "ROLLEN, über Erwartungen an Rollen und Persönlichkeiten in Rollen.",
+        "id": 9243225
+      },
+      {
+        "title": "AUTHENTIZITÄT - ein streitbarer Begriff! Wer oder was ist eigentlich authentisch?",
+        "id": 9206362
+      },
+      {
+        "title": "KRITIK (Luhmann VI) - über den Umgang mit Kritik. Eine andere Perspektive.",
+        "id": 9152693
+      },
+      {
+        "title": "OVERLAYSYSTEME oder SYSTEMISCHE SYSTEME (Luhmann V) - über die Anwendung der Systemtheorie auf sich selbst.",
+        "id": 9123701
+      },
+      {
+        "title": "KYBERNETIK (Luhmann IV) - über die Möglichkeiten und Begrenzungen von Steuerungen.",
+        "id": 9097764
+      },
+      {
+        "title": "INPUT -> OUTPUT (Luhmann III)- ich mache A, es folgt B, so stellen wir uns die Welt gerne vor...",
+        "id": 9065939
+      },
+      {
+        "title": "ENTROPIE (Luhmann II) - der stabile Gleichgewichtszustand, gibt´s das im sozialen System?",
+        "id": 9039645
+      },
+      {
+        "title": "BALANCE (Luhmann I) - Luhmann untersucht die Stärken und Schwächen von &quot;Balancetheorien&quot;.",
+        "id": 9010120
+      },
+      {
+        "title": "ÜBER DIE PROBLEME DES BEOBACHTERS - oder was dem Subjekt das Beobachters bei beobachten alles passieren kann.",
+        "id": 8984958
+      },
+      {
+        "title": "BEOBACHTBARES - eine Systematik, was wir im sozialen System überhaupt beachten können.",
+        "id": 8953609
+      },
+      {
+        "title": "MORAL und MORALISIEREN - mit systemischern Augen betrachtet.",
+        "id": 8928305
+      },
+      {
+        "title": "SYSTEMSPRENGER - wie gelingt es ein System radikal zu verändern.",
+        "id": 8899890
+      },
+      {
+        "title": "REGELN - mit systemischen Augen betrachtet.",
+        "id": 8868299
+      },
+      {
+        "title": "ALTRUISMUS - was ist das überhaupt? Ist Altruismus der Gegenpol zum Egoismus? Maturana und Varela geben Antworten.",
+        "id": 8835573
+      },
+      {
+        "title": "SELEKTIVE WAHRNEHMUNG - eine traurige Beschränktheit von uns Menschen, der wir uns bewusst sein sollten.",
+        "id": 8808503
+      },
+      {
+        "title": "ENTSCHEIDUNGEN besser treffen - ich zeige eine innovative und simple Methode! Entscheidungen begleiten unser Leben. Sie möglichst gut zu treffen ist das Ziel.",
+        "id": 8779496
+      },
+      {
+        "title": "LISTEN TO THE SCIENCE!  - auch dieses fast schon geflügelte Wort hat seine Grenzen.",
+        "id": 8753377
+      },
+      {
+        "title": "EGOISMUS - ist er nun gut oder schlecht? Eine Frage die nur auf den ersten Blick eindeutig zum sein scheint.",
+        "id": 8725887
+      },
+      {
+        "title": "SYSTEM IS ACTION - dieser &quot;dynamische&quot; Gedanke wird Parsons von Luhmann zugeschrieben.",
+        "id": 8696340
+      },
+      {
+        "title": "BEOBACHTUNGEN und Beobachtungsobjekte, über Entwicklungen und Umbrüche basierend auf Gedanken von Parsons, interpretiert von Luhmann.",
+        "id": 8669364
+      },
+      {
+        "title": "WÖRTER - sind individuelle Konstruktionen. Den Code aus Wörtern und Phrasen eines Systems zu erkunden, bevor man &quot;mitredet&quot; kann sehr sinnvoll sein!",
+        "id": 8618592
+      },
+      {
+        "title": "RESONANZ – so erreichen Sie mehr Anschlußfähigkeit bei Ihrem Kommunikationspartner! Mein Modell hilft vier Dimensionen zu beleuchten, die für mehr Resonanz und bessere Anschlußfähigkeit wichtig sind.",
+        "id": 8583054
+      },
+      {
+        "title": "VORURTEILE - können uns täuschen. Positiv oder negativ führen sie uns in die Irre. Wir alle kennen sie, wir alle sind ihnen schon erlegen. Aber wir können uns wehren!",
+        "id": 8544413
+      },
+      {
+        "title": "INFORMATIONSVERARBEITUNG - mal systemisch gedacht. Eine versöhnliche Idee zur Kritik am Konstruktivismus und die Beantwortung der Frage, ob es wirklich keine Wahrheit gibt.",
+        "id": 8464775
+      },
+      {
+        "title": "VORSTELLUNGEN - und Modelle erleichtern das Begreifen. Heute stelle ich zwei Modelle vor, um den (radikalen) Konstruktivismus besser begreifen zu können.",
+        "id": 8426977
+      },
+      {
+        "title": "IMPULSE - gekonnt setzen und großartiges Erreichen. Gut gesetzte Impulse können nachhaltige Wirkung entfalten, schaffen &quot;intrinsische Motivation&quot;.",
+        "id": 8388507
+      },
+      {
+        "title": "REFLEXE – zu kennen hilft Probleme in der Kommunikation zu lösen. Reize lösen Reflexe im Denken und in der Kommunikation aus. Sie ähneln damit biologischen Mechanismen.",
+        "id": 8351032
+      },
+      {
+        "title": "PRODUKTFOCUS – den perfekten Anker mit Produkten, Angeboten und Lösungen setzen. Den Ankereffekt kann man ausgezeichnet nutzen, um in Organisationen, die „etwas anzubieten haben“, einen guten Schwerpunkt zu definieren.",
+        "id": 8316289
+      },
+      {
+        "title": "ANKEREFFEKT – der aus der Psychologie bekannte Denkfehler lässt sich sehr gut auf soziale Systeme übertragen.",
+        "id": 8278902
+      },
+      {
+        "title": "LINSEN – &quot;Innere Linsen&quot; können die Wirklichkeit übersichtlicher oder detaillierter darstellen. Aber wo kommen sie her? Ein wirklich revolutionärer Gedanke!",
+        "id": 8242431
+      },
+      {
+        "title": "LERNEN – lernen über das Lernen hilft das Lernen zu lernen. Die Episode basiert auf Gedanken von Ernst von Glasersfeld, dem Vater des radikalen Konstruktivismus.",
+        "id": 8195630
+      },
+      {
+        "title": "UMWELT – ein Wort, zwei Bedeutungen. Ich zeige an einem Gedankenexperiment, was unsere übliche Art der Beobachtung von Umwelt ist.",
+        "id": 8156033
+      },
+      {
+        "title": "WISSENSCHAFT VS. IDIOLOGIE – was ist die Gemeinsamkeit, was ist der Unterschied, der den Unterschied macht.",
+        "id": 8116127
+      },
+      {
+        "title": "GRENZEN – das Wort ist doppeldeutig. Es gibt notwendige Grenzen in der systemischen Theorie. Es gibt aber auch selbst gesetzte oder nicht gesetzte Grenzen in der Kommunikation und im Denken.",
+        "id": 8071156
+      },
+      {
+        "title": "DEFIZITE – oder die subtile Beobachtung defizitorientierter Kommunikation. Warum schauen wir zuerst auf das Schlechte, auf das was uns nicht gefällt, auf das was nicht funktioniert?",
+        "id": 8037240
+      },
+      {
+        "title": "RESSOURCEN – warum sind Ressourcen systemisch und was hat die Aktivierung von Ressourcen mit einer Stirnlampe zu tun hat?",
+        "id": 8007566
+      },
+      {
+        "title": "GESCHICHTEN - warum die Weihnachtsgeschichte auch systemisch ist und eine &quot;Begrüßung&quot; in 5 Minuten eine Herausforderung darstellen kann.",
+        "id": 7964871
+      },
+      {
+        "title": "GAMECHANGER - gibt es wirklich welche? Das Wort ist systemisch schwierig, trotzdem kann man sie beobachten, die Gamechanger. Wie geht das?",
+        "id": 7920524
+      },
+      {
+        "title": "UNTERSCHIEDE - Unterschiede oder Differenzen sind ist der Ursprung der modernen Systemtheorie. Die Theorie hat aber auch Einfluß auf ganz kongrete &quot;praktische Themen&quot;.",
+        "id": 7880412
+      },
+      {
+        "title": "SELBSTREFLEXION - nutzen Sie die Macht der Metaebene! Lernen Sie, wie Selbstreflexion im Team oder als Mittel der Beobachtung einfach und wirkungsvoll gelingt.",
+        "id": 7850249
+      },
+      {
+        "title": "STRESSBEWÄLTIGUNG - erweiteren Sie Ihren systemischen Werkzeugkoffer.",
+        "id": 7821290
+      },
+      {
+        "title": "PSYCHOSOZIAL - wie der &quot;Werkzeugkoffer&quot; der Systemik schnell erweitert werden kann.",
+        "id": 7770710
+      },
+      {
+        "title": "WERT(E) - und deren Zusammenhang mit der Gaußschen Normalverteilung.",
+        "id": 7734036
+      },
+      {
+        "title": "TEAMS - fünf Dimensionen um ein Team zu schaffen",
+        "id": 7693104
+      },
+      {
+        "title": "ANGST - meine ganz persönliche Geschichte über die Angst durch eine aufgeheizte Kommunikation im sozialen System und was mir geholfen hat.",
+        "id": 7656723
+      },
+      {
+        "title": "BLINDER FLECK - oder die Umkehrung der üblichen Sicht auf die Welt. Lassen Sie sich von den Gedanken von Heinz von Foerster und Humberto Maturana inspirieren, die Sicht auf die Welt mit anderen Augen zu sehen.",
+        "id": 7623729
+      },
+      {
+        "title": "AUTHENTISCH - eine Extremposition auf dem Prüfstand. Authentisch oder Angepasst - was ist besser? Oder sind es die Zwischentöne, die den höchsten Wirkungsgrad in der Kommunikation ermöglichen?",
+        "id": 7589683
+      },
+      {
+        "title": "KONSTRUKTIVIST - die Welt als eigene Konstruktion verstehen! Lernen Sie von den Gedanken von Niklas Luhmann, Ernst von Glasersfeld oder Heinz von Förster. Erkennen Sie, warum wir schon biologisch bedingt &quot;konstruieren&quot; müssen.",
+        "id": 7556641
+      },
+      {
+        "title": "JUBILÄUM - Feiern Sie mit mir 100 Episoden zum systemischen Denken und Handeln. Bekommen Sie Einblick in die Entstehung der Episoden, erfahren Sie mehr über meine Motivation und über das Feedback treuer Hörerinnen und Hörer.",
+        "id": 7521187
+      },
+      {
+        "title": "PROVOKATION - Nutzen Sie die Provokation als wirksames Mittel für eine anschlußfähige Kommunikation. Lernen Sie die Kraft der Provokation im Gegensatz zum Konsens kennen.",
+        "id": 7488007
+      },
+      {
+        "title": "SELBSTERFAHRUNG - Wie verändert sich ein System, wenn der Coach das Anliegen seines Kunden aus eigener Erfahrung kennt? Ist das ein Vorteil oder gar ein Nachteil.",
+        "id": 7448072
+      },
+      {
+        "title": "KOMMUNIKATIONSRÄUME - bestehen aus einem &quot;echten&quot; Raum und aus einem kommunikativ geschaffenen Raum. Beide Räume gemeinsam schaffen Bedingungen, in denen die Wahrscheinlichkeit der Kommunikation in sozialen Systemen erhöht wird.",
+        "id": 7416487
+      },
+      {
+        "title": "Ideen gut verkaufen! - Ideen werden im Innen geboren, entwickelt und auch umgesetzt. Im Außen müssen diese Ideen &quot;verkauft&quot; werden. Aus dem eigenen System müssen &quot;strukturelle Kopplungen&quot; in die Umwelt gelingen.",
+        "id": 7281030
+      },
+      {
+        "title": "Helden und Antihelden - wie entstehen sie eigentlich? Was nutzen uns &quot;Heldenkonstruktionen&quot;? Folgen Sie mir auf eine systemische Heldenreise mit spannenden Überlegungen und auch einem überraschenden Ausgang.",
+        "id": 7223394
+      },
+      {
+        "title": "Von innen nach außen oder von außen nach innen - wie soll sich eine Organisation definieren. Eine extrem innendefinierte &quot;Businesssekte&quot; hat Vor- und Nachteile, eine außendefinierte Organisation auch.",
+        "id": 7192397
+      },
+      {
+        "title": "Über den Sinn des Sinns oder die Beantwortung der Frage, warum wir überhaupt über Sinn nachdenken. Ein sinnvolles Leben beschäftigt Einzelne, sinnenhafte Organisationen beschäftigen soziale Systeme. Aber warum eigentlich?",
+        "id": 7114302
+      },
+      {
+        "title": "Richtige Auftragsklärung - viele Aufträge und Projekte scheitern schon am Anfang! Erkennen Sie den Wert der Auftragsklärung, bei kleinen und bei großen Projekten. Nutzen Sie zwei systemische Methoden, um Ihre Aufträge präzise zu klären.",
+        "id": 7044668
+      },
+      {
+        "title": "Self running project - so funktionieren Projekte Ihre großen und kleinen Projekte wie von allein! Lernen Sie den Unterschied  zwischen den Dimensionen des Projektmanagements und Luhmann´s Sinndimensionen kennen.",
+        "id": 7011721
+      },
+      {
+        "title": "Regeln und Ordnungen - konstruktivistische Gedanken von Ernst von Glasersfeld. Erfahren Sie wie Regeln entstehen und was das mit Konstruktivismus zu tun hat. Lernen Sie an meinem Kugelmodell die drei Dimensionen kennen, mit denen wir Regeln bilden.",
+        "id": 6941773
+      },
+      {
+        "title": "Der dynamische &quot;Schieberegler&quot; für mehr Effizienz in Ihrem systemischen Workshop oder im systemischen Gespräch. Stellen Sie die Balance zwischen anschlußfähiger Kommunikation im System und einer Zielerreichung flexibel sicher.",
+        "id": 6893922
+      },
+      {
+        "title": "Modelle - Fluch und Segen. Modelle reduzieren Komplexität und erleichtern damit Entscheidungen, das ist ein Vorteil. Modelle klammern &quot;Umwelten&quot; aus und selektieren, das kann ein Nachteil sein.",
+        "id": 6859212
+      },
+      {
+        "title": "Sinn - was ist das eigentlich? Kann es Unsinn geben? Erfahren Sie spannendes über den Sinnbegriff und den Unterschied zwischen Medium und Form und was das mit Sand zu tun hat.",
+        "id": 6824283
+      },
+      {
+        "title": "Werte folgen dem System, nicht umgekehrt. Werte in Systemen folgen dem System wie ein Schatten - so schreiben es sinngemäß die Autoren Wohland und Wiemeyer im Buch &quot;Denkwerkzeuge der Höchstleister&quot;.",
+        "id": 6787058
+      },
+      {
+        "title": "Über die Risiken von Werten in Organisationen. Lernen Sie, wozu Werte eigentlich nötig sind. Erfahren Sie, warum Werte Entscheidungen einschränken und auch eine &quot;Unterwerfung&quot; zur Folge haben können.",
+        "id": 6756601
+      },
+      {
+        "title": "Bipolaritäten sind ein mächtiges Tool, wenn man sie (er)kennt und richtig nutzt. Lernen Sie bipolare Wortpaare kennen. Nutzen Sie dazu auch die big5. Nutzen Sie bipolare Eigenschaftswörter für Ihre Beobachtung und Ihre Kommunikation.",
+        "id": 6714861
+      },
+      {
+        "title": "Freiheit ist mit zwei Dimensionen begrenzt. Erfahren Sie die beiden Einschränkungen unserer Freiheit am Beispiel der Bewegung einer Kugel im Raum. Sehen Sie auch die Konsequenzen &quot;unbegrenzter&quot; Freiheit.",
+        "id": 6649832
+      },
+      {
+        "title": "Systemische Geschäftsprozesse  - über Prozessse und den Unterschied zwischen Prozess(design) und Prozess(begleitung). In der Episode differenziere ich Geschäftsprozesse von Prozessbegleitung und füge dann beide wieder zusammen.",
+        "id": 6521364
+      },
+      {
+        "title": "Lerne die Wunderfrage (miracle question) als Ableitung einer Definition des Systemischen kennen. Das Denken in Zusammenhängen statt in Elementen ist der Kern des systemischen Denkens - so jedenfalls sagt es Matthias Varga von Kibet.",
+        "id": 6482301
+      },
+      {
+        "title": "Zielführende UND unterhaltsame Workshops brauchten Inhalt UND Methode. Lernen Sie den Unterschied zwischen der Methode und dem Inhalt kennen und nutzen Sie die Unterscheidung, um beide Bausteine für Ihren Workshop passend auszuwählen.",
+        "id": 6443170
+      },
+      {
+        "title": "Zeitreise mit Luhmann (I) oder der Fluß der Zeit und seine Auswirkung auf Veränderungen. Lassen Sie und im Podcast gemeinsam einen Fluß beobachten...  Erfahren Sie, warum Veränderung immer auch Stillstand benötigt.",
+        "id": 6291968
+      },
+      {
+        "title": "Gelingende Strategien! - oder wie Strategien mit systemischen Mitteln entstehen, transformiert und gelebt werden können. Strategieprojekte sind anspruchsvoll und scheitern öfters, als sie funktionieren - aber warum eigentlich?",
+        "id": 6207905
+      },
+      {
+        "title": "Es lebe der Unterschied! Ein Plädoyer für den Unterschied, der den Unterschied macht. &quot;Gleichheit&quot; ist wie Freiheit und Brüderlichkeit ein heroisches Ziel seit der französischen Revolution. Aber ist Gleichheit wirklich erstrebenswert?",
+        "id": 6167490
+      },
+      {
+        "title": "Spannende Hierarchievarianten - oder gibt es Organisationen OHNE Hierarchien? Heiße Diskussionen über Hierarchien gibt es überall - Selbstorganisation versus &quot;Führung&quot; ist eine Devise. Geht das überhaupt?",
+        "id": 6132009
+      },
+      {
+        "title": "Rollenspiele - über die Bedeutung von Rollen zur Unterscheidung von Mensch und Aufgabe. Über Rollen als mächtiges &quot;Tool&quot; der Gestaltung. Über Menschen die Rollen spielen und &quot;Zuschauer&quot;, die Erwartungen an Rollen haben.",
+        "id": 6074341
+      },
+      {
+        "title": "Ziele, Zielstrahlen und Zielvektoren. Sind Ziele sinnvoll oder nicht - was spricht dafür, was dagegen? Was ist ein Unterschied in der Ausprägung von Zielen, der den Unterschied machen kann? Warum treten Zielkrisen auf?",
+        "id": 6031205
+      },
+      {
+        "title": "Entdecken Sie verborgene Schätze mit der Timeline-Methode. Lernen Sie ein einfaches und effizientes &quot;Tool&quot; kennen, um es in Workshops, in individuellen Beratungen oder für sich selbst zu nutzen.",
+        "id": 5987432
+      },
+      {
+        "title": "Nutzen Sie &quot;Systemische Fragen&quot; besser! Berücksichtigen Sie einem überraschenden Unterschied, der den Unterschied machen kann. Beantworten Sie dazu die Frage, was Fragen eigentlich zu &quot;Systemischen Fragen&quot; macht.",
+        "id": 5952241
+      },
+      {
+        "title": "Kommunikation in Beratungen oder über die Kunst vor dem Sprechen zuzuhören und zu akzeptieren. Wenn Sie ein fremdes System systemisch begleiten möchten , müssen sie darin anschlußfähig Kommunizieren.",
+        "id": 5915814
+      },
+      {
+        "title": "Kommunikation in Hierarchien kann schwierig sein. Ich zeige Ihnen eine konkrete Idee, wie es gut gelingen kann. Ich zeige eine Lösung gegen &quot;verkrustete Strukturen&quot; und für die Organisation von Kommunikation in Hierachien.",
+        "id": 5823652
+      },
+      {
+        "title": "Sinnvoll denken über Sinn macht Sinn! Der eigene Sinn (oder der Eigensinn? :-)) ist aber nicht der Sinn der Anderen. Jeder hat seinen Sinn, jeder handelt nach seinem Sinn oder &quot;Jeder ist sein eigener Direktor.&quot;",
+        "id": 5823648
+      },
+      {
+        "title": "Wirkungsvolle(re) Kommunikation durch die Nutzung von biologischen Prinzipien. Sehen Sie eine Blumenwiese mit anderen, mit neuen Augen. Lernen Sie von der Natur, wie Sie Ihre Botschaften noch besser vermitteln können.",
+        "id": 5823647
+      },
+      {
+        "title": "Fühlen und Denken, schnelles und langsames Denken, emotional oder rational Agieren - darum geht es in dieser Episode. Gedanken von Fritz B. Simon und von Daniel Kanemann werden systematisch aufbereitet.",
+        "id": 5823227
+      },
+      {
+        "title": "InTeamitäten - &quot;Blöde Teamleiter stellen Ihr Team in den Schatten, dadurch sind dann alle so &quot;blöd&quot; wie der Hierarch&quot;, so sagt es sinngemäß Fritz B. Simon.",
+        "id": 5823228
+      },
+      {
+        "title": "Lebendige Teams sind kein Selbstläufer. Erfahren Sie über die Probleme die Onlineteams oder virtuelle Teams haben können (oder müssen?).",
+        "id": 5823225
+      },
+      {
+        "title": "Das Eiffelturmexperiment hilft das soziale System zu &quot;erspüren&quot; und besser zu verstehen. Man kann viel über Systeme reden, im Eiffelturmmodell können Sie (und andere) das System &quot;erleben&quot;.",
+        "id": 5823224
+      },
+      {
+        "title": "&quot;Wie wahr ist die Wahrheit?&quot; Dieser Frage von Paul Watzlawick ´s gleichnamigen Buch widmet sich diese Episode. Schmunzeln Sie im Podcast über die sonderbaren Bewohner von &quot;Flachland&quot;, einem Land in zwei Dimensionen.",
+        "id": 5823222
+      },
+      {
+        "title": "Das Reflecting Team - eine tolle Methode viele spannende Perspektiven zu aktivieren, zu erkennen und zu nutzen. Erfahren Sie im Podcast, wie am Beispiel einer Schulung von Verkäufern mit dem Reflecting Team gearbeitet werden kann.",
+        "id": 5823221
+      },
+      {
+        "title": "Ideologie - oder warum Systemiker keine Ideologen sind (oder keine sein sollten)... Ideologie hat viel mit &quot;Glauben&quot; zu tun. Dabei geht es nicht nur um DEN Glauben, sondern an &quot;das glaube ich&quot; ganz allgemein.",
+        "id": 5823218
+      },
+      {
+        "title": "Laut oder Leise? Direktiv oder Kooperativ? Hart oder Weich? - was ist die richtige Strategie für ein Gespräch? Ich war mir sicher -  bis zu einem Gespräch mit Freunden. Wir haben eine spannende Diskussion geführt...",
+        "id": 5823217
+      },
+      {
+        "title": "Rote und blaue Kappen - das wirkungsvolle Modell zur Beobachtung und zur Selbstreflexion von Gesprächen. Ich zeige Ihnen Ursachen eskalierender Kommunikationen und eine einfache und praktische Intervention.",
+        "id": 5823216
+      },
+      {
+        "title": "Spannendes zum Commitment nach Entscheidungen. Sind Sie &quot;Maximierer&quot; oder &quot;Satisfier&quot;? Haben Sie schon einmal darüber nachgedacht, welche Überlegungen Sie NACH einer Entscheidung anstellen? Das kann spannend sein.",
+        "id": 5823215
+      },
+      {
+        "title": "Besser Beobachten! Lernen Sie die vielen (natürlichen) Grenzen eines Audits und die vielen Einschränkungen von Beobachtungen kennen.  Ziehen Sie die richtigen Schlüsse für Ihre Beobachtung daraus.",
+        "id": 5823213
+      },
+      {
+        "title": "Selbstreflexion ist die Basis einer reifen Persönlichkeit oder warum eine Auftragsklärung nur gut funktioniert, wenn man sich selbst gut kennt. Sich selbst gut zu kennen ist eine wesentliche Grundlage für eine gute Kommunikation!",
+        "id": 5823211
+      },
+      {
+        "title": "Die &quot;reifste Form des Konfliktes&quot;, auch darum geht es in dieser Episode. Gregory Bateson sagt &quot;Kommunikation hat stets ein Inhalts- und einen Beziehungsaspekt&quot;. Das klingt trivial, hat es aber in sich!",
+        "id": 5823210
+      },
+      {
+        "title": "Eskalationen meistern! Paul Watzlawick zeigt, wie in drei Schritten eine eskalierende Kommunikation wieder deeskaliert werden kann. Lernen Sie seine einfache und praktikable Vorgehensweise und machen Sie sie zu Ihrer Methodik.",
+        "id": 5823209
+      },
+      {
+        "title": "Probleme lösen! Sehen Sie dazu die Probleme &quot;mal mit anderen Augen&quot;! Reframing und Fokusvergrößerung, lernen Sie zwei Methoden von Paul Watzlawick als effiziente Kombination kennen.",
+        "id": 5823206
+      },
+      {
+        "title": "Problemlösung von Paul Watzlawick: Lernen Sie eine Methode vom berühmten Kommunikationswissenschaftler, um Probleme einfacher und besser lösen.",
+        "id": 5823205
+      },
+      {
+        "title": "Luhmann (Teil 10) Erst Kommunikation macht Führung wirksam! Systeme konstruieren (ihre) Strukturen oder mit anderen Worten: Organisationen konstruieren (ihre) Hierarchien.",
+        "id": 5823204
+      },
+      {
+        "title": "Luhmann (Teil 8) Reentry: Systeme sind Teile von Systemen, Kommunikation ist Teil der Kommunikation, Denken ist Teil des Denkens... Lernen Sie etwas über Reentry oder wie Paradoxien aufgelöst werden können.",
+        "id": 5823202
+      },
+      {
+        "title": "Luhmann (Teil 7) - Strukturelle Kopplungen oder wie Systeme interagieren. Erfahren Sie von den Überlegungen von Maturana, wie Systeme interagieren.",
+        "id": 5823201
+      },
+      {
+        "title": "Luhmann (Teil 6) Menschen sind KEINE &quot;Zahnräder im Getriebe&quot;! Erfahren Sie systemische Zusammenhänge zur Steuerbarkeit von sozialen Systemen (Kybernetik nach Norbert Wiener) und deren Übertragbarkeit auf &quot;Sinnsysteme&quot;.",
+        "id": 5823200
+      },
+      {
+        "title": "Luhmann (Teil 5) Die Entstehung von Systemen oder wer &quot;schafft&quot; eigentlich ein System und wie differenziert es sich von der Umwelt?",
+        "id": 5822719
+      },
+      {
+        "title": "Luhmann (Teil 4) Freiheit und Komplexität - erfahren Sie mehr über den überraschenden Zusammenhang.",
+        "id": 5823702
+      },
+      {
+        "title": "Luhmann (Teil 3) Systeme bewältigen Komplexität selbst. Komplexität entsteht, wenn ein System &quot;operiert&quot;. Systeme &quot;managen&quot; Komplexität mit ihren eigenen Mitteln. Das ist geniale &quot;Selbstheilung&quot;.",
+        "id": 5824257
+      },
+      {
+        "title": "Luhmann (Teil 2) Aus was besteht ein System und wie kommt ein System &quot;zustande&quot;? Wie kann die Zirkularität zwischen Strukturen und Operanten in Systemen beobachtet werden?",
+        "id": 5824258
+      },
+      {
+        "title": "Luhmann (Teil 1) - Der Systembergiff in der Systemtheorie von Niklas Luhmann und warum Fokussierung so wichtig ist.",
+        "id": 5814019
+      },
+      {
+        "title": "Die Systemtheorie von Luhmann - Das Diabolo ist mein Modell, um die Systemtheorie und die praktischen Ableitungen davon in einem Zusammenhang zu setzen. Die Episode ist der Start einer Serie zur Systemthorie von Niklas Luhmann.",
+        "id": 5814020
+      },
+      {
+        "title": "Die Bedeutung der Visualisierung im systemischen Denken und Handeln. Holen Sie Ihre Gedanken als Bilder hervor und lernen Sie so vom IST zum SOLL zu kommen.",
+        "id": 5814021
+      },
+      {
+        "title": "Der Prozessworkshop - erfahren Sie, wie Sie einem Workshop zur Erarbeitung von Prozessen so gestalten, dass sowohl die Beteiligten mitgenommen, als auch produktive Ergebnisse erreicht werden.",
+        "id": 5814022
+      },
+      {
+        "title": "Stärken Sie Ihre systemische &quot;Changekompetenz&quot;! Lernen Sie Friedrich Glasl `s Basisprozesse einer Organisation kennen.",
+        "id": 5814023
+      },
+      {
+        "title": "&quot;Systemisches Fotografieren?&quot; Fotografieren Sie gerne? Betrachten Sie gern Fotos?  Kennen Sie Motiv, Brennweite und Blende und deren &quot;systemisches&quot; Equivalent?",
+        "id": 5814024
+      },
+      {
+        "title": "Das &quot;Neun Felder Modell&quot; (NFM) als Methode Veränderungen ressourcenoptimiert begleiten zu können.",
+        "id": 5814025
+      },
+      {
+        "title": "Systemisch denken und (trotzdem) aktiv gestalten.",
+        "id": 5814026
+      },
+      {
+        "title": "Luhmann´s Funktionssysteme und Codes ganz praktisch in alltäglichen Situationen nutzen.",
+        "id": 5824234
+      },
+      {
+        "title": "Die Dummheit von Hierarchien oder warum der Chef / die Chefin einer Organisation nicht alles Wissen kann. Ein Plädoyer für Nachsicht.",
+        "id": 5824235
+      },
+      {
+        "title": "Lässt sich die Zeit &quot;managen&quot;? - systemische Gedanken zur Zeit und zu unserem Umgang mit der Zeit.",
+        "id": 5824236
+      },
+      {
+        "title": "Alle Nörgler sind weg! Kennen Sie Nörgler, Menschen die an allem etwas auszusetzen haben?",
+        "id": 5824237
+      },
+      {
+        "title": "Systemisches Projektmanagement - die Anwendung von Luhmanns Sinndimensionen im Projekt.",
+        "id": 5824238
+      },
+      {
+        "title": "Konstruktivismus - oder warum es keine Wahrheit gibt. Theoretische Aspekte und praktische Konsequenzen eines mächtigen Denkmodells.",
+        "id": 5824239
+      },
+      {
+        "title": "Motivation! Was haben Greta Thunberg, Steve Jobs und Federick Herzberg miteinander zu zu tun?",
+        "id": 5824026
+      },
+      {
+        "title": "&quot;Zu Wissen was man nicht kann ist eine Ressource!&quot; Systemisch denkende kennen die Grenzen linenarer (einfacher) Wahrheiten.",
+        "id": 5823991
+      },
+      {
+        "title": "&quot;Das Geheminis kluger Entscheidungen&quot; - meine Interpretation des Buches von Maja Storch.",
+        "id": 5823992
+      },
+      {
+        "title": "Reframing - eine systemische Methode mit der Sie lleichter durchs Leben kommen.",
+        "id": 5823993
+      },
+      {
+        "title": "&quot;Aha-Erlebnisse&quot; und meine Motivation systemisch zu denken. Erfahren Sie meinen Weg vom Ingenieur zum systemischen Berater.",
+        "id": 5823994
+      }
+    ]
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "Soziale Arbeit - Fachgespräch OST",
+    "Hosts des Podcasts": "verschiedene Hosts",
+    "Handlungsfeld": "Wissenschaft und Fors,chung Sozialer Arbeit, aktuelle Themen/Entwicklungen ",
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": 14.0,
+    "Sprache ": "deutsch (Schweiz)",
+    "Webseite": "https://ost-sa-fachgespraeche.podigee.io/",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": null,
+    "episode_count": 0,
+    "episodes_downloaded": 0,
+    "error": "No podcast found on fyyd",
+    "failed_ep": [],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "Theorien Sozialer Arbeit",
+    "Hosts des Podcasts": NaN,
+    "Handlungsfeld": "Theorien der Sozialen Arbeit",
+    "Durchschnittliche Dauer einer Folge": 69.0,
+    "Anzahl der Folgen ": 18.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://letscast.fm/sites/theorien-der-sozialen-arbeit-04b8c298",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": null,
+    "episode_count": 0,
+    "episodes_downloaded": 0,
+    "error": "No podcast found on fyyd",
+    "failed_ep": [],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "STREETNOIZE",
+    "Hosts des Podcasts": NaN,
+    "Handlungsfeld": "streetwork, Jugendarbeit",
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": 23.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://www.podcast.de/podcast/3254038/streetnoize",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": null,
+    "episode_count": 0,
+    "episodes_downloaded": 0,
+    "error": "No podcast found on fyyd",
+    "failed_ep": [],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "Digital werden. Sozial bleiben.",
+    "Hosts des Podcasts": NaN,
+    "Handlungsfeld": NaN,
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": 7.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://podcasts.apple.com/de/podcast/digital-werden-sozial-bleiben/id1791165756",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": false,
+    "podcast_id": null,
+    "episode_count": 0,
+    "episodes_downloaded": 0,
+    "error": "No podcast found on fyyd",
+    "failed_ep": [],
+    "downloaded": []
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": NaN,
+    "Hosts des Podcasts": NaN,
+    "Handlungsfeld": NaN,
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": NaN,
+    "Sprache ": NaN,
+    "Webseite": NaN,
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": true,
+    "podcast_id": 79003,
+    "episode_count": 215,
+    "episodes_downloaded": 213,
+    "error": null,
+    "failed_ep": [
+      {
+        "title": "Damon & Steve Talk About Debt Settlement Bullshit – Get Out of Debt Podcast",
+        "id": 9014056
+      },
+      {
+        "title": "Get Out of Debt Podcast – Answers for James, Charlene, and Duff",
+        "id": 9014070
+      }
+    ],
+    "downloaded": [
+      {
+        "title": "The Hidden Traps in Debt Relief Ads You’re Seeing Right Now",
+        "id": 14736103
+      },
+      {
+        "title": "The 50-Year Mortgage Trap, Money Saving Grocery Hacks & A Meaty Mamma Comeback",
+        "id": 14669067
+      },
+      {
+        "title": "AI Might Take Your Job — Don’t Let It Take Your Future (Smart Money Moves to Make Now)",
+        "id": 14629166
+      },
+      {
+        "title": "Debt Settlement - Should You Take That Credit-Card Settlement? Credit Score, Taxes (1099-C), and Smart Strategy",
+        "id": 14586158
+      },
+      {
+        "title": "The College Lie: Why Student Loans Could Be the Worst Investment You’ll Ever Make",
+        "id": 14547277
+      },
+      {
+        "title": "Video Podcast - A Different Plan for Meaty Mama: Hope, Debt, and Finding a Way Forward",
+        "id": 14519093
+      },
+      {
+        "title": "A Different Plan for Meaty Mama: Hope, Debt, and Finding a Way Forward",
+        "id": 14512802
+      },
+      {
+        "title": "Let’s Talk: Finding the Right Path Out of Debt — Without the One-Size-Fits-All Approach",
+        "id": 14491457
+      },
+      {
+        "title": "Can You Go to Jail for Credit Card or Loan Debt? The Truth About Debt, Fear & Scams",
+        "id": 14455301
+      },
+      {
+        "title": "Should You Use Your 401(k) to Pay Off Credit Card Debt? The Math vs. The Emotion",
+        "id": 14416662
+      },
+      {
+        "title": "Laid Off or Terminated? Smart First Moves to Protect Your Finances",
+        "id": 14393265
+      },
+      {
+        "title": "Cost of Living Reality Check: Your Debt is Lava",
+        "id": 14354268
+      },
+      {
+        "title": "How to Make Real Money After Dark with Gig Apps",
+        "id": 14325788
+      },
+      {
+        "title": "Divorce and Dirty Debt - The Inside Truth",
+        "id": 14294234
+      },
+      {
+        "title": "20 Debt Relief Scams and Sales Tricks to Watch Out For: How to Get Out of Debt Wisely",
+        "id": 14263806
+      },
+      {
+        "title": "Breaking the Chains: Understanding the Morality of Debt and How to Get Out of Debt",
+        "id": 14239280
+      },
+      {
+        "title": "Smart Expense Cutting Strategies for Getting Out of Debt",
+        "id": 14191501
+      },
+      {
+        "title": "Is Your Interest Rate Too High? Plus the Student Loan Bombshell",
+        "id": 14161521
+      },
+      {
+        "title": "Living Too Close to the Edge: Why Financial Choices Matter Now",
+        "id": 14138284
+      },
+      {
+        "title": "This One Deadline Could Wreck Your College Plans — Parent PLUS Changes Every Family Needs to Hear",
+        "id": 14083514
+      },
+      {
+        "title": "Why Good Bankruptcy Attorneys Lose Clients (And What That Means for You)",
+        "id": 14050015
+      },
+      {
+        "title": "AI Is Coming for Your Job — And It’s Not Waiting",
+        "id": 14022764
+      },
+      {
+        "title": "The Secret Guilt That Keeps You Broke — And How to Finally Break Free",
+        "id": 13993721
+      },
+      {
+        "title": "The Morality Trap: When Doing the 'Right' Thing Keeps You Broke",
+        "id": 13950807
+      },
+      {
+        "title": "The $50,000 Closet: Why Self-Storage Might Be Storing Your Regrets",
+        "id": 13928597
+      },
+      {
+        "title": "Don’t Buy the Wrong Fix: What Really Works to Get Out of Debt",
+        "id": 13902130
+      },
+      {
+        "title": "A Listener’s Drowning in Debt at 71—Here’s What I Told Him",
+        "id": 13885743
+      },
+      {
+        "title": "How to Pick the Best Credit Card (and Stop Getting Played)",
+        "id": 13875420
+      },
+      {
+        "title": "Is College Still Worth It? The Truth About Degrees, Debt & Smarter Paths Forward",
+        "id": 13870853
+      },
+      {
+        "title": "Why Money Discussions Feel So Damn Hard — And How to Make Them Easier",
+        "id": 13857079
+      },
+      {
+        "title": "What I Learned in My 30 Years as a Debt Coach: Hard Truths, Big Wins, and Letting Go",
+        "id": 13845420
+      },
+      {
+        "title": "The Truth About Late Payments and Debt Collectors",
+        "id": 13836145
+      },
+      {
+        "title": "The Credit Trap: How Good Options Disappear While You Wait",
+        "id": 13830014
+      },
+      {
+        "title": "Debt Doesn’t Just Break Your Bank—It Breaks Your Brain",
+        "id": 13823328
+      },
+      {
+        "title": "The Debt-Free Lie No One Talks About",
+        "id": 13818913
+      },
+      {
+        "title": "One Class, a Lifetime of Mistakes? The Myth of Financial Literacy",
+        "id": 13789153
+      },
+      {
+        "title": "The Most Powerful Saving Techniques I’ve Seen in 30 Years",
+        "id": 13785340
+      },
+      {
+        "title": "Struggling to Get Out of Debt? Why a Debt Coach is Your Secret Weapon.",
+        "id": 13779959
+      },
+      {
+        "title": "The Truth About Financial Intimacy - When Love Gets Awkward",
+        "id": 13751020
+      },
+      {
+        "title": "Too Broke to Win: Why Being in Debt Costs More Than You Think",
+        "id": 13747186
+      },
+      {
+        "title": "You Reboot Everything Else—Why Not Your Debt?",
+        "id": 13738732
+      },
+      {
+        "title": "In Debt and Starting Over: Why It’s Not the End—It’s the Exit",
+        "id": 13736137
+      },
+      {
+        "title": "How to Do Credit Repair the Right Way Without Committing a Felony",
+        "id": 13727166
+      },
+      {
+        "title": "Too Ashamed to Start Over? This Is What You Need to Hear",
+        "id": 13701249
+      },
+      {
+        "title": "Making Extra Money: The Proven Side Hustles That Actually Work (and the Ones That Don’t)",
+        "id": 13694110
+      },
+      {
+        "title": "Panic Is Expensive: How Fear Wrecks Your Finances and Fuels Bad Decisions",
+        "id": 13688881
+      },
+      {
+        "title": "Saving Money Might Not Feel Sexy — But It Can Be If You Let It.",
+        "id": 13678969
+      },
+      {
+        "title": "Dave Ramsey… We Should Talk About This?",
+        "id": 13669427
+      },
+      {
+        "title": "Getting Debt Free Isn’t One-Size-Fits-All: Why Your Plan Needs to Fit You",
+        "id": 13665468
+      },
+      {
+        "title": "You Just Got Sold Out and Abandoned: How the CFPB and Congress Just Put Your Finances at Risk",
+        "id": 13661329
+      },
+      {
+        "title": "Debt Crisis: What to Say (and What Not to Say) to Someone You Care About",
+        "id": 13647711
+      },
+      {
+        "title": "Credit Score Improvement Tips That Actually Work (No Gimmicks, Just Results)",
+        "id": 13642737
+      },
+      {
+        "title": "You’ve Been Lied To—Debt Elimination Isn’t What You Think",
+        "id": 13638092
+      },
+      {
+        "title": "Fries Now, Regret Later? Klarna, DoorDash & the Debt Trap You Didn’t See Coming",
+        "id": 13628985
+      },
+      {
+        "title": "Build Wealth Easily: The Stupid Simple Millionaire Approach Even if You Are in Debt",
+        "id": 13577912
+      },
+      {
+        "title": "Investing Basics Made Simple: Start Now, Even in Debt!'",
+        "id": 13549302
+      },
+      {
+        "title": "Overcoming Financial Anxiety: Stop the Stress!",
+        "id": 13518713
+      },
+      {
+        "title": "The Hidden Tax That’s Draining Your Wallet (And Who’s Really Cashing In)",
+        "id": 13513664
+      },
+      {
+        "title": "Medicaid Cuts for Others Will Wreck Your Wallet—Think It Won’t?",
+        "id": 13499668
+      },
+      {
+        "title": "The Credit Card Game: How to Win Without Debt",
+        "id": 13494778
+      },
+      {
+        "title": "The 7 Sneaky Debts Draining Your Wallet (And What to Do About Them)",
+        "id": 13485403
+      },
+      {
+        "title": "Steve and Damon Talk - Debt Relief Scams Exposed: How Commission-Driven Sales Tactics Can Leave You Worse Off",
+        "id": 13480315
+      },
+      {
+        "title": "Mastering Debt: How to Prioritize Payments and Understand Debt-to-Income Ratio",
+        "id": 13451136
+      },
+      {
+        "title": "Are You on the Verge of Debt Burnout? (Signs You Can’t Ignore & How to Escape!)",
+        "id": 13432879
+      },
+      {
+        "title": "The Debt Lie That’s Keeping You Broke—And How to Break Free",
+        "id": 13424418
+      },
+      {
+        "title": "Why Laughter is Important When You Are Getting Out of Debt (And Why You Need To)",
+        "id": 13398619
+      },
+      {
+        "title": "Steve and Damon Talk About the Smartest Thing to Do After Dealing With Debt",
+        "id": 13393786
+      },
+      {
+        "title": "Struggling to Stay Positive With Money Troubles? Try This (It Actually Works)",
+        "id": 13388481
+      },
+      {
+        "title": "10. How to Find Resilience After a Financial Disaster",
+        "id": 13382807
+      },
+      {
+        "title": "9. Hard to Stay Positive? Let’s Have a Little Chat",
+        "id": 13377625
+      },
+      {
+        "title": "8. Failure: The Lesson You Never Wanted But Absolutely Need",
+        "id": 13373260
+      },
+      {
+        "title": "7. Finding Light in the Darkness: A Journey of Gratitude",
+        "id": 13369039
+      },
+      {
+        "title": "6. Turning Setbacks into Setups for a Better Tomorrow",
+        "id": 13369041
+      },
+      {
+        "title": "Steve and Damon Talk About if You Should Borrow From Your 401K to Deal With Debt",
+        "id": 13365656
+      },
+      {
+        "title": "5. Rewriting Negative Narratives: Transform Your Inner Story",
+        "id": 13365105
+      },
+      {
+        "title": "4. Small Wins, Big Steps: The Secret to Building Momentum - Hope, Every Day 365",
+        "id": 13347967
+      },
+      {
+        "title": "Steve and Damon Talk Making Tough Finacial Choices",
+        "id": 13343852
+      },
+      {
+        "title": "3. How to Find Light When Life Feels Dark - Hope, Every Day 365",
+        "id": 13343513
+      },
+      {
+        "title": "2. Why Hope Is the Most Powerful Tool You Have - Hope, Every Day 365",
+        "id": 13340111
+      },
+      {
+        "title": "My California Wildfire Rapid Step-By-Step Guide",
+        "id": 13327915
+      },
+      {
+        "title": "This is Why Your New Home is Slipping Away",
+        "id": 13308231
+      },
+      {
+        "title": "Why Everything Is So Expensive and How to Fight Back: Real Talk and Smart Solutions",
+        "id": 13295037
+      },
+      {
+        "title": "The New American Dream - It's Different",
+        "id": 13282522
+      },
+      {
+        "title": "The Truth About Credit Card Debt: How to Escape the $1.2 Trillion Crisis!",
+        "id": 13207353
+      },
+      {
+        "title": "Tip Fatigue is Real. How About for You?",
+        "id": 13043772
+      },
+      {
+        "title": "So Much Debt Advice is Just Not as Simple as We Want",
+        "id": 12990687
+      },
+      {
+        "title": "Sexually Transmitted Debt and Financial Infidelity",
+        "id": 12924774
+      },
+      {
+        "title": "Gen X: The Financial Disaster You Don't See Coming",
+        "id": 12909118
+      },
+      {
+        "title": "Why You Should NEVER Use a Debit Card - Part 2",
+        "id": 12873979
+      },
+      {
+        "title": "Video Podcast: Bait-and-Switch Loans: How to Spot and Avoid Debt Settlement Traps",
+        "id": 12869700
+      },
+      {
+        "title": "Bait-and-Switch Loans: How to Spot and Avoid Debt Settlement Traps",
+        "id": 12853798
+      },
+      {
+        "title": "Why You Should NEVER Use a Debit Card - Part 1",
+        "id": 12847872
+      },
+      {
+        "title": "Steve and Damon Talk About How to Save Money When Digging Out of Debt",
+        "id": 12822777
+      },
+      {
+        "title": "How I Overcame Losing Everything and Dealing with Haters Along the Way",
+        "id": 12817279
+      },
+      {
+        "title": "Do You Know Someone That Struggles to Make Decissions. I Have an Answer.",
+        "id": 12808251
+      },
+      {
+        "title": "Why Posting Nasty Rants Online Costs People Money",
+        "id": 12798816
+      },
+      {
+        "title": "How People Are Easily Fooled and Deceived When Getting Out of Debt",
+        "id": 12794662
+      },
+      {
+        "title": "How to Make Money on YouTube",
+        "id": 12788890
+      },
+      {
+        "title": "How Tariffs Work - Why Tariffs Might Not Be Helping Like You Think",
+        "id": 12785492
+      },
+      {
+        "title": "Life is Not Over After Bankruptcy. What People Are Not Telling You.",
+        "id": 12757331
+      },
+      {
+        "title": "From Debt to Dollars: How Side Hustles Can Help You Earn $2,000 a Month!",
+        "id": 12724687
+      },
+      {
+        "title": "Feeling Left Behind? Here’s How Millennials Are Secretly Thriving Financially.",
+        "id": 12688304
+      },
+      {
+        "title": "Why Your Fear of Market Crashes is Costing You Thousands: The Shocking Truth About Gold, Stocks, and Your Credit Score",
+        "id": 12653282
+      },
+      {
+        "title": "Payment App Risks: How Insufficient Consumer Protections Leave Users Vulnerable to Scams and Fraud",
+        "id": 12615624
+      },
+      {
+        "title": "The Federal Student Loan Debacle: Are We Doomed to Repeat History?",
+        "id": 12586596
+      },
+      {
+        "title": "From Zero to Hero: How This Side Hustle Changed My Life",
+        "id": 12398924
+      },
+      {
+        "title": "Debt Busters: Proven Strategies to Obliterate Your Debt",
+        "id": 12375902
+      },
+      {
+        "title": "Inflation Sucks. But Here is What You Need to Know About It.",
+        "id": 12244930
+      },
+      {
+        "title": "Break Free from Myths: The Truth About Credit Counseling!",
+        "id": 12176656
+      },
+      {
+        "title": "You Really Need to Know This About Credit Scores",
+        "id": 12072268
+      },
+      {
+        "title": "Debt Relief Company and Credit Card Debt Explodes and Then Implodes",
+        "id": 11921954
+      },
+      {
+        "title": "Go to College and Retire Wealthy Using DoorDash and Uber Eats",
+        "id": 11820028
+      },
+      {
+        "title": "These Emotions Stop You From Getting Out of Debt",
+        "id": 11756821
+      },
+      {
+        "title": "16 Most Misunderstood Myths About Getting Out of Debt",
+        "id": 11732127
+      },
+      {
+        "title": "Easy Ways to Make Your Money Grow When You Are Just Getting By",
+        "id": 11710369
+      },
+      {
+        "title": "I'm So Embarrassed About My Debt",
+        "id": 11641731
+      },
+      {
+        "title": "Out With the Old and In With the New - Inflation Sucks - Making an Extra Grand",
+        "id": 11632795
+      },
+      {
+        "title": "A Little Chit, a Little Chat. From Side Hustle Money to Not Being a Sucker.",
+        "id": 10958000
+      },
+      {
+        "title": "We Rise From the Dead Yet Again",
+        "id": 10869312
+      },
+      {
+        "title": "Get Out of Debt Guy Podcast - Reader Questions - AMEX Arrrgh",
+        "id": 9740498
+      },
+      {
+        "title": "Getting Out of Debt and Making Lots of Extra Money is Easy When You Do This One FREE Thing",
+        "id": 9655733
+      },
+      {
+        "title": "Is Your Debt Relief Company a Scam and How to Make an Extra $800 a Month to Make Ends Meet",
+        "id": 9573591
+      },
+      {
+        "title": "Side Hustle Review - Is It Too Late To Make Money With A Helium Miner?",
+        "id": 9458184
+      },
+      {
+        "title": "Update 2 On The Make Money With a Side Hustle Project. Lessons Learned. Cash Made.",
+        "id": 9417267
+      },
+      {
+        "title": "First Night Driving for Lyft. A Side Hustle Initial Impressions. Cops Involved.",
+        "id": 9389658
+      },
+      {
+        "title": "Driving for Lyft, First Night Impressions - Video Podcast",
+        "id": 9387108
+      },
+      {
+        "title": "Get Out of Debt by Increasing Income With Side Hustles - The Introduction to the Penny Stupid Project",
+        "id": 9367284
+      },
+      {
+        "title": "Even Brain Surgeons Can't Solve the Housing Crisis - Shortcast",
+        "id": 9360894
+      },
+      {
+        "title": "Home Side Jobs and Side Hustles for Money to Help You Get Out of Debt",
+        "id": 9349717
+      },
+      {
+        "title": "What You Really Need to Know About Inflation - Shortcast ",
+        "id": 9314769
+      },
+      {
+        "title": "Debt Free Dudes - Inflation, Recession, Saving Money, Side Hustle Update",
+        "id": 9302859
+      },
+      {
+        "title": "Take a Lap on the Gerbil Wheel of Debt - The Path to Happiness and Wealth - Chapter 3",
+        "id": 9273719
+      },
+      {
+        "title": "Debt Settlement is Like an Onion. What You Need to Know About the Five Types of Debt Settlement.",
+        "id": 9248427
+      },
+      {
+        "title": "What Your Money is Trying to Tell You - The Path to Happiness and Wealth - Chapter 2",
+        "id": 9211816
+      },
+      {
+        "title": "Do This First When Getting Out of Debt or You Will Make a Million Dollar Mistake",
+        "id": 9187158
+      },
+      {
+        "title": "I Got Hit in the Head With a Baseball and Saw It Coming - The Path to Happiness and Wealth - Chapter 1",
+        "id": 9128392
+      },
+      {
+        "title": "Personal Loan Bait and Switch Bastards",
+        "id": 9105992
+      },
+      {
+        "title": "Having Problems With a Company? Don't Just Complain. Do This Instead.",
+        "id": 9070616
+      },
+      {
+        "title": "How to Beat Debt Fear and Anxiety and Get a Government Backed High Interest Reward at the Same Time",
+        "id": 9047631
+      },
+      {
+        "title": "How to Best Deal With a Debt Collector or Debt Collection Agency - What Everyone Needs to Know",
+        "id": 9016580
+      },
+      {
+        "title": "Time is Running Out for This Student Loan Forgiveness Program, How to Buy Stuff for Less, Car Payment Crash, and Bad People",
+        "id": 9013983
+      },
+      {
+        "title": "Let's Talk UK Debt - Special Bonus Podcast",
+        "id": 9014025
+      },
+      {
+        "title": "Equity Loan, Home Prices, Money Pain for People That Help Us, and a Controversial Tough Topic That Will Make You Ponder",
+        "id": 9014034
+      },
+      {
+        "title": "Do You Need a Budget, Really? Why Budgeting is a Waste of Time for Many.",
+        "id": 9014035
+      },
+      {
+        "title": "Credit Repair 101 - How to Make Your Credit Score Shiny and New",
+        "id": 9014038
+      },
+      {
+        "title": "You Won't Believe This Student Loan Forgiveness Insanity. Mobile Homes Exploding, and Rich Folks Living Month-to-Month",
+        "id": 9014039
+      },
+      {
+        "title": "Side Hustles, Gigs, and Making Money in Your Spare Time - Uber, Lyft, Rover, Handy, Stowit, eBay, Facebook Marketplace, Neighbor, Fiverr, Upwork, and More",
+        "id": 9014036
+      },
+      {
+        "title": "Don't Let a Friend Become a Victim of these Cryptocurrency Scams. Here is What You Need to Know to Not Get Slaughtered",
+        "id": 9014037
+      },
+      {
+        "title": "This State Offers Free College and Child Care - Story of the Day",
+        "id": 9014000
+      },
+      {
+        "title": "What Do You Think Vickie Should Do About ClearOne Advantage? Listen and Share Your Opinion",
+        "id": 9014031
+      },
+      {
+        "title": "I Had Great Credit My Entire Life and Lost it All in 90 Days",
+        "id": 9014030
+      },
+      {
+        "title": "Making the Jump From Welfare to Work is Much More Complicated Than You Assume",
+        "id": 9014029
+      },
+      {
+        "title": "What I Painfully Learned From Trading Crypto, IADT Student Loan Forgiveness, Algorithm Credit Denial Rules",
+        "id": 9014028
+      },
+      {
+        "title": "Should I Do Debt Settlement or Bankruptcy?",
+        "id": 9014027
+      },
+      {
+        "title": "American Express Just Canceled My Cards. What Can I Do?",
+        "id": 9014026
+      },
+      {
+        "title": "I'm Struggling on Disability Income. Is American Consumer Credit Counseling Reputable?",
+        "id": 9013990
+      },
+      {
+        "title": "How Can It Be True That You Can Have Federal Student Loans Forgiven if You Go to Prison?",
+        "id": 9014023
+      },
+      {
+        "title": "Straight Talk About Debt Settlement and Bankruptcy. We Expose Reality and Breakdown Myths and Realities.",
+        "id": 9014024
+      },
+      {
+        "title": "There is More to Forgiving Student Loans Than Either Side is Talking About",
+        "id": 9014021
+      },
+      {
+        "title": "In 2022, Should You Rent or Buy a Home",
+        "id": 9014022
+      },
+      {
+        "title": "How Much Credit Card Debt Should I Carry to Not Harm My Credit Score?",
+        "id": 9014020
+      },
+      {
+        "title": "Interest Rates and Credit Card Debt is Rising. Here is What You Need to Watch Out For",
+        "id": 9014019
+      },
+      {
+        "title": "What to Look for When Consolidating Private Student Loans",
+        "id": 9014018
+      },
+      {
+        "title": "Truth About Navient Student Loan Forgiveness. It's Not What You Assume.",
+        "id": 9014004
+      },
+      {
+        "title": "FTC Shuts Down Credit Repair Using Tradelines, Piggybacking, and Identity Theft Reports",
+        "id": 9014009
+      },
+      {
+        "title": "Apparently You Can Screw Up a Student Loan Free Lunch",
+        "id": 9014008
+      },
+      {
+        "title": "Do Not Avoid Bankruptcy - You Read That Right",
+        "id": 9014007
+      },
+      {
+        "title": "Student Loan Limbo and How to Get Out and Get On With Your Life!",
+        "id": 9014006
+      },
+      {
+        "title": "Well Bless Danny's Heart - EAC Student Loan Contracts - Biz Op Refund",
+        "id": 9014005
+      },
+      {
+        "title": "Public Service Loan Forgiveness is a Really Crappy Program",
+        "id": 9014002
+      },
+      {
+        "title": "What You Should Really Know About Debt Validation and Magic Beanstalk Letters",
+        "id": 9014001
+      },
+      {
+        "title": "In Debt? Consider Bankruptcy. Seriously.",
+        "id": 9014003
+      },
+      {
+        "title": "Get Out of Debt Guy Show - Student Loan Servicer Quits. Mess to Ensue.",
+        "id": 9013994
+      },
+      {
+        "title": "Answering Reader Questions - 1099C and Credit Report Dispute Issues",
+        "id": 9013993
+      },
+      {
+        "title": "Is the Payroll Tax Holiday You've Heard About Everything It is Cracked Up to Be?",
+        "id": 9013995
+      },
+      {
+        "title": "Should I Get a Loan Because of New Medical Debt? - Reader Question",
+        "id": 9013991
+      },
+      {
+        "title": "Coronavirus Evictions Coming Fast",
+        "id": 9013992
+      },
+      {
+        "title": "Student Loan Assistance Scam to Watch For - Another College Closes - Farm Debt - Best Way to Pay Down Debt",
+        "id": 9014017
+      },
+      {
+        "title": "Debit Cards Versus Credit Cards - Layaway - Vacations - Big IRS Refunds",
+        "id": 9014016
+      },
+      {
+        "title": "Dept of Ed Loan Servicers Suck - Argosy U Swirling Toilet - Car Loans Go Bad ",
+        "id": 9014015
+      },
+      {
+        "title": "Making Money by Having Fun, Cheap Tips, and Scammed on Craigslist",
+        "id": 9014014
+      },
+      {
+        "title": "Did You Get a Debt Consolidation Loan Mailer? Be Sure Not to Do This.",
+        "id": 9014013
+      },
+      {
+        "title": "Chased for Debt, No Doc Loans are Back, Just Get a Loan, and Reader Question",
+        "id": 9014011
+      },
+      {
+        "title": "How to Avoid the Debt Collector and Sugar Coating Student Loans",
+        "id": 9014012
+      },
+      {
+        "title": "How to Get the Right Help for Debt Problems – Get Out of Debt Guy Show",
+        "id": 9013998
+      },
+      {
+        "title": "Here’s How to Build the Best Budget – Get Out of Debt Guy Show",
+        "id": 9013999
+      },
+      {
+        "title": "Debt Relief Recap and What Consumers Do Wrong When Seeking Help – Podcast",
+        "id": 9013997
+      },
+      {
+        "title": "DIY Debt Settlement for Those Interested in Do It Yourself Debt Settlement – Podcast",
+        "id": 9013996
+      },
+      {
+        "title": "The History of Getting Out of Debt This Week on the Get Out of Debt Guy Show",
+        "id": 9014045
+      },
+      {
+        "title": "“We Quit” in Debt Settlement and Making Your Finances More Friendly – The Get Out of Debt Guy Show",
+        "id": 9014046
+      },
+      {
+        "title": "Debtors’ Prison, Why Creditors Don’t Care if You Repay Your Debt, and Bankruptcy – The Get Out Of Debt Guy Show",
+        "id": 9014047
+      },
+      {
+        "title": "Debt Settlement Fee Ban, Credit Counseling Wounded, Caller Question – The Get Out of Debt Guy Show",
+        "id": 9014048
+      },
+      {
+        "title": "Personal Attacks, Debt Relief Marketing, How to Separate People From Money and More Stuff – Podcast",
+        "id": 9014049
+      },
+      {
+        "title": "Offshore Debt Settlement, Morgan Drexen, Badges, Elizabeth Warren, Bed Intruder, CROA, and More – Podcast",
+        "id": 9014050
+      },
+      {
+        "title": "New Debt Settlement Rules – Get Out of Debt Radio Show",
+        "id": 9014051
+      },
+      {
+        "title": "Money America Radio Show With Steve Rhode, August 5, 2010",
+        "id": 9014052
+      },
+      {
+        "title": "The Debt Settlement Attorney Model Podcast",
+        "id": 9014053
+      },
+      {
+        "title": "Debt Settlement Does Not Need to Be Closed Down. It Needs to Be Cleaned Up. – Podcast",
+        "id": 9014054
+      },
+      {
+        "title": "Debt Buyers, Getting Sued by a Creditor, and Debt Relief Scams to Avoid – Get Out of Debt Podcast",
+        "id": 9014055
+      },
+      {
+        "title": "I Sit Down With a Bankruptcy Attorney and Talk About Filing Bankruptcy – Get Out of Debt Podcast",
+        "id": 9014057
+      },
+      {
+        "title": "James the Police Officer Calls in For Help to Avoid a Repo – Get Out of Debt Podcast",
+        "id": 9014058
+      },
+      {
+        "title": "Allegro Law and Ripping Off Customers – Get Out of Debt Podcast",
+        "id": 9014059
+      },
+      {
+        "title": "Jim, Charles and Cheryl Get Their Questions Answered on This Get Out of Debt Podcast",
+        "id": 9014060
+      },
+      {
+        "title": "Candy Has Concerns About Creditor Interchange and the Settlement Offer – Get Out of Debt Podcast",
+        "id": 9014061
+      },
+      {
+        "title": "Daisy Calls Again. Uncertain if Debt Settlement or Debt Management is Right for Her. – Get Out of Debt Podcast",
+        "id": 9014062
+      },
+      {
+        "title": "Daisy Calls In And Wonders How to Get an Allegro Law Refund – Get Out of Debt Podcast",
+        "id": 9014063
+      },
+      {
+        "title": "An Interview With Dan Stermer, the Court Appointed Receiver for the Hess Kennedy Debt Settlement Law Firm in Florida – Get Out of Debt Podcast",
+        "id": 9014064
+      },
+      {
+        "title": "Question From James About an Allegro Law Client Refund – Get Out of Debt Podcast",
+        "id": 9014065
+      },
+      {
+        "title": "Get Out of Debt Podcast – More Answers for Angela Concerning Picking a Bankruptcy Attorney",
+        "id": 9014066
+      },
+      {
+        "title": "Get Out of Debt Podcast – Answers for Deborah Who Was in an Auto Accident",
+        "id": 9014067
+      },
+      {
+        "title": "Get Out of Debt Podcast – Answers for Angela and Her Concerns About Allegro Law",
+        "id": 9014068
+      },
+      {
+        "title": "Get Out of Debt Podcast – Answers for Peggy About Allegro Law",
+        "id": 9014069
+      },
+      {
+        "title": "Get Out of Debt Guy | Smart Debt Solutions for Your Financial Freedom (Trailer)",
+        "id": 9014071
+      }
+    ]
+  },
+  {
+    "ID": NaN,
+    "Podcast Name": "Digitalisierung in der Sozialen Arbeit ",
+    "Hosts des Podcasts": NaN,
+    "Handlungsfeld": NaN,
+    "Durchschnittliche Dauer einer Folge": NaN,
+    "Anzahl der Folgen ": 11.0,
+    "Sprache ": "deutsch",
+    "Webseite": "https://www.podcast.de/podcast/3001968/digitalisierung-in-der-sozialen-arbeit",
+    "Unnamed: 8": NaN,
+    "Unnamed: 9": NaN,
+    "success": true,
+    "podcast_id": 60271,
+    "episode_count": 33,
+    "episodes_downloaded": 33,
+    "error": null,
+    "failed_ep": [],
+    "downloaded": [
+      {
+        "title": "Folge 8: KI und Soziale Arbeit",
+        "id": 8662102
+      },
+      {
+        "title": "Folge 7: Inklusive Arbeitswelt",
+        "id": 8662101
+      },
+      {
+        "title": "Folge 6: Entschleunigung in der Lohnarbeit",
+        "id": 8662103
+      },
+      {
+        "title": "Folge 5: Entschleunigungsgesellschaft – eine Utopie?",
+        "id": 8662100
+      },
+      {
+        "title": "Folge 4: Bildungsgerechtigkeit in der Sozialen Arbeit",
+        "id": 8662099
+      },
+      {
+        "title": "Folge 3: Einelternfamilien und kollektive Modelle des Sorgens",
+        "id": 8662112
+      },
+      {
+        "title": "Folge 2: Ein gemeinnütziges Jahr für alle",
+        "id": 8662109
+      },
+      {
+        "title": "Folge 1: Commons und Soziale Arbeit",
+        "id": 8662110
+      },
+      {
+        "title": "Prolog zur Season 4",
+        "id": 8662107
+      },
+      {
+        "title": "Prolog zur Season 3",
+        "id": 7369868
+      },
+      {
+        "title": "Folge 5: Homeoffice in Zeiten der COVID-19-Pandemie",
+        "id": 7369873
+      },
+      {
+        "title": "Folge 4: Cybermobbing bei Jugendlichen und die Rolle der Sozialen Arbeit",
+        "id": 7369872
+      },
+      {
+        "title": "Folge 3: Wohnungslosenhilfe und Digitalisierung",
+        "id": 7369871
+      },
+      {
+        "title": "Folge 2: Psychische Gesundheit von Fachkräften in Sozialer Arbeit",
+        "id": 7369870
+      },
+      {
+        "title": "Folge 1: Einsparpolitik in der Sozialen Arbeit",
+        "id": 7369869
+      },
+      {
+        "title": "Folge 9: Gefängnisse abschaffen, wie könnten mögliche Alternativen aussehen? ",
+        "id": 7042012
+      },
+      {
+        "title": "Folge 8: Für mehr * im Alltag",
+        "id": 7042011
+      },
+      {
+        "title": "Folge 7: Utopie des guten Zusammenlebens unterschiedlicher Religionen ",
+        "id": 7042010
+      },
+      {
+        "title": "Folge 6: Realutopien am Beispiel des studentischen „Micro-Living“ ",
+        "id": 7042008
+      },
+      {
+        "title": "Folge 5: Udo P. lebt eine Utopie – Wohnen für Menschen mit Beeinträchtigung ",
+        "id": 7042009
+      },
+      {
+        "title": "Folge 4: Weniger Arbeit, gleiches Gehalt – utopisch oder realistisch? ",
+        "id": 7042007
+      },
+      {
+        "title": "Folge 3: Das bedingungslose Grundeinkommen. Realistische Lösung für die Zukunft oder dauerhafte Utopie? ",
+        "id": 7042006
+      },
+      {
+        "title": "Folge 2: Utopien im Studiengang Soziale Arbeit ",
+        "id": 7042005
+      },
+      {
+        "title": "Folge 1: Realutopien und Reallabore als konzeptioneller Rahmen ",
+        "id": 7042004
+      },
+      {
+        "title": "Prolog zur Season 2",
+        "id": 7042003
+      },
+      {
+        "title": "Folge 7: Prekäre Arbeitssituation in der Sozialen Arbeit während der Covid-19-Pandemie",
+        "id": 5239845
+      },
+      {
+        "title": "Folge 6: Wie wichtig bin ich selbst eigentlich als Sozialarbeiter?",
+        "id": 5239846
+      },
+      {
+        "title": "Folge 5: Zeit für Soziale Arbeit",
+        "id": 5239847
+      },
+      {
+        "title": "Folge 4: Prekäre Arbeitsbedingungen in der Sozialen Arbeit",
+        "id": 5239848
+      },
+      {
+        "title": "Folge 3: Gaming und Soziale Arbeit",
+        "id": 5239849
+      },
+      {
+        "title": "Folge 2: Soziale Netzwerke und professionelle Beziehungen in der Sozialen Arbeit",
+        "id": 5239850
+      },
+      {
+        "title": "Folge 1: WhatsApp als prekäres digitales Medium in der Sozialen Arbeit",
+        "id": 5239851
+      },
+      {
+        "title": "Folge 0: Über die Entstehung des Podcasts zur Nacht der Sozialen Arbeit",
+        "id": 5239844
+      }
+    ]
+  }
+]
