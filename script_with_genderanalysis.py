@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 
 import torch
-import torchaudio
 import whisper
 import numpy as np
 import librosa
@@ -17,16 +16,19 @@ import random
 from pyannote.audio import Pipeline
 
 import warnings
-warnings.filterwarnings(
-    "ignore",
-    message=r"No module named 'torchcodec'",
-    category=UserWarning,
-)
-torchaudio.set_audio_backend("ffmpeg")
-
+warnings.filterwarnings("ignore", message=r".*torchcodec is not installed correctly.*", category=UserWarning)
+warnings.filterwarnings("ignore", message=r".*set_audio_backend has been deprecated.*", category=UserWarning)
 # NEW: gender model
 from transformers import pipeline as hf_pipeline
 
+
+import shutil
+import sys
+
+ffmpeg_path = shutil.which("ffmpeg")
+print(f"Using ffmpeg: {ffmpeg_path}")
+if ffmpeg_path is None:
+    sys.exit("ffmpeg not found in PATH")
 
 # ----------------------------
 # Logging
@@ -160,15 +162,11 @@ def pick_first_episode(root_dir: str = "fyyd_downloads") -> Tuple[Path, Path]:
 
 def load_audio_mono_16k(audio_path: str) -> Tuple[torch.Tensor, int]:
     """
-    Load audio with torchaudio and resample to mono 16k.
+    Load audio with librosa and convert to mono 16k.
     Returns waveform: [1, n], sr=16000
     """
-    wav, sr = torchaudio.load(audio_path)
-    if wav.shape[0] > 1:
-        wav = wav.mean(dim=0, keepdim=True)
-    if sr != 16000:
-        wav = torchaudio.functional.resample(wav, sr, 16000)
-        sr = 16000
+    y, sr = librosa.load(audio_path, sr=16000, mono=True)
+    wav = torch.from_numpy(y).float().unsqueeze(0)  # [1, n]
     return wav, sr
 
 

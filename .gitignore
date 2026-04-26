@@ -207,3 +207,4 @@ marimo/_lsp/
 __marimo__/
 
 fyyd_downloads/
+outputs/json_debug/
