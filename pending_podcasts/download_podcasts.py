@@ -41,42 +41,8 @@ except ImportError as e:
 # KNOWN RSS FEEDS  (researched from the spreadsheet + web searches)
 # ─────────────────────────────────────────────────────────────────────────────
 KNOWN_RSS: dict[str, str] = {
-    "7 Gute Gründe":
-        "https://feeds.insohr.de/7gutegruende/",
-    "einsbiszwei":
-        "https://feedpress.me/einbiszwei",
-    "Psychoaktiv - Dein Podcast mit Suchttherapeutin Stefanie Bötsch":
-        "https://5cxann.podcaster.de/psychoaktiv.rss",
-    "The Social Work Stories Podcast":
-        "https://feed.podbean.com/socialworkstories/feed.xml",
-    "Helden und Visionäre - Inspiration für Changeakers und Social Entrepreneurs":
-        "https://heldenundvisionaere.de/feed/mp3/",
-    "Wohlfahrt im Wandel - Der Community-Podcast der AWO":
-        "https://rss.buzzsprout.com/2304599.rss",
-    "s_innzeit - der Wissenschafspodcast zur Sozialen Arbeit":
-        "https://sinnzeit.podigee.io/feed/mp3",
-    "Bumsfallera":
-        "https://bumsfallera.podigee.io/feed/mp3",
-    "katho-Cast":
-        "https://katho-cast.podigee.io/feed/mp3",
-    # Theorien Sozialer Arbeit is hosted on letscast.fm
-    "Theorien Sozialer Arbeit":
-        "https://letscast.fm/sites/theorien-der-sozialen-arbeit-04b8c298/feed",
-    # Inklusions-Podcast website suggests podigee hosting
-    "Inklusions-Podcast":
-        "https://inklusions-podcast.podigee.io/feed/mp3",
-    # sozial.audio
-    "sozial.audio - Der Podcast von einem Sozialarbeit, über Soziale Arbeit mit Matthias Palm":
-        "https://sozial.audio/feed/podcast",
-    # Social Sisters
-    "Social Sisters - Mädelsabend mit Tiefgang":
-        "https://social-sisters.podigee.io/feed/mp3",
-    # about:social
-    "about:social - Soziale Arbeit & digitale Medien":
-        "https://aboutsocial.podigee.io/feed/mp3",
-    # relevant & sozial – Paritaet BW
-    "relevant & sozial":
-        "https://paricast.podigee.io/feed/mp3",
+    "Hypatia - Sinn & Soziales":
+        "https://creators.spotify.com/pod/profile/sabine-depew/episodes/Hypatia---Sinn-und-Soziales-e30rs0m"
 }
 
 # Podcasts with no known RSS (will be auto-discovered)
@@ -94,8 +60,6 @@ DISCOVER_HINTS: dict[str, str] = {
 
 # Podcasts that are not available / Spotify-only (no public RSS)
 UNAVAILABLE: set[str] = {
-    "Caritas Klimapodcast",   # marked "Not available anymore" in spreadsheet
-    "SUMMA cum NEUGIER",      # Spotify-only per spreadsheet
 }
 
 # ─────────────────────────────────────────────────────────────────────────────

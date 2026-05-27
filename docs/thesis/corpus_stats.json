@@ -1,0 +1,107 @@
+{
+  "manifest": {
+    "episodes_total": 4530,
+    "podcasts": 84,
+    "status": {
+      "done": 4416,
+      "failed": 114
+    },
+    "transcription_compute_hours": 272.5,
+    "mean_episode_runtime_sec": 222.1
+  },
+  "episodes": {
+    "n_episode_parquet": 4416,
+    "languages": {
+      "de": 4312,
+      "pl": 67,
+      "en": 19,
+      "nn": 11,
+      "la": 2,
+      "ar": 2,
+      "fa": 1,
+      "es": 1,
+      "id": 1
+    },
+    "total_segments": 2039935,
+    "mean_segments_per_episode": 461.9,
+    "mean_speakers_per_episode": 3.16,
+    "median_speakers_per_episode": 2
+  },
+  "chunks": {
+    "n_chunks": 191183,
+    "episodes_chunked": 4400,
+    "word_count_mean": 118.5,
+    "word_count_median": 97,
+    "word_count_p95": 231,
+    "gender": {
+      "male": 95898,
+      "female": 72934,
+      "borderline": 19190,
+      "unknown": 3161
+    },
+    "gender_pct": {
+      "male": 50.2,
+      "female": 38.1,
+      "borderline": 10.0,
+      "unknown": 1.7
+    }
+  },
+  "runs": [
+    {
+      "run_name": "bertopic_minilm_n100_t200",
+      "topics_excluding_outlier": 199,
+      "outlier_rate": 0.5100139656768645,
+      "assigned_count": 93677
+    },
+    {
+      "run_name": "bertopic_full_n100_t150",
+      "topics_excluding_outlier": 149,
+      "outlier_rate": 0.5230119832830324,
+      "assigned_count": 91192
+    },
+    {
+      "run_name": "bertopic_full_mcs30",
+      "topics_excluding_outlier": 622,
+      "outlier_rate": 0.5660492826245012,
+      "assigned_count": 82964
+    },
+    {
+      "run_name": "bertopic",
+      "topics_excluding_outlier": 370,
+      "outlier_rate": 0.5750615902041499,
+      "assigned_count": 81241
+    },
+    {
+      "run_name": "bertopic_mpnet_n100_t200",
+      "topics_excluding_outlier": 199,
+      "outlier_rate": 0.6171050773342818,
+      "assigned_count": 73203
+    },
+    {
+      "run_name": "bertopic_minilm_n100_t200_ms5",
+      "topics_excluding_outlier": 199,
+      "outlier_rate": 0.6451358122845651,
+      "assigned_count": 67844
+    },
+    {
+      "run_name": "bertopic_e5_mcs50_ms1",
+      "topics_excluding_outlier": 315,
+      "outlier_rate": 0.6783814460490734,
+      "assigned_count": 61488
+    },
+    {
+      "run_name": "bertopic_multilingual_e5_large",
+      "topics_excluding_outlier": 145,
+      "outlier_rate": 0.7165804490985077,
+      "assigned_count": 54185
+    }
+  ],
+  "baseline": {
+    "run_dir": "/home/fdai7991/podcast_projekt/outputs/bertopic/podcast_chunks_sw-de",
+    "topics_including_outlier": 371,
+    "topics_excluding_outlier": 370,
+    "outlier_count": 109942,
+    "largest_topic_count": 2447,
+    "median_topic_size": 108
+  }
+}
