@@ -3,8 +3,8 @@
 Count files and total size under a directory.
 
 Usage:
-  python3 dir_stats.py /path/to/dir
-  python3 dir_stats.py /path/to/dir --follow-symlinks
+  python tools/report_directory_usage.py /path/to/dir
+  python tools/report_directory_usage.py /path/to/dir --follow-symlinks
 """
 
 import os

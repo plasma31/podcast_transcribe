@@ -7,7 +7,7 @@ Run with the full venv (has matplotlib + pandas):
 Outputs:
     docs/thesis/corpus_stats.json     - computed numbers used in the prose
     docs/thesis/figures/*.png         - static figures embedded in the chapter
-This script is reproducible and reads only committed-pipeline outputs.
+This script is reproducible and reads only local pipeline outputs.
 """
 import glob
 import json

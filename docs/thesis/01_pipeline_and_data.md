@@ -18,7 +18,7 @@ re-processing audio.
 
 ```mermaid
 flowchart TD
-    A[Source lists<br/>list.xlsx · redownload_list.xlsx · podigee] --> B[Stage 1: Acquisition<br/>fyyd API · Podigee · RSS]
+    A[Source lists<br/>data_sources/*.xlsx · data_sources/podigee_episodes.csv] --> B[Stage 1: Acquisition<br/>fyyd API · Podigee · RSS]
     B --> C[(fyyd_downloads/&lt;podcast&gt;/*.mp3)]
     C --> D[Stage 2: batch_podcast_runner.py]
     subgraph D2 [Per-episode processing · pipeline_core.PodcastPipeline]
@@ -49,41 +49,51 @@ were merged into **191,183 chunks** drawn from 4,400 episodes.
 
 ## 2. Directory and output layout
 
-The repository versions only code; audio, Parquet, model artefacts, and logs are
-intentionally untracked. The on-disk layout produced by the pipeline is:
+The repository versions code, acquisition source lists, dependency manifests,
+and documentation. Audio, Parquet, model artefacts, logs, and exports are
+intentionally untracked. The working layout is:
 
 ```
 podcast_projekt/
-├── fyyd_downloads/<podcast_name>/*.mp3      # Stage 1 — raw episode audio (one folder per podcast)
+├── acquisition/                            # Stage 1 download and discovery utilities
+├── data_sources/                           # tracked acquisition spreadsheets and CSV files
+├── tools/                                  # audit and directory-report utilities
+├── docs/thesis/                            # methodology, figures, and export helpers
+├── requirements.base.txt                   # direct Stage 1–2 dependencies
+├── requirements.venv*.txt                  # full environment snapshots
+├── fyyd_downloads/<podcast_name>/*.mp3      # ignored Stage 1 audio
 ├── pipeline/                                # canonical pipeline code
-│   ├── pipeline_core.py                     #   PodcastPipeline: transcribe + diarize + gender
+│   ├── pipeline_core.py                     #   transcribe + diarize + gender
 │   ├── batch_podcast_runner.py              #   Stage 2 resumable batch driver
-│   ├── run_bertopic_from_manifest.py        #   Stage 3 resumable chunk build + BERTopic
-│   ├── bertopic_typisierung.py              #   shared BERTopic helpers (model + stopwords)
-│   ├── reassign_bertopic_outliers.py        #   outlier reassignment (c-TF-IDF / probabilities)
-│   ├── reassign_bertopic_outliers_embeddings.py   # outlier reassignment (embeddings)
-│   └── compare_bertopic_runs.py             #   cross-run comparison
-└── outputs/                                 # all generated data
-    ├── parquet/
-    │   ├── episodes/<episode_id>.parquet     # Stage 2 — one row per episode
-    │   └── segments/<episode_id>.parquet     # Stage 2 — one row per transcript segment
-    ├── json_debug/<episode_id>.json          # Stage 2 — full raw debug payload per episode
-    ├── state/
-    │   ├── manifest.parquet                  # the job ledger (one row per episode)
-    │   └── failures.parquet                  # append-only failure log
-    └── bertopic*/                            # Stage 3 — one directory per modelling experiment
-        ├── chunks_input.parquet              #   accumulated chunk corpus (model input)
-        ├── chunk_build_state.parquet         #   per-episode chunking ledger (resumability)
-        └── podcast_chunks_sw-de/             #   a trained run (sw-de = German stopwords)
-            ├── doc_topics.parquet/.csv       #     chunk → topic assignment
-            ├── topic_info.parquet/.csv       #     per-topic size + representation
-            ├── topic_words.parquet/.csv      #     top words per topic
-            ├── representative_docs.parquet   #     representative chunks per topic
-            ├── chunks_with_topics.parquet    #     chunks joined with their topic
-            ├── bertopic_model/               #     serialized BERTopic model (safetensors)
-            ├── run_config.json               #     full parameter record of the run
-            ├── _TRAINING_COMPLETE.json        #     completion marker (gates re-training)
-            └── topics_*.html                 #     interactive Plotly diagrams
+│   ├── run_bertopic_from_manifest.py        #   Stage 3 chunk build + BERTopic
+│   ├── bertopic_typisierung.py              #   shared model and stopword helpers
+│   ├── reassign_bertopic_outliers.py        #   c-TF-IDF/probability reassignment
+│   ├── reassign_bertopic_outliers_embeddings.py
+│   └── compare_bertopic_runs.py
+├── outputs/                                 # ignored generated analysis data
+│   ├── parquet/
+│   │   ├── episodes/<episode_id>.parquet
+│   │   └── segments/<episode_id>.parquet
+│   ├── json_debug/<episode_id>.json
+│   ├── state/
+│   │   ├── manifest.parquet
+│   │   └── failures.parquet
+│   └── bertopic*/
+│       ├── chunks_input.parquet
+│       ├── chunk_build_state.parquet
+│       └── podcast_chunks_sw-de/
+│           ├── doc_topics.parquet/.csv
+│           ├── topic_info.parquet/.csv
+│           ├── topic_words.parquet/.csv
+│           ├── representative_docs.parquet
+│           ├── chunks_with_topics.parquet
+│           ├── bertopic_model/
+│           ├── run_config.json
+│           ├── _TRAINING_COMPLETE.json
+│           └── topics_*.html
+├── logs/                                    # ignored batch and audit logs
+├── artifacts/                               # ignored acquisition results and binaries
+└── dist/                                    # ignored PDF and ZIP exports
 ```
 
 The `outputs/bertopic*` directories are **parallel experiments**: the suffix of
@@ -104,21 +114,21 @@ duplicating episodes. The same principle keys chunks:
 
 ## 3. Stage 1 — Acquisition
 
-Episodes are downloaded into `fyyd_downloads/<podcast_name>/` from three
-sources, each driven by a spreadsheet/CSV list of podcast names or feeds:
+Audio is acquired into `fyyd_downloads/<podcast_name>/` from tracked
+spreadsheet/CSV source lists. The fyyd and RSS utilities download enclosures;
+the Podigee utility creates an enclosure-URL inventory for subsequent retrieval:
 
 | Script | Source | Discovery mechanism |
 |---|---|---|
-| `download.py` | fyyd API | search podcast by name → fetch episode list → stream-download each enclosure |
-| `podigee_podcasts/download_podigee_episodes.py` | Podigee | resolve episode audio URLs from a Podigee CSV |
-| `pending_podcasts/download_podcasts.py` | RSS / PodcastIndex / iTunes | auto-discover the RSS feed for podcasts without a known one, then download |
-| `pending_podcasts/redownload.py` | RSS | re-download episodes that failed the first pass |
+| `acquisition/fyyd_download.py` | fyyd API | search podcast by name → fetch episode list → stream-download each enclosure |
+| `acquisition/rss_download.py` | RSS / fyyd / iTunes | use known feeds or discover a feed, then stream-download its enclosures |
+| `acquisition/podigee_scrape.py` | Podigee | collect episode enclosure URLs into `data_sources/podigee_episodes.csv` |
 
-All downloaders stream to disk in fixed-size chunks with connect/read timeouts
-and bounded retries to tolerate slow or stalling servers, and pause briefly
-between requests to respect the source APIs. Download outcomes are recorded in
-JSON result files (`fyyd_results.json`, `podigee.json`) and text logs. Audio is
-stored as MP3 (the corpus is 100 % `.mp3`).
+The downloaders stream to disk in fixed-size chunks with timeouts and bounded
+retries. `acquisition/podigee_scrape.py` writes metadata only and does not
+retrieve audio. Generated acquisition logs and result snapshots are written
+under the ignored `artifacts/acquisition/` directory. Audio is stored under
+`fyyd_downloads/<podcast_name>/`, primarily as MP3.
 
 ## 4. Stage 2 — Transcription, diarization, and vocal gender
 
@@ -148,10 +158,9 @@ F0: **< 155 Hz → male**, **> 185 Hz → female**, and the 155–185 Hz overlap
 > **Methodological note (important for interpretation).** The gender label is a
 > measure of **perceived vocal pitch**, not self-identified or social gender.
 > It is derived from a single acoustic feature (median F0) with fixed
-> thresholds, not from a trained classifier. An earlier prototype
-> (`script_with_genderanalysis.py`) wired up a neural wav2vec age/gender model,
-> but the production pipeline deliberately uses the transparent, inspectable F0
-> method. Each label is stored together with its `f0_median_hz`, `voiced_ratio`,
+> thresholds, not from a trained classifier. The production pipeline
+> deliberately uses this transparent, inspectable F0 method. Each label is
+> stored together with its `f0_median_hz`, `voiced_ratio`,
 > and an interquartile range, so the underlying measurement is auditable and the
 > thresholds can be revisited. The `borderline` and `unknown` categories
 > (≈ 10 % and ≈ 2 % of chunks respectively) are retained rather than forced into

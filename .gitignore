@@ -18,6 +18,14 @@ env/
 
 # Logs
 *.log
+logs/
+
+# Generated local artifacts and documentation exports
+artifacts/
+dist/
+/mc
+/*.pdf
+/*.zip
 
 # Project data and generated artifacts (untracked by design — see CLAUDE.md)
 # Pipeline outputs are large (multi-GB; single files exceed GitHub's 100MB limit)

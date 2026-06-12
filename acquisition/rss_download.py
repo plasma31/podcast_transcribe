@@ -4,11 +4,11 @@ Podcast Episode Bulk Downloader
 ================================
 Downloads all episodes from the podcast list (redownload_list.xlsx).
 RSS feeds were researched; podcasts without a known feed are auto-discovered
-via the PodcastIndex.org API (free, no key required for basic search) and
-Apple iTunes search as a fallback.
+through Apple iTunes search, with the public fyyd search endpoint as a
+fallback.
 
 Usage:
-    python3 download_podcasts.py [--output-dir ./podcasts] [--workers 3] [--dry-run]
+    python acquisition/rss_download.py [--output-dir fyyd_downloads] [--workers 3] [--dry-run]
 
 Requirements:
     pip install requests feedparser openpyxl tqdm
@@ -26,6 +26,11 @@ import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_XLSX = ROOT / "data_sources" / "redownload_list.xlsx"
+DEFAULT_OUTPUT_DIR = ROOT / "fyyd_downloads"
+DEFAULT_LOG_PATH = ROOT / "artifacts" / "acquisition" / "rss_download.log"
 
 try:
     import feedparser
@@ -133,18 +138,14 @@ def discover_via_itunes(query: str) -> str | None:
     return None
 
 
-def discover_via_podcastindex(query: str) -> str | None:
-    """
-    Search PodcastIndex.org (no auth required for basic search via
-    the iTunes-compatible endpoint they mirror).
-    Falls back to podcastindex.org /api/1.0/search/byterm.
-    """
+def discover_feed(query: str) -> str | None:
+    """Search Apple Podcasts, then fyyd, for a public RSS feed URL."""
     # Attempt 1: iTunes search (most reliable, no key needed)
     feed = discover_via_itunes(query)
     if feed:
         return feed
 
-    # Attempt 2: Listen Notes / fyyd (public, no key required)
+    # Attempt 2: fyyd public search (no key required)
     try:
         params = urlencode({"q": query, "count": 1})
         r = SESSION.get(
@@ -343,7 +344,7 @@ def discover_missing(rss_map: dict[str, str | None]) -> dict[str, str | None]:
     for name in missing:
         hint = DISCOVER_HINTS.get(name, name)
         print(f"  Searching: {name!r} …", end=" ", flush=True)
-        url = discover_via_podcastindex(hint)
+        url = discover_feed(hint)
         if url:
             print(f"✅ {url}")
             rss_map[name] = url
@@ -373,7 +374,8 @@ def run(xlsx_path: str, output_dir: str, workers: int, dry_run: bool) -> None:
           f"(unavailable/Spotify-only: {unavail})")
 
     # Log unavailable / missing
-    log_path = out_root / "download_log.txt"
+    log_path = DEFAULT_LOG_PATH
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     log_lines = []
 
     for name, url in sorted(rss_map.items()):
@@ -488,12 +490,12 @@ def main() -> None:
     )
     parser.add_argument(
         "--xlsx",
-        default="redownload_list.xlsx",
+        default=str(DEFAULT_XLSX),
         help="Path to the Excel podcast list.",
     )
     parser.add_argument(
         "--output-dir",
-        default="./podcasts",
+        default=str(DEFAULT_OUTPUT_DIR),
         help="Root directory for downloaded episodes.",
     )
     parser.add_argument(

@@ -11,6 +11,10 @@ import csv
 import re
 import xml.etree.ElementTree as ET
 from urllib.parse import urljoin, urlparse
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_CSV = ROOT / "data_sources" / "podigee_episodes.csv"
 
 HEADERS = {"User-Agent": "podigee-scraper/1.0 (+contact: your-email@example.com)"}
 SLEEP_BETWEEN_REQUESTS = 1.0  # seconds
@@ -121,14 +125,14 @@ def main():
             print("Error scraping", p, e)
 
     # save CSV
-    fname = "podigee_episodes.csv"
+    OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     keys = ["podcast","title","pub_date","mp3_url","episode_page","feed_url"]
-    with open(fname, "w", newline="", encoding="utf-8") as f:
+    with OUTPUT_CSV.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=keys)
         w.writeheader()
         for r in all_rows:
             w.writerow(r)
-    print("Saved", fname)
+    print("Saved", OUTPUT_CSV)
 
 if __name__ == "__main__":
     main()

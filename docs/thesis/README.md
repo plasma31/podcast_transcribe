@@ -2,8 +2,7 @@
 
 Methodological documentation of the German-language podcast processing pipeline
 and the first topic models, written as draft thesis-chapter prose. The corpus,
-parameters, and figures are all reproducible from the committed pipeline
-outputs.
+parameters, and figures are reproducible from the local pipeline outputs.
 
 ## Contents
 
@@ -24,9 +23,15 @@ outputs.
 | Figures (`figures/*.png`) + `corpus_stats.json` | `.venv/bin/python docs/thesis/_make_stats_and_figures.py` |
 | Cross-run comparison CSV | `cd pipeline && ../.venv_bertopic/bin/python compare_bertopic_runs.py` |
 | A topic-model run | `cd pipeline && ../.venv_bertopic/bin/python run_bertopic_from_manifest.py --manifest ../outputs/state/manifest.parquet --output-dir ../outputs/<name> --train` |
+| Speaker/gender audit | `.venv/bin/python tools/audit_missing_speaker_gender.py --manifest outputs/state/manifest.parquet` |
+| Combined thesis PDF | `.venv/bin/python docs/thesis/_build_pdf.py` (writes `dist/thesis_documentation.pdf`) |
 
-See the repository [`CLAUDE.md`](../../CLAUDE.md) for the full pipeline run
+See the repository [`README.md`](../../README.md) for the full pipeline run
 commands and environment setup.
+
+Building the combined PDF requires `Markdown` and `fpdf2`; both are recorded
+in the full `requirements.venv.txt` snapshot. The output is generated under
+`dist/` and is intentionally ignored by Git.
 
 ## Key figures at a glance
 

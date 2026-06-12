@@ -19,7 +19,9 @@ Two virtualenvs exist (both Python 3.12.3); activate the right one per stage:
 - **`.venv`** — full stack: Whisper, pyannote, librosa, BERTopic. Use for stages 1–2 and combined runs.
 - **`.venv_bertopic`** — BERTopic only. Use for stage 3 when running topic modeling in isolation.
 
-Run scripts via the venv interpreter directly, e.g. `.venv/bin/python <script>`. Dependencies are pinned in `requirements.base.txt`.
+Run scripts via the venv interpreter directly, e.g. `.venv/bin/python <script>`.
+Direct Stage 1-2 dependencies are pinned in `requirements.base.txt`; install a
+platform-appropriate PyTorch 2.8.0 family first.
 
 Two hard runtime requirements:
 
@@ -30,9 +32,11 @@ GPU is auto-detected (`torch.cuda.is_available()`). Diarization stays on CPU unl
 
 ## Running the pipeline
 
-The canonical, production code lives in `pipeline/`. The root-level `script.py` and `script_with_genderanalysis.py` are earlier single-file prototypes of the same logic — `pipeline/pipeline_core.py` supersedes them; prefer it for new work.
+The canonical transcription and topic-modeling code lives in `pipeline/`. Acquisition utilities live in `acquisition/`, and their source spreadsheets/CSV files live in `data_sources/`.
 
-**Important — import layout:** `pipeline/batch_podcast_runner.py` does `from pipeline_core import ...` and `pipeline/run_bertopic_from_manifest.py` does `from bertopic_typisierung import ...`. These are sibling imports with no package, so **run these scripts with `pipeline/` as the working directory** (or on `PYTHONPATH`), not from the repo root.
+**Import layout:** the pipeline entry points use sibling imports. Running them
+as files from the repository root works because Python adds `pipeline/` to
+`sys.path`; running them from inside `pipeline/` also works.
 
 ### Stage 2 — batch transcription/diarization/gender (resumable)
 
@@ -46,13 +50,6 @@ cd pipeline
   --gender \
   --diar_gpu \
   --limit 500 --retry_failed --rebuild_manifest
-```
-
-Single-episode / ad-hoc run (older standalone script, writes a sidecar `*.whisper_diarized.json`):
-
-```bash
-.venv/bin/python script_with_genderanalysis.py --audio path/to/ep.mp3 --gender
-.venv/bin/python script_with_genderanalysis.py --sanity   # process 2 random episodes
 ```
 
 ### Stage 3 — BERTopic (resumable chunk build + training)
@@ -74,11 +71,13 @@ cd pipeline
 
 ### Supporting scripts
 
-- `download.py`, `podigee_podcasts/download_podigee_episodes.py`, `pending_podcasts/download_podcasts.py`, `pending_podcasts/redownload.py` — acquisition from fyyd/Podigee/RSS into `fyyd_downloads/`. Inputs are Excel/CSV lists (`list.xlsx`, etc.).
-- `audit_missing_speaker_gender.py` — audits episode parquet for missing/unknown speaker gender.
+- `acquisition/fyyd_download.py` and `acquisition/rss_download.py` — download episodes into `fyyd_downloads/` from fyyd or RSS.
+- `acquisition/podigee_scrape.py` — collect Podigee episode URLs into `data_sources/podigee_episodes.csv`.
+- `data_sources/list.xlsx` and `data_sources/redownload_list.xlsx` — acquisition source lists.
+- `tools/audit_missing_speaker_gender.py` — audits episode parquet for missing/unknown speaker gender.
 - `pipeline/reassign_bertopic_outliers.py` / `..._embeddings.py` — reassign `topic == -1` outlier chunks using a trained model (c-tf-idf / embeddings strategies).
 - `pipeline/compare_bertopic_runs.py` — compare multiple `outputs/bertopic*/podcast_chunks_sw-de/` runs.
-- `unzip.py` — despite the name, a directory file-count/size reporter.
+- `tools/report_directory_usage.py` — recursive directory file-count and size reporter.
 
 ## Architecture and data model
 
@@ -89,7 +88,7 @@ The core class loads three models and exposes `process_episode()`, which returns
 1. **Whisper** `transcribe()` → time-stamped text segments (`fp16=False` for stability).
 2. **pyannote** `diarize()` (model `pyannote/speaker-diarization-3.1`) → speaker turns. Audio is loaded mono/16k via librosa. `_load_pyannote` tries `token` / `use_auth_token` / `hf_token` kwargs in turn to tolerate pyannote API drift.
 3. **`match_segments()`** assigns each Whisper segment to the diarized speaker with maximum time overlap.
-4. **Gender** — `estimate_speaker_gender()` concatenates each speaker's turns (up to `max_speaker_sec`) and calls `estimate_gender_from_f0()`. Note: gender is derived from **median fundamental frequency via `librosa.pyin`**, not a neural classifier — thresholds are `f0 < 155 Hz → male`, `> 185 Hz → female`, else `borderline`/`unknown`. (A wav2vec age/gender classifier is wired up in the old `script_with_genderanalysis.py` but is bypassed in favor of the F0 method — see `16d0853`.)
+4. **Gender** — `estimate_speaker_gender()` concatenates each speaker's turns (up to `max_speaker_sec`) and calls `estimate_gender_from_f0()`. Gender is derived from **median fundamental frequency via `librosa.pyin`**, not a neural classifier — thresholds are `f0 < 155 Hz → male`, `> 185 Hz → female`, else `borderline`/`unknown`.
 
 `episode_id = sha1(resolved absolute episode path)` — stable across runs as long as files are not moved.
 
