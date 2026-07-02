@@ -189,7 +189,7 @@ with matplotlib figures generated directly from the saved topic tables
 (`docs/thesis/_make_stats_and_figures.py`); these are used in Chapter
 "Results".
 
-## 4. The outlier problem and reassignment
+## 4. The outlier problem
 
 HDBSCAN's refusal to force-classify low-density documents is desirable for
 purity but produces a large **outlier class** (topic `-1`) on this corpus. In
@@ -197,27 +197,3 @@ the baseline run, **109,942 of 191,183 chunks (57.5 %)** are outliers. This is
 expected for spontaneous speech — much podcast talk is greetings, transitions,
 and chit-chat with no stable topic — but it must be reported and, where useful,
 mitigated.
-
-Two scripts reassign outliers using BERTopic's `reduce_outliers`, taking a
-trained model and re-labelling topic `-1` chunks:
-
-- **`reassign_bertopic_outliers.py`** — strategies `c-tf-idf`, `probabilities`,
-  or `distributions` (text/probability based).
-- **`reassign_bertopic_outliers_embeddings.py`** — the `embeddings` strategy:
-  re-embeds the outlier chunks (caching the embeddings to
-  `embeddings_for_outlier_reassignment.npy`) and assigns each to the nearest
-  topic centroid in embedding space.
-
-Reassignment is a *trade-off between coverage and purity*. Applied to the
-`minilm_n100_t200` run, the embeddings strategy could in principle eliminate the
-outlier class entirely (51 % → 0 %), but unconditional reassignment forces
-genuinely off-topic chunks into topics. A **confidence-filtered** variant is
-therefore preferred: only reassignments above a similarity threshold are
-accepted, which moved the outlier rate from **51 % to ≈ 40 %** (accepting
-≈ 20,800 chunks into 67 topics that remained stable under reassignment) while
-leaving the rest as honest outliers. The reassignment outputs are written as
-separate `doc_topics_reassigned*.parquet` files, so the original assignment is
-never overwritten and both can be compared.
-
-The next chapter reports how the outlier rate, topic count, and topic structure
-vary across the full grid of runs.
