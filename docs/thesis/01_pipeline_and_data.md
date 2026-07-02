@@ -18,25 +18,35 @@ re-processing audio.
 
 ```mermaid
 flowchart TD
-    A[Source lists<br/>data_sources/*.xlsx · data_sources/podigee_episodes.csv] --> B[Stage 1: Acquisition<br/>fyyd API · Podigee · RSS]
+    A[Source lists<br/>data_sources/*.xlsx<br/>data_sources/podigee_episodes.csv] --> B[Stage 1 jobs<br/>fyyd_download.py<br/>rss_download.py<br/>podigee_scrape.py]
     B --> C[(fyyd_downloads/&lt;podcast&gt;/*.mp3)]
-    C --> D[Stage 2: batch_podcast_runner.py]
-    subgraph D2 [Per-episode processing · pipeline_core.PodcastPipeline]
-        D --> E[Whisper transcription]
-        D --> F[pyannote diarization]
-        E --> G[match_segments<br/>max time overlap]
-        F --> G
-        F --> H[F0 vocal-gender per speaker]
-        G --> I[gender-tagged segments]
-        H --> I
+
+    C --> D[Stage 2 batch job<br/>batch_podcast_runner.py]
+    D --> E[Audio inventory<br/>build_episode_inventory]
+    E --> F[(outputs/state/manifest.parquet<br/>episode job ledger)]
+    F --> G[Select jobs<br/>pending/running<br/>failed if retry_failed]
+
+    subgraph S2 [Per-episode Stage 2 processing · pipeline_core.PodcastPipeline]
+        G --> H[Whisper transcription]
+        G --> I[pyannote diarization]
+        H --> J[match_segments<br/>maximum time overlap]
+        I --> J
+        I --> K[F0 vocal-gender<br/>per diarized speaker]
+        J --> L[gender-tagged<br/>transcript segments]
+        K --> L
     end
-    I --> J[(parquet/episodes/&lt;id&gt;.parquet<br/>parquet/segments/&lt;id&gt;.parquet<br/>json_debug/&lt;id&gt;.json)]
-    J --> K[state/manifest.parquet<br/>job ledger]
-    K --> L[Stage 3: run_bertopic_from_manifest.py]
-    L --> M[Chunking<br/>word-count bounded, speaker-consistent]
-    M --> N[(chunks_input.parquet)]
-    N --> O[BERTopic<br/>SBERT + UMAP + HDBSCAN + c-TF-IDF]
-    O --> P[(topic_info · topic_words · doc_topics · model · diagrams)]
+
+    L --> M[(outputs/parquet/episodes/&lt;id&gt;.parquet<br/>outputs/parquet/segments/&lt;id&gt;.parquet<br/>outputs/json_debug/&lt;id&gt;.json)]
+    M --> F
+    G --> N[(outputs/state/failures.parquet<br/>failed Stage 2 attempts)]
+
+    F --> O[Stage 3 chunk/model job<br/>run_bertopic_from_manifest.py]
+    O --> P[Join episode + segment Parquet<br/>for done manifest rows]
+    P --> Q[Chunking<br/>word-count bounded<br/>speaker-consistent]
+    Q --> R[(chunks_input.parquet/.csv<br/>chunk_build_state.parquet<br/>chunk_build_failures.parquet)]
+    R --> S[(outputs/common_chunks/<br/>canonical reusable chunk corpus)]
+    R --> T[BERTopic training<br/>SentenceTransformer/SBERT<br/>UMAP + HDBSCAN + c-TF-IDF]
+    T --> U[(podcast_chunks_sw-de/<br/>doc_topics.parquet<br/>topic_info.parquet<br/>topic_words.parquet<br/>representative_docs.parquet<br/>chunks_with_topics.parquet<br/>bertopic_model/<br/>run_config.json<br/>topics_*.html)]
 ```
 
 The corpus as processed for this thesis comprises **84 podcasts** and **4,530
@@ -59,34 +69,48 @@ podcast_projekt/
 ├── data_sources/                           # tracked acquisition spreadsheets and CSV files
 ├── tools/                                  # audit and directory-report utilities
 ├── docs/thesis/                            # methodology, figures, and export helpers
-├── requirements.base.txt                   # direct Stage 1–2 dependencies
+├── requirements.base.txt                   # direct Stage 1-2 dependencies
 ├── requirements.venv*.txt                  # full environment snapshots
 ├── fyyd_downloads/<podcast_name>/*.mp3      # ignored Stage 1 audio
 ├── pipeline/                                # canonical pipeline code
-│   ├── pipeline_core.py                     #   transcribe + diarize + gender
+│   ├── pipeline_core.py                     #   transcribe + diarize + gender per episode
 │   ├── batch_podcast_runner.py              #   Stage 2 resumable batch driver
-│   ├── run_bertopic_from_manifest.py        #   Stage 3 chunk build + BERTopic
-│   ├── bertopic_typisierung.py              #   shared model and stopword helpers
-│   ├── reassign_bertopic_outliers.py        #   c-TF-IDF/probability reassignment
+│   ├── run_bertopic_from_manifest.py        #   Stage 3 chunk build + BERTopic runner
+│   ├── bertopic_typisierung.py              #   shared BERTopic model/stopword helpers
+│   ├── greedy_grid_search_bertopic_from_chunks.py
+│   ├── rerun_best_bertopic_from_grid.py
+│   ├── reassign_bertopic_outliers.py
 │   ├── reassign_bertopic_outliers_embeddings.py
 │   └── compare_bertopic_runs.py
 ├── outputs/                                 # ignored generated analysis data
-│   ├── parquet/
-│   │   ├── episodes/<episode_id>.parquet
-│   │   └── segments/<episode_id>.parquet
-│   ├── json_debug/<episode_id>.json
-│   ├── state/
-│   │   ├── manifest.parquet
-│   │   └── failures.parquet
-│   └── bertopic*/
-│       ├── chunks_input.parquet
-│       ├── chunk_build_state.parquet
+│   ├── parquet/                             # Stage 2 transcript corpus
+│   │   ├── episodes/<episode_id>.parquet     # one row per episode
+│   │   └── segments/<episode_id>.parquet     # one row per transcript segment
+│   ├── json_debug/<episode_id>.json          # raw model/debug payload per episode
+│   ├── state/                               # Stage 2 ledgers
+│   │   ├── manifest.parquet                  # current job state and output paths
+│   │   ├── failures.parquet                  # append-only failed-attempt log
+│   │   └── audit_missing_speaker_gender.parquet
+│   ├── common_chunks/                       # canonical reusable Stage 3 input corpus
+│   │   ├── chunks_input.parquet              # universal chunked documents
+│   │   ├── chunks_input.csv                  # CSV copy of the same corpus
+│   │   ├── chunks_input_clean.parquet        # optional filtered corpus variant
+│   │   ├── chunks_excluded_noise.parquet     # chunks excluded by later filtering
+│   │   ├── chunks_cleaning_stats.csv         # reasons/counts for filtered chunks
+│   │   └── embedding_cache/                  # reusable embedding matrices for experiments
+│   └── bertopic*/                            # per-model/per-parameter experiment runs
+│       ├── chunks_input.parquet              # runner-local copy/link of chunk corpus
+│       ├── chunks_input.csv
+│       ├── chunk_build_state.parquet         # Stage 3 chunk resumability ledger
+│       ├── chunk_build_failures.parquet      # Stage 3 chunking failed-attempt log
 │       └── podcast_chunks_sw-de/
 │           ├── doc_topics.parquet/.csv
 │           ├── topic_info.parquet/.csv
 │           ├── topic_words.parquet/.csv
-│           ├── representative_docs.parquet
-│           ├── chunks_with_topics.parquet
+│           ├── representative_docs.parquet/.csv
+│           ├── chunks_with_topics.parquet/.csv
+│           ├── doc_topic_probs.parquet       # optional; only when --save-probs
+│           ├── doc_topics_reassigned*.parquet # optional outlier reassignment outputs
 │           ├── bertopic_model/
 │           ├── run_config.json
 │           ├── _TRAINING_COMPLETE.json
@@ -101,7 +125,9 @@ each folder encodes the embedding model and the parameters that distinguish it
 from the others (e.g. `bertopic_e5_mcs50_ms1` = the *e5-large* embedding with
 HDBSCAN `min_cluster_size = 50`, `min_samples = 1`). The unsuffixed
 `outputs/bertopic/` directory is the reference (baseline) run used throughout
-Chapter "Topic Modelling".
+Chapter "Topic Modelling". The top-level `chunks_input.parquet` files inside
+these experiment folders are runner-local copies of the same chunk corpus for
+full runs; the exchange location for other tooling is `outputs/common_chunks/`.
 
 ### Identity and resumability
 
@@ -111,6 +137,24 @@ path, re-running the pipeline over the same files is idempotent: outputs
 overwrite deterministically and the manifest can be merged across runs without
 duplicating episodes. The same principle keys chunks:
 `chunk_id = SHA-1(episode_id | start | end | index | text[:200])`.
+
+### Operational IO map
+
+This table is the compact contract between the code, local directories, and
+external consumers. "Job" means the command-line script that is run; all paths
+are relative to the project root unless stated otherwise.
+
+| Stage | Job / code path | Reads | Writes | Downstream consumer |
+|---|---|---|---|---|
+| Source selection | manual list maintenance | `data_sources/list.xlsx`, `data_sources/redownload_list.xlsx`, known feed URLs | tracked source lists | Stage 1 download jobs |
+| Stage 1 acquisition | `acquisition/fyyd_download.py`, `acquisition/rss_download.py`, `acquisition/podigee_scrape.py` | source lists, fyyd/RSS/Podigee metadata | `fyyd_downloads/<podcast>/*.mp3`, acquisition logs/snapshots under `artifacts/acquisition/` | Stage 2 inventory scan |
+| Stage 2 inventory | `batch_podcast_runner.py` -> `build_episode_inventory()` | `fyyd_downloads/<podcast>/*.{mp3,wav,m4a,...}` | merged `outputs/state/manifest.parquet` rows with `pending` status for new audio | Stage 2 job selector |
+| Stage 2 episode processing | `PodcastPipeline.process_episode()` | one audio file plus its manifest row | `outputs/parquet/episodes/<id>.parquet`, `outputs/parquet/segments/<id>.parquet`, `outputs/json_debug/<id>.json` | transcript analysis, chunk building, debugging |
+| Stage 2 state update | `StateStore.save_manifest()` / `append_failure()` | current manifest, per-episode success/failure | updated `outputs/state/manifest.parquet`; append-only `outputs/state/failures.parquet` on failure | resumability, audit, retry decisions |
+| Stage 3 chunk build | `run_bertopic_from_manifest.py` -> `build_chunks_resumable()` | `manifest.parquet` rows with `status == done`, each row's episode/segment Parquet paths | `chunks_input.parquet/.csv`, `chunk_build_state.parquet`, `chunk_build_failures.parquet` | BERTopic and Samuel-style app/document consumers |
+| Common chunk cache | `greedy_grid_search_bertopic_from_chunks.py` / manual copy | a finished run's `chunks_input.parquet` | `outputs/common_chunks/chunks_input.parquet`, optional clean/filter outputs and embedding cache | grid search, final model runs, S3 handoff |
+| BERTopic model run | `run_bertopic_from_manifest.py` -> `run_bertopic()` | `chunks_input.parquet`; stopword files; embedding model | `doc_topics`, `topic_info`, `topic_words`, `representative_docs`, `chunks_with_topics`, saved model, run config, HTML diagrams | thesis results, app/topic browsing, run comparison |
+| Optional reassignment | `reassign_bertopic_outliers*.py` | a trained run's `doc_topics.parquet`, model, chunk text | `doc_topics_reassigned*.parquet`, diagnostics | coverage/purity comparison; never overwrites original topics |
 
 ## 3. Stage 1 — Acquisition
 
@@ -171,7 +215,23 @@ The pipeline returns an `EpisodeArtifacts` object (episode record + segment
 records + a debug payload), which the batch runner writes to the three output
 files described below.
 
-### 4.1 Resumability via the manifest
+### 4.1 Stage 2 per-episode processing contract
+
+The following table expands the processing box in the flow chart. Every row is
+run once per selected manifest episode.
+
+| Step | Code path | Inputs | Main action | Outputs added to artifacts |
+|---|---|---|---|---|
+| Load job | `batch_podcast_runner.select_jobs()` | `outputs/state/manifest.parquet` | Select `pending`, stale `running`, and optionally `failed` rows up to `--limit` | manifest row set to `running`; `attempt_count` incremented |
+| Transcription | `PodcastPipeline.transcribe()` | `episode_path` audio | Whisper model (`--whisper_model`, default `small`) creates timestamped text segments and language code | raw Whisper segments; `whisper_language`; `whisper_text_full`; `n_whisper_segments` |
+| Audio loading | `load_audio_mono_16k()` | same audio file | Load mono 16 kHz waveform for diarization and F0 analysis | waveform used internally; not persisted by default |
+| Diarization | `PodcastPipeline.diarize()` | mono waveform and sample rate | pyannote `speaker-diarization-3.1` returns speaker turns | raw diarized turns; `n_diarized_segments`; `n_speakers`; `speakers_json` |
+| Segment-speaker match | `match_segments()` | Whisper segments + diarized turns | Assign each Whisper segment to the diarized speaker with maximum temporal overlap | final segment records with `segment_idx`, `start`, `end`, `speaker`, `text` |
+| Vocal-gender estimate | `estimate_speaker_gender()` | diarized speaker turns + audio waveform | Concatenate up to 90 seconds per speaker and estimate median F0 with `librosa.pyin` | per-speaker JSON and per-segment `gender`, `gender_confidence`, `f0_median_hz`, `voiced_ratio`, `f0_iqr_hz` |
+| Write success | `write_artifacts()` | `EpisodeArtifacts` | Persist episode, segment, and debug payloads | one episode Parquet, one segment Parquet, one debug JSON; manifest row set to `done` with output paths |
+| Write failure | `StateStore.append_failure()` | caught exception | Preserve the error without stopping the batch | manifest row set to `failed`; attempt row appended to `outputs/state/failures.parquet` |
+
+### 4.2 Resumability via the manifest
 
 `batch_podcast_runner.py` is designed to be interrupted and re-run safely. It
 maintains `state/manifest.parquet`, a ledger with one row per episode and a
@@ -184,7 +244,7 @@ with `--retry_failed`) up to `--limit`; and (iv) **saves the manifest after
 every episode**, so an interruption loses at most one episode. Failures are also
 appended to `state/failures.parquet` with the exception text and attempt count.
 
-### 4.2 Data dictionary — episode record (`parquet/episodes/<id>.parquet`)
+### 4.3 Data dictionary — episode record (`parquet/episodes/<id>.parquet`)
 
 One row per episode.
 
@@ -204,7 +264,7 @@ One row per episode.
 | `speakers_json` | str (JSON) | Sorted list of speaker labels. |
 | `speaker_gender_json` | str (JSON) | Per-speaker gender result: `{label, confidence, f0_median_hz, voiced_ratio, f0_iqr_hz, seconds_used}`. |
 
-### 4.3 Data dictionary — segment record (`parquet/segments/<id>.parquet`)
+### 4.4 Data dictionary — segment record (`parquet/segments/<id>.parquet`)
 
 One row per transcript segment (the analytical unit before chunking).
 
@@ -227,7 +287,7 @@ The `json_debug/<id>.json` file additionally stores the raw Whisper segments,
 the raw diarized turns, and the matched segments, for auditing and re-analysis
 without re-running the models.
 
-### 4.4 Data dictionary — manifest (`state/manifest.parquet`)
+### 4.5 Data dictionary — manifest (`state/manifest.parquet`)
 
 The job ledger. Beyond the inventory columns (`episode_id`, `podcast_folder`,
 `podcast_dir`, `episode_path`, `episode_name`, `audio_ext`, `file_size_bytes`,
@@ -242,7 +302,146 @@ The job ledger. Beyond the inventory columns (`episode_id`, `podcast_folder`,
 | `runtime_sec` | float \| null | Processing time of the successful run. |
 | `output_episode_parquet`, `output_segments_parquet`, `output_debug_json` | str \| null | Paths to the written artefacts. |
 
-## 5. Corpus characteristics
+### 4.6 Data dictionary — Stage 2 failure log (`state/failures.parquet`)
+
+Append-only record of failed processing attempts. It is intentionally historical:
+an episode can appear here and later be `done` in the manifest after a successful
+retry. The current corpus contains 343 failed-attempt rows for 115 unique
+episodes; 114 episodes remain failed in the manifest.
+
+| Column | Type | Definition |
+|---|---|---|
+| `episode_id` | str | Episode identifier of the failed attempt. |
+| `episode_path` | str | Source audio path attempted. |
+| `podcast_folder` | str | Source podcast folder. |
+| `attempt_count` | int | Attempt number at which the failure was logged. |
+| `error` | str | Exception class and message. |
+| `logged_at` | str (ISO) | Timestamp at which the failure was appended. |
+
+## 5. Stage 3 — Chunking and topic-model artefacts
+
+Stage 3 is implemented by `pipeline/run_bertopic_from_manifest.py`. Its first
+responsibility is **chunk construction**; its second responsibility is optional
+BERTopic training. This distinction matters for reuse: chunking is universal for
+the corpus, while BERTopic outputs are specific to a model/parameter run.
+
+### 5.1 Chunk construction
+
+The runner reads only manifest rows whose `status` matches `--status` (default:
+`done`) and whose `output_episode_parquet` and `output_segments_parquet` paths
+are present. For each episode it reads the segment Parquet, joins any useful
+episode-level metadata, sorts segments by time, drops near-empty text segments,
+and merges consecutive segments into chunks. Defaults are `--chunk-target-words 220`, `--chunk-max-words 320`,
+`--min-segment-words 2`, `--min-doc-words 20`, and `--speaker-consistent`
+enabled.
+
+The output `chunks_input.parquet` is the document table fed into BERTopic. Full
+model runs in this project use the same 191,183-row chunk corpus from 4,400
+episodes. Therefore the recommended exchange location is
+`outputs/common_chunks/chunks_input.parquet`; duplicated `chunks_input.parquet`
+files inside `outputs/bertopic*/` are compatibility copies used by the runner.
+Small `outputs/bertopic_test*` folders are partial test runs and should not be
+used as corpus handoff artefacts.
+
+### 5.2 Chunk-build ledgers
+
+`chunk_build_state.parquet` is the Stage 3 equivalent of the Stage 2 manifest,
+scoped to chunk construction rather than audio processing.
+
+| Column | Type | Definition |
+|---|---|---|
+| `episode_id` | str | Episode processed for chunking. |
+| `status` | str | `done` or `failed` for chunk construction. |
+| `n_chunks` | int | Number of chunks emitted for the episode. |
+| `n_segments` | int | Number of non-empty transcript segments read before chunking filters. |
+| `error` | str \| null | Failure text if chunking failed. |
+| `processed_at` | str (ISO) | Timestamp of the chunking attempt. |
+| `runtime_sec` | float | Chunking runtime for the episode. |
+| `output_episode_parquet`, `output_segments_parquet` | str | Source Stage 2 artefact paths used. |
+
+`chunk_build_failures.parquet` is append-only and records failed chunking
+attempts.
+
+| Column | Type | Definition |
+|---|---|---|
+| `episode_id` | str | Episode whose Stage 3 chunk build failed. |
+| `error` | str | Exception class and message. |
+| `logged_at` | str (ISO) | Time at which the failure was appended. |
+| `output_episode_parquet`, `output_segments_parquet` | str | Source paths attempted. |
+
+### 5.3 BERTopic run outputs
+
+Each trained run writes into `<output-dir>/podcast_chunks_sw-de/` when German
+stopwords are active. The suffix `sw-de` is part of the run identity because it
+records the vectorizer stopword regime.
+
+| Artefact | Contents | Main consumer |
+|---|---|---|
+| `doc_topics.parquet/.csv` | One row per chunk/document with assigned topic and all handoff metadata. | Samuel/app topic browsing; thesis analyses. |
+| `chunks_with_topics.parquet/.csv` | Same chunk rows with the `topic` column added; retained as a full model-output table. | Debugging and model comparison. |
+| `topic_info.parquet/.csv` | BERTopic topic summary: `Topic`, `Count`, `Name`, `Representation`, `Representative_Docs`. | Topic labelling and run summaries. |
+| `topic_words.parquet/.csv` | Topic id, comma-separated top words, and JSON word-score list. | Human-readable topic descriptions. |
+| `representative_docs.parquet/.csv` | Example chunks per topic with rank. | Manual topic validation. |
+| `doc_topic_probs.parquet` | Optional dense topic-probability matrix when `--save-probs` is used. | Confidence/probability workflows; omitted by default because it can be large. |
+| `bertopic_model/` | Saved BERTopic model, topic embeddings, and config. | Reloading the trained model. |
+| `run_config.json` | Exact parameters, runtime, topic counts, outlier counts, and output paths. | Reproducibility and thesis reporting. |
+| `_TRAINING_COMPLETE.json` | Completion marker mirroring the final run config. | Resumability; prevents accidental retraining unless `--force-train`. |
+| `topics_overview.html`, `topics_barchart.html`, `topics_hierarchy.html` | Interactive Plotly diagnostics. | Topic inspection and figure export. |
+| `doc_topics_reassigned*.parquet` | Optional post-hoc outlier reassignment outputs. | Coverage/purity sensitivity checks; original topics remain unchanged. |
+
+### 5.4 Data dictionary — document topics (`doc_topics.parquet`)
+
+| Column | Type | Definition |
+|---|---|---|
+| `doc_id` | int | Row number assigned at model time. |
+| `chunk_id` | str | Stable chunk identifier; joins back to `chunks_input.parquet`. |
+| `episode_id`, `podcast_folder`, `episode_path` | str | Chunk provenance. |
+| `speaker` | str | Single speaker label or `mixed`. |
+| `gender` | str | `male` / `female` / `borderline` / `unknown` / `mixed`. |
+| `start`, `end` | float | Chunk time span in seconds. |
+| `word_count` | int | Words in the chunk text. |
+| `source_segment_count` | int | Number of transcript segments merged into the chunk. |
+| `topic` | int | BERTopic assignment; `-1` is HDBSCAN outlier/noise. |
+| `chunk_text` | str | Text that was embedded and clustered. |
+
+### 5.5 Handoff and S3 layout
+
+For general use and for Samuel's application, the output should be mirrored in
+three layers rather than by the internal experiment folders alone:
+
+```
+stage2_transcripts/
+├── state/manifest.parquet
+├── state/failures.parquet
+├── parquet/episodes/<episode_id>.parquet
+├── parquet/segments/<episode_id>.parquet
+└── json_debug/<episode_id>.json
+
+stage3_chunks/
+├── chunks_input.parquet
+├── chunks_input.csv
+├── chunk_build_state.parquet
+└── chunk_build_failures.parquet
+
+stage3_models/<run_name>/podcast_chunks_sw-de/
+├── doc_topics.parquet
+├── topic_info.parquet
+├── topic_words.parquet
+├── representative_docs.parquet
+├── chunks_with_topics.parquet
+├── bertopic_model/
+├── run_config.json
+└── topics_*.html
+```
+
+Samuel can consume Stage 2 `segments/<id>.parquet` directly if the application
+needs raw speaker-attributed transcript segments. If the application needs
+stable document units for search, embeddings, or topic modelling, it should use
+`stage3_chunks/chunks_input.parquet`. If it needs assigned topics, it should use
+`doc_topics.parquet` joined to `topic_info.parquet` and `topic_words.parquet`.
+Chunking should not be repeated per model; it is a corpus-level transformation.
+
+## 6. Corpus characteristics
 
 **Language.** Whisper's language detection identifies **4,312 episodes (97.6 %)
 as German**, with a long tail of Polish (67), English (19), and a handful of

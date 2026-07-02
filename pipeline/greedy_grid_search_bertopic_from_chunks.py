@@ -1,0 +1,1320 @@
+#!/usr/bin/env python3
+"""
+greedy_grid_search_bertopic_from_chunks.py
+
+Adapted greedy BERTopic grid search for the podcast manifest/chunk pipeline.
+
+Purpose
+-------
+This script is meant to run AFTER chunk creation. It does not download,
+transcribe, diarize, or re-chunk. It reads an existing chunk-level file with
+columns such as:
+
+    chunk_id, episode_id, podcast_folder, episode_path, speaker, gender,
+    start, end, chunk_text, word_count, source_segment_count
+
+It then searches over:
+
+    UMAP n_neighbors
+    HDBSCAN min_cluster_size
+
+and writes a best_config.json whose parameter names match the current
+run_bertopic_from_manifest.py runner as closely as possible.
+
+Recommended layout
+------------------
+Use one shared top-level chunk folder, for example:
+
+    /home/fdai7991/podcast_projekt/outputs/common_chunks/chunks_input.parquet
+
+Then run grid search outputs elsewhere:
+
+    /home/fdai7991/podcast_projekt/outputs/bertopic_gridsearch/<timestamp>_gridsearch/
+
+The final best run should be executed again with run_bertopic_from_manifest.py
+using the generated best_params_cli.txt or rerun_best_bertopic_from_grid.py.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import gc
+import hashlib
+import json
+import logging
+import math
+import shutil
+import sys
+import time
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+import numpy as np
+import pandas as pd
+from bertopic import BERTopic
+from hdbscan import HDBSCAN
+from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import CountVectorizer
+from stopwordsiso import stopwords as stopwords_iso
+from umap import UMAP
+
+try:
+    from bertopic.representation import KeyBERTInspired
+    HAS_KEYBERT = True
+except Exception:
+    HAS_KEYBERT = False
+
+try:
+    from gensim.corpora import Dictionary
+    from gensim.models import CoherenceModel
+    HAS_GENSIM = True
+except Exception:
+    HAS_GENSIM = False
+
+try:
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+    HAS_PLOTLY = True
+except Exception:
+    HAS_PLOTLY = False
+
+
+LOGGER = logging.getLogger("podcast-bertopic-gridsearch")
+
+DEFAULT_EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+DEFAULT_NAMES_COUNTRIES = "DE,AT,CH,TR,PL,RO,RU,UA,FR,IT,ES,PT,NL,BE,GB,US"
+DEFAULT_NN_GRID = "10,15,20,30,50"
+DEFAULT_MCS_GRID = "10,20,30,50,80"
+DEFAULT_METADATA_COLUMNS = (
+    "chunk_id,episode_id,podcast_folder,episode_path,speaker,gender,"
+    "start,end,word_count,source_segment_count"
+)
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(
+        description="Greedy BERTopic grid search over existing manifest-derived chunks."
+    )
+
+    # Input / common chunks
+    p.add_argument(
+        "--chunks-path",
+        default=None,
+        help=(
+            "Existing chunk file. Supports .parquet, .csv, .jsonl. "
+            "If omitted, the script looks for chunks_input.parquet/csv/jsonl "
+            "inside --common-chunks-dir, then optionally copies from --source-run-dir."
+        ),
+    )
+    p.add_argument(
+        "--source-run-dir",
+        default=None,
+        help=(
+            "Optional previous BERTopic run/output directory containing chunks_input.parquet. "
+            "Used only to seed --common-chunks-dir when --chunks-path is omitted."
+        ),
+    )
+    p.add_argument(
+        "--common-chunks-dir",
+        default="/home/fdai7991/podcast_projekt/outputs/common_chunks",
+        help="Top-level folder where reusable chunks_input.parquet/csv are stored.",
+    )
+    p.add_argument(
+        "--output-dir",
+        required=True,
+        help="Root folder for grid-search outputs.",
+    )
+    p.add_argument(
+        "--embedding-cache-path",
+        default=None,
+        help="Optional exact .npy embeddings file to load. Must match the filtered/sampled chunk rows.",
+    )
+    p.add_argument("--text-column", default="chunk_text")
+    p.add_argument("--id-column", default="chunk_id")
+    p.add_argument(
+        "--metadata-columns",
+        default=DEFAULT_METADATA_COLUMNS,
+        help="Comma-separated metadata columns to preserve in doc-topic outputs.",
+    )
+    p.add_argument(
+        "--min-doc-words",
+        type=int,
+        default=20,
+        help="Drop already-created chunks below this word count. No re-chunking is done.",
+    )
+    p.add_argument(
+        "--max-docs",
+        type=int,
+        default=None,
+        help="Optional sample size for a faster exploratory grid search.",
+    )
+    p.add_argument("--sample-random-state", type=int, default=42)
+
+    # Embeddings
+    p.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL)
+    p.add_argument("--embedding-device", choices=["auto", "cpu", "cuda"], default="auto")
+    p.add_argument("--embedding-revision", default=None)
+    p.add_argument("--embedding-batch-size", type=int, default=64)
+    p.add_argument(
+        "--embedding-cache-dir",
+        default=None,
+        help="Optional embedding cache dir. Defaults to <common_chunks_dir>/embedding_cache.",
+    )
+    p.add_argument("--force-embeddings", action="store_true")
+
+    # Greedy grid
+    p.add_argument("--nn-grid", default=DEFAULT_NN_GRID)
+    p.add_argument("--mcs-grid", default=DEFAULT_MCS_GRID)
+    p.add_argument(
+        "--coherence-weight",
+        type=float,
+        default=0.5,
+        help="alpha in alpha*coherence_norm + (1-alpha)*(1-noise_norm).",
+    )
+
+    # UMAP defaults mirror run_bertopic_from_manifest.py as far as possible
+    p.add_argument("--umap-n-components", type=int, default=5)
+    p.add_argument("--umap-min-dist", type=float, default=0.0)
+    p.add_argument("--umap-metric", default="cosine")
+    p.add_argument("--umap-random-state", type=int, default=42)
+
+    # HDBSCAN defaults mirror run_bertopic_from_manifest.py
+    p.add_argument("--hdbscan-min-samples", type=int, default=1)
+    p.add_argument("--hdbscan-metric", default="euclidean")
+    p.add_argument("--hdbscan-cluster-selection-method", default="eom")
+
+    # Vectorizer defaults mirror run_bertopic_from_manifest.py
+    p.add_argument("--vectorizer-ngram-min", type=int, default=1)
+    p.add_argument("--vectorizer-ngram-max", type=int, default=3)
+    p.add_argument("--vectorizer-min-df", type=int, default=1)
+    p.add_argument("--vectorizer-max-df", type=float, default=1.0)
+
+    # Topic handling
+    p.add_argument("--nr-topics", type=int, default=None)
+    p.add_argument(
+        "--calculate-probabilities",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Default false for large corpora. Enable only if probabilities are needed.",
+    )
+    p.add_argument("--save-probs", action="store_true")
+
+    # Stopwords
+    p.add_argument("--stopwords", choices=["none", "de"], default="de")
+    p.add_argument("--extra-stopwords", default=None)
+    p.add_argument("--name-stopwords-file", default=None)
+    p.add_argument("--use-names-dataset", action=argparse.BooleanOptionalAction, default=True)
+    p.add_argument("--names-dataset-mode", choices=["top", "all"], default="top")
+    p.add_argument("--names-dataset-countries", default=DEFAULT_NAMES_COUNTRIES)
+    p.add_argument("--names-dataset-top-n", type=int, default=20000)
+    p.add_argument("--names-dataset-min-country-prob", type=float, default=0.0)
+
+    # KeyBERT representation model, optional
+    p.add_argument("--use-keybert", action="store_true", default=False)
+
+    # Output detail
+    p.add_argument(
+        "--save-all-run-doc-topics",
+        action="store_true",
+        help="Save full chunk/doc-topic tables for every tested config. Default saves them only for best copy.",
+    )
+    p.add_argument("--save-noise-docs", action="store_true")
+    p.add_argument(
+        "--save-models",
+        action="store_true",
+        help="Save BERTopic models for every tested config. Usually not needed because the best run is rerun with the main runner.",
+    )
+    p.add_argument("--model-dir-name", default="bertopic_model")
+    p.add_argument("--serialization", choices=["safetensors", "pytorch", "pickle"], default="safetensors")
+
+    return p.parse_args()
+
+
+# ---------------------------------------------------------------------------
+# Utility
+# ---------------------------------------------------------------------------
+
+def setup_logging() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
+
+
+def now_iso() -> str:
+    return pd.Timestamp.now("UTC").isoformat()
+
+
+def clean_text(value: object) -> str:
+    if value is None or pd.isna(value):
+        return ""
+    text = str(value)
+    for seq in ("\\r", "\\n", "\\t", "\r", "\n", "\t"):
+        text = text.replace(seq, " ")
+    return " ".join(text.split()).strip()
+
+
+def word_count(text: str) -> int:
+    return len(clean_text(text).split())
+
+
+def parse_int_grid(value: str, name: str) -> List[int]:
+    try:
+        grid = sorted({int(x.strip()) for x in str(value).split(",") if x.strip()})
+    except Exception as exc:
+        raise ValueError(f"Could not parse {name}: {value}") from exc
+    if not grid:
+        raise ValueError(f"{name} cannot be empty")
+    return grid
+
+
+def csv_list(value: Optional[str]) -> List[str]:
+    if not value:
+        return []
+    return [x.strip() for x in str(value).split(",") if x.strip()]
+
+
+def param_tag(nn: int, mcs: int) -> str:
+    return f"nn{nn}_mcs{mcs}"
+
+
+def file_sha1(path: Path, chunk_size: int = 1024 * 1024) -> str:
+    h = hashlib.sha1()
+    with path.open("rb") as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def stable_fallback_id(text: str, row_idx: int) -> str:
+    payload = f"{row_idx}|{text[:300]}"
+    return hashlib.sha1(payload.encode("utf-8")).hexdigest()
+
+
+# ---------------------------------------------------------------------------
+# Common chunk input
+# ---------------------------------------------------------------------------
+
+def find_chunk_file(folder: Path) -> Optional[Path]:
+    for name in ("chunks_input.parquet", "chunks_input.csv", "chunks_input.jsonl"):
+        p = folder / name
+        if p.exists():
+            return p
+    return None
+
+
+def resolve_chunks_path(args: argparse.Namespace) -> Path:
+    common_dir = Path(args.common_chunks_dir).expanduser().resolve()
+    common_dir.mkdir(parents=True, exist_ok=True)
+
+    if args.chunks_path:
+        src = Path(args.chunks_path).expanduser().resolve()
+        if not src.exists():
+            raise FileNotFoundError(f"--chunks-path not found: {src}")
+        # Copy into common folder if not already there.
+        dst = common_dir / src.name
+        if src != dst and not dst.exists():
+            LOGGER.info("Copying chunks to common folder: %s -> %s", src, dst)
+            shutil.copy2(src, dst)
+            write_common_chunks_manifest(common_dir, source=src, copied_to=dst)
+            return dst
+        return src
+
+    existing = find_chunk_file(common_dir)
+    if existing:
+        LOGGER.info("Using existing common chunks: %s", existing)
+        return existing
+
+    if args.source_run_dir:
+        source_dir = Path(args.source_run_dir).expanduser().resolve()
+        src = find_chunk_file(source_dir)
+        if not src:
+            raise FileNotFoundError(
+                f"No chunks_input.parquet/csv/jsonl found in --source-run-dir: {source_dir}"
+            )
+        dst = common_dir / src.name
+        LOGGER.info("Seeding common chunks from previous run: %s -> %s", src, dst)
+        shutil.copy2(src, dst)
+        # Also copy the alternate CSV/parquet if present.
+        for alt in ("chunks_input.parquet", "chunks_input.csv", "chunks_input.jsonl"):
+            alt_src = source_dir / alt
+            alt_dst = common_dir / alt
+            if alt_src.exists() and alt_src != src and not alt_dst.exists():
+                shutil.copy2(alt_src, alt_dst)
+        write_common_chunks_manifest(common_dir, source=src, copied_to=dst)
+        return dst
+
+    raise FileNotFoundError(
+        "No chunk input found. Provide --chunks-path, seed --common-chunks-dir, "
+        "or provide --source-run-dir containing chunks_input.parquet/csv/jsonl."
+    )
+
+
+def write_common_chunks_manifest(common_dir: Path, *, source: Path, copied_to: Path) -> None:
+    payload = {
+        "created_at": now_iso(),
+        "source": str(source),
+        "copied_to": str(copied_to),
+        "note": "Common reusable chunk input for BERTopic grid search and best-run training.",
+    }
+    (common_dir / "COMMON_CHUNKS_MANIFEST.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def load_chunks(chunks_path: Path, args: argparse.Namespace) -> pd.DataFrame:
+    suffix = chunks_path.suffix.lower()
+    if suffix == ".parquet":
+        chunks = pd.read_parquet(chunks_path)
+    elif suffix == ".csv":
+        chunks = pd.read_csv(chunks_path)
+    elif suffix in {".jsonl", ".json"}:
+        chunks = pd.read_json(chunks_path, lines=True)
+    else:
+        raise ValueError(f"Unsupported chunk file extension: {chunks_path}")
+
+    if args.text_column not in chunks.columns:
+        raise ValueError(
+            f"Text column '{args.text_column}' not found. Available columns: {list(chunks.columns)}"
+        )
+
+    chunks = chunks.copy()
+    chunks[args.text_column] = chunks[args.text_column].map(clean_text)
+    chunks = chunks[chunks[args.text_column].str.len() > 0].copy()
+
+    if args.id_column not in chunks.columns:
+        LOGGER.warning("ID column '%s' missing. Creating stable fallback ids.", args.id_column)
+        chunks[args.id_column] = [
+            stable_fallback_id(text, i) for i, text in enumerate(chunks[args.text_column].tolist())
+        ]
+
+    if "word_count" not in chunks.columns:
+        chunks["word_count"] = chunks[args.text_column].map(word_count)
+    else:
+        chunks["word_count"] = pd.to_numeric(chunks["word_count"], errors="coerce")
+        missing_wc = chunks["word_count"].isna()
+        if missing_wc.any():
+            chunks.loc[missing_wc, "word_count"] = chunks.loc[missing_wc, args.text_column].map(word_count)
+        chunks["word_count"] = chunks["word_count"].astype(int)
+
+    before = len(chunks)
+    chunks = chunks[chunks["word_count"] >= int(args.min_doc_words)].copy()
+    LOGGER.info("Loaded chunks: %d; kept after min_doc_words=%d: %d", before, args.min_doc_words, len(chunks))
+
+    chunks = chunks.drop_duplicates(subset=[args.id_column], keep="last").reset_index(drop=True)
+
+    if args.max_docs is not None and len(chunks) > int(args.max_docs):
+        LOGGER.info("Sampling %d chunks from %d for exploratory grid search", args.max_docs, len(chunks))
+        chunks = chunks.sample(n=int(args.max_docs), random_state=int(args.sample_random_state)).reset_index(drop=True)
+
+    chunks["grid_doc_id"] = range(len(chunks))
+    return chunks
+
+
+# ---------------------------------------------------------------------------
+# Stopwords
+# ---------------------------------------------------------------------------
+
+def parse_extra_stopwords(value: Optional[str]) -> List[str]:
+    return [s.strip().lower() for s in str(value or "").split(",") if s.strip()]
+
+
+def load_stopwords_from_file(path: Optional[str]) -> List[str]:
+    if not path:
+        return []
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Stopwords file not found: {p}")
+    return [
+        line.strip().lower()
+        for line in p.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+
+
+def parse_country_list(value: str) -> Optional[List[str]]:
+    raw = str(value or "").strip()
+    if not raw:
+        return []
+    if raw.upper() in {"ALL", "*"}:
+        return None
+    out: List[str] = []
+    seen: set = set()
+    for c in raw.split(","):
+        c = c.strip().upper()
+        if c and c not in seen:
+            out.append(c)
+            seen.add(c)
+    return out
+
+
+def get_name_stopwords_top(*, countries: List[str], top_n: int) -> List[str]:
+    try:
+        from names_dataset import NameDataset  # type: ignore
+    except Exception:
+        LOGGER.warning("names_dataset not installed; skipping name stopwords.")
+        return []
+    nd = NameDataset()
+    stop: set = set()
+
+    def add(data: object) -> None:
+        if not isinstance(data, dict):
+            return
+        for v in data.values():
+            if isinstance(v, dict):
+                for names in v.values():
+                    if isinstance(names, list):
+                        stop.update(str(n).strip().lower() for n in names if n)
+            elif isinstance(v, list):
+                stop.update(str(n).strip().lower() for n in v if n)
+
+    for country in countries:
+        add(nd.get_top_names(n=top_n, use_first_names=True, country_alpha2=country))
+        add(nd.get_top_names(n=top_n, use_first_names=False, country_alpha2=country))
+    return sorted(s for s in stop if s)
+
+
+def get_name_stopwords_all(*, countries: Optional[List[str]], min_country_prob: float) -> List[str]:
+    try:
+        from names_dataset import NameDataset  # type: ignore
+    except Exception:
+        LOGGER.warning("names_dataset not installed; skipping name stopwords.")
+        return []
+    nd = NameDataset()
+    out: set = set()
+    # API differs between versions; this conservative path avoids hard failure.
+    for attr in ("first_names", "last_names"):
+        data = getattr(nd, attr, {})
+        if isinstance(data, dict):
+            out.update(str(k).strip().lower() for k in data.keys() if k)
+    return sorted(out)
+
+
+def build_stopwords(extra: Sequence[str]) -> List[str]:
+    base = set(stopwords_iso("de"))
+    base.update({"herr", "frau", "herrn", "fraun", "frauen", "herren", "hr", "fr", "lb", "le"})
+    base.update(str(w).strip().lower() for w in extra if str(w).strip())
+    return sorted(base)
+
+
+def build_stopword_list(args: argparse.Namespace) -> Tuple[Optional[List[str]], str]:
+    extra = parse_extra_stopwords(args.extra_stopwords)
+    extra.extend(["müller", "özdal", "özsoy"])
+
+    if args.use_names_dataset:
+        countries = parse_country_list(args.names_dataset_countries)
+        before = len(extra)
+        if args.names_dataset_mode == "all":
+            extra.extend(
+                get_name_stopwords_all(
+                    countries=countries,
+                    min_country_prob=float(args.names_dataset_min_country_prob),
+                )
+            )
+        else:
+            if countries is None:
+                raise ValueError("--names-dataset-countries ALL requires --names-dataset-mode all")
+            extra.extend(get_name_stopwords_top(countries=countries, top_n=int(args.names_dataset_top_n)))
+        LOGGER.info("names-dataset stopwords added: %d", len(extra) - before)
+
+    extra.extend(load_stopwords_from_file(args.name_stopwords_file))
+    if args.stopwords == "de":
+        return build_stopwords(extra), "sw-de"
+    return None, "sw-none"
+
+
+# ---------------------------------------------------------------------------
+# Embeddings
+# ---------------------------------------------------------------------------
+
+def embedding_cache_key(chunks_path: Path, chunks: pd.DataFrame, args: argparse.Namespace) -> str:
+    h = hashlib.sha1()
+    h.update(str(chunks_path.resolve()).encode("utf-8"))
+    h.update(file_sha1(chunks_path).encode("utf-8"))
+    h.update(str(args.embedding_model).encode("utf-8"))
+    h.update(str(args.embedding_revision).encode("utf-8"))
+    h.update(str(len(chunks)).encode("utf-8"))
+    h.update(str(chunks[args.id_column].head(20).astype(str).tolist()).encode("utf-8"))
+    h.update(str(chunks[args.id_column].tail(20).astype(str).tolist()).encode("utf-8"))
+    return h.hexdigest()
+
+
+def load_embedding_model(args: argparse.Namespace) -> SentenceTransformer:
+    st_kwargs: Dict[str, Any] = {}
+    if args.embedding_revision:
+        st_kwargs["revision"] = args.embedding_revision
+    LOGGER.info("Loading SentenceTransformer: %s", args.embedding_model)
+    if args.embedding_device == "auto":
+        return SentenceTransformer(args.embedding_model, **st_kwargs)
+    return SentenceTransformer(args.embedding_model, device=args.embedding_device, **st_kwargs)
+
+
+def get_or_compute_embeddings(
+    chunks_path: Path,
+    chunks: pd.DataFrame,
+    args: argparse.Namespace,
+) -> Tuple[SentenceTransformer, np.ndarray, Path]:
+    cache_dir = Path(args.embedding_cache_dir or (Path(args.common_chunks_dir) / "embedding_cache"))
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    key = embedding_cache_key(chunks_path, chunks, args)
+    emb_path = cache_dir / f"embeddings_{key}.npy"
+    meta_path = cache_dir / f"embeddings_{key}.json"
+
+    model = load_embedding_model(args)
+    if args.embedding_cache_path and not args.force_embeddings:
+        forced_emb_path = Path(args.embedding_cache_path)
+        if not forced_emb_path.exists():
+            raise FileNotFoundError(f"Forced embedding cache not found: {forced_emb_path}")
+
+        LOGGER.info("Loading forced embeddings cache: %s", forced_emb_path)
+        embeddings = np.load(forced_emb_path)
+
+        if embeddings.shape[0] != len(chunks):
+            raise ValueError(
+                f"Forced embeddings row count mismatch: embeddings has {embeddings.shape[0]} rows, "
+                f"but current chunks table has {len(chunks)} rows. "
+                "Use the same --max-docs / --min-doc-words / --sample-random-state as the original cache."
+            )
+
+        return model, embeddings, forced_emb_path
+    if emb_path.exists() and meta_path.exists() and not args.force_embeddings:
+        LOGGER.info("Loading cached embeddings: %s", emb_path)
+        embeddings = np.load(emb_path)
+        if embeddings.shape[0] != len(chunks):
+            LOGGER.warning("Embedding row count mismatch. Recomputing embeddings.")
+        else:
+            return model, embeddings, emb_path
+
+    texts = chunks[args.text_column].tolist()
+    LOGGER.info("Computing embeddings for %d chunks", len(texts))
+    embeddings = model.encode(
+        texts,
+        batch_size=int(args.embedding_batch_size),
+        show_progress_bar=True,
+        convert_to_numpy=True,
+    )
+    np.save(emb_path, embeddings)
+    meta = {
+        "created_at": now_iso(),
+        "chunks_path": str(chunks_path),
+        "embedding_model": args.embedding_model,
+        "embedding_revision": args.embedding_revision,
+        "n_chunks": int(len(chunks)),
+        "shape": list(embeddings.shape),
+    }
+    meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    LOGGER.info("Saved embeddings cache: %s", emb_path)
+    return model, embeddings, emb_path
+
+
+# ---------------------------------------------------------------------------
+# BERTopic / metrics
+# ---------------------------------------------------------------------------
+
+def build_bertopic(
+    *,
+    embedding_model: SentenceTransformer,
+    stopwords: Optional[List[str]],
+    n_neighbors: int,
+    min_cluster_size: int,
+    args: argparse.Namespace,
+) -> BERTopic:
+    umap_model = UMAP(
+        n_neighbors=n_neighbors,
+        n_components=int(args.umap_n_components),
+        min_dist=float(args.umap_min_dist),
+        metric=args.umap_metric,
+        random_state=int(args.umap_random_state),
+    )
+    hdbscan_model = HDBSCAN(
+        min_cluster_size=min_cluster_size,
+        min_samples=int(args.hdbscan_min_samples),
+        metric=args.hdbscan_metric,
+        cluster_selection_method=args.hdbscan_cluster_selection_method,
+        prediction_data=True,
+    )
+    vectorizer = CountVectorizer(
+        ngram_range=(int(args.vectorizer_ngram_min), int(args.vectorizer_ngram_max)),
+        stop_words=stopwords,
+        min_df=int(args.vectorizer_min_df),
+        max_df=float(args.vectorizer_max_df),
+    )
+
+    kwargs: Dict[str, Any] = {
+        "embedding_model": embedding_model,
+        "umap_model": umap_model,
+        "hdbscan_model": hdbscan_model,
+        "vectorizer_model": vectorizer,
+        "top_n_words": 10,
+        "calculate_probabilities": bool(args.calculate_probabilities or args.save_probs),
+        "verbose": False,
+    }
+    if args.use_keybert:
+        if not HAS_KEYBERT:
+            LOGGER.warning("--use-keybert was set, but KeyBERTInspired is unavailable. Continuing without it.")
+        else:
+            kwargs["representation_model"] = KeyBERTInspired()
+    return BERTopic(**kwargs)
+
+
+def compute_coherence(model: BERTopic, texts: List[str]) -> float:
+    if not HAS_GENSIM:
+        LOGGER.warning("gensim not installed; coherence will be NaN.")
+        return float("nan")
+
+    tokenized = [t.lower().split() for t in texts]
+    dictionary = Dictionary(tokenized)
+    vocab = set(dictionary.token2id.keys())
+
+    topic_words: List[List[str]] = []
+    skipped = 0
+    topic_info = model.get_topic_info()
+    for _, row in topic_info.iterrows():
+        tid = int(row["Topic"])
+        if tid == -1:
+            continue
+        words = model.get_topic(tid) or []
+        clean = [str(w).strip().lower() for w, _score in words[:10] if str(w).strip()]
+        clean = [w for w in clean if w in vocab]
+        if len(clean) >= 2:
+            topic_words.append(clean)
+        else:
+            skipped += 1
+
+    if len(topic_words) < 2:
+        LOGGER.warning("Too few valid topics for coherence: %d; skipped=%d", len(topic_words), skipped)
+        return float("nan")
+
+    try:
+        cm = CoherenceModel(
+            topics=topic_words,
+            texts=tokenized,
+            dictionary=dictionary,
+            coherence="c_v",
+        )
+        return float(cm.get_coherence())
+    except Exception as exc:
+        LOGGER.warning("Coherence calculation failed: %s", exc)
+        return float("nan")
+
+
+def topic_words_frame(model: BERTopic, topic_info: pd.DataFrame) -> pd.DataFrame:
+    rows: List[Dict[str, object]] = []
+    for topic_id in topic_info["Topic"].tolist():
+        words = model.get_topic(int(topic_id))
+        if not words:
+            continue
+        rows.append(
+            {
+                "topic": int(topic_id),
+                "words": ", ".join([str(w) for w, _ in words]),
+                "word_scores_json": json.dumps(
+                    [{"word": str(w), "score": float(score)} for w, score in words],
+                    ensure_ascii=False,
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def composite_scores(results: List[Dict[str, Any]], alpha: float) -> List[float]:
+    coherences = [float(r.get("coherence", float("nan"))) for r in results]
+    noise_fracs = [float(r.get("noise_frac", float("nan"))) for r in results]
+
+    valid_c = [c for c in coherences if not math.isnan(c)]
+    c_min, c_max = (min(valid_c), max(valid_c)) if valid_c else (0.0, 1.0)
+    c_range = max(c_max - c_min, 1e-9)
+    c_norm = [(0.0 if math.isnan(c) else (c - c_min) / c_range) for c in coherences]
+
+    valid_n = [n for n in noise_fracs if not math.isnan(n)]
+    n_min, n_max = (min(valid_n), max(valid_n)) if valid_n else (0.0, 1.0)
+    n_range = max(n_max - n_min, 1e-9)
+    # Higher is better, so invert normalised noise.
+    n_norm_inv = [1.0 - ((n - n_min) / n_range) for n in noise_fracs]
+
+    return [float(alpha) * c + (1.0 - float(alpha)) * n for c, n in zip(c_norm, n_norm_inv)]
+
+
+# ---------------------------------------------------------------------------
+# Save outputs
+# ---------------------------------------------------------------------------
+
+def save_topic_distribution(topic_info: pd.DataFrame, out_path: Path) -> pd.DataFrame:
+    ti = topic_info.copy()
+    total = int(ti["Count"].sum()) if "Count" in ti.columns else 0
+    ti["rel_freq_pct"] = (ti["Count"] / max(total, 1) * 100.0).round(3) if "Count" in ti.columns else 0.0
+    ti["is_noise"] = ti["Topic"] == -1
+    ti.to_csv(out_path, index=False)
+    return ti
+
+
+def save_noise_docs_if_requested(
+    run_dir: Path,
+    chunks_with_topics: pd.DataFrame,
+    tag: str,
+    args: argparse.Namespace,
+) -> None:
+    if not args.save_noise_docs:
+        return
+    noise = chunks_with_topics[chunks_with_topics["topic"] == -1].copy()
+    noise.to_parquet(run_dir / f"noise_docs_{tag}.parquet", index=False)
+    noise.to_csv(run_dir / f"noise_docs_{tag}.csv", index=False)
+
+
+def save_run_outputs(
+    *,
+    run_dir: Path,
+    tag: str,
+    model: BERTopic,
+    chunks: pd.DataFrame,
+    topics: Sequence[int],
+    probs: Any,
+    metrics: Dict[str, Any],
+    embeddings: np.ndarray,
+    save_doc_topics: bool,
+    args: argparse.Namespace,
+) -> None:
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    topic_info = model.get_topic_info()
+    topic_info.to_parquet(run_dir / f"topic_info_{tag}.parquet", index=False)
+    topic_info.to_csv(run_dir / f"topic_info_{tag}.csv", index=False)
+
+    topic_words = topic_words_frame(model, topic_info)
+    topic_words.to_parquet(run_dir / f"topic_words_{tag}.parquet", index=False)
+    topic_words.to_csv(run_dir / f"topic_words_{tag}.csv", index=False)
+
+    dist = save_topic_distribution(topic_info, run_dir / f"topic_distribution_{tag}.csv")
+
+    pd.DataFrame([metrics]).to_csv(run_dir / f"metrics_{tag}.csv", index=False)
+    (run_dir / f"metrics_{tag}.json").write_text(
+        json.dumps(metrics, ensure_ascii=False, indent=2, default=str),
+        encoding="utf-8",
+    )
+
+    chunks_with_topics = chunks.copy()
+    chunks_with_topics["doc_id"] = range(len(chunks_with_topics))
+    chunks_with_topics["topic"] = list(topics)
+
+    if save_doc_topics:
+        metadata_cols = csv_list(args.metadata_columns)
+        doc_cols = ["doc_id", "grid_doc_id", args.id_column] + metadata_cols + ["topic", args.text_column]
+        doc_cols = [] if not doc_cols else list(dict.fromkeys([c for c in doc_cols if c in chunks_with_topics.columns]))
+        doc_topics = chunks_with_topics[doc_cols].copy()
+        doc_topics.to_parquet(run_dir / f"doc_topics_{tag}.parquet", index=False)
+        doc_topics.to_csv(run_dir / f"doc_topics_{tag}.csv", index=False)
+        chunks_with_topics.to_parquet(run_dir / f"chunks_with_topics_{tag}.parquet", index=False)
+        chunks_with_topics.to_csv(run_dir / f"chunks_with_topics_{tag}.csv", index=False)
+        save_noise_docs_if_requested(run_dir, chunks_with_topics, tag, args)
+
+        if args.save_probs and probs is not None:
+            probs_arr = np.asarray(probs)
+            if probs_arr.ndim == 2:
+                probs_df = pd.DataFrame(probs_arr)
+                probs_df.insert(0, "doc_id", range(len(probs_df)))
+                if args.id_column in chunks_with_topics.columns:
+                    probs_df.insert(1, args.id_column, chunks_with_topics[args.id_column].tolist())
+                probs_df.to_parquet(run_dir / f"doc_topic_probs_{tag}.parquet", index=False)
+
+    if HAS_PLOTLY:
+        try:
+            fig = model.visualize_topics()
+            fig.write_html(str(run_dir / f"topics_overview_{tag}.html"), include_plotlyjs="cdn")
+        except Exception as exc:
+            LOGGER.warning("Could not save topics_overview for %s: %s", tag, exc)
+        try:
+            fig = model.visualize_barchart()
+            fig.write_html(str(run_dir / f"topics_barchart_{tag}.html"), include_plotlyjs="cdn")
+        except Exception as exc:
+            LOGGER.warning("Could not save topics_barchart for %s: %s", tag, exc)
+        try:
+            fig = model.visualize_hierarchy()
+            fig.write_html(str(run_dir / f"topics_hierarchy_{tag}.html"), include_plotlyjs="cdn")
+        except Exception as exc:
+            LOGGER.warning("Could not save topics_hierarchy for %s: %s", tag, exc)
+
+    if args.save_models:
+        model_dir = run_dir / args.model_dir_name
+        try:
+            model.save(model_dir, serialization=args.serialization, save_embedding_model=True)
+        except TypeError:
+            model.save(model_dir, serialization=args.serialization)
+
+
+def plot_grid_search_overview(results: List[Dict[str, Any]], out_path: Path) -> None:
+    if not HAS_PLOTLY or not results:
+        return
+    rows = []
+    for r in sorted(results, key=lambda x: (int(x["n_neighbors"]), int(x["min_cluster_size"]))):
+        rows.append(
+            {
+                "label": param_tag(int(r["n_neighbors"]), int(r["min_cluster_size"])),
+                "n_neighbors": int(r["n_neighbors"]),
+                "min_cluster_size": int(r["min_cluster_size"]),
+                "coherence": float(r["coherence"]) if not pd.isna(r["coherence"]) else np.nan,
+                "noise_pct": round(float(r["noise_frac"]) * 100.0, 2),
+                "composite_score": float(r.get("composite_score", np.nan)),
+                "n_topics": int(r["n_topics"]),
+            }
+        )
+    df = pd.DataFrame(rows)
+    best_label = None
+    if df["composite_score"].notna().any():
+        best_label = df.loc[df["composite_score"].idxmax(), "label"]
+
+    fig = make_subplots(
+        rows=1,
+        cols=3,
+        subplot_titles=[
+            "Coherence Score (higher = better)",
+            "Noise / outlier share -1 % (lower = better)",
+            "Composite Score (higher = better)",
+        ],
+    )
+    fig.add_trace(go.Bar(x=df["label"], y=df["coherence"], name="Coherence"), row=1, col=1)
+    fig.add_trace(go.Bar(x=df["label"], y=df["noise_pct"], name="Noise %"), row=1, col=2)
+    fig.add_trace(go.Bar(x=df["label"], y=df["composite_score"], name="Composite"), row=1, col=3)
+    title = "Podcast BERTopic Greedy Grid Search"
+    if best_label:
+        title += f" | best: {best_label}"
+    fig.update_layout(title=title, height=540, showlegend=False)
+    fig.update_xaxes(tickangle=45)
+    fig.write_html(str(out_path), include_plotlyjs="cdn")
+
+
+# ---------------------------------------------------------------------------
+# Run one config / greedy search
+# ---------------------------------------------------------------------------
+
+def run_one_config(
+    *,
+    chunks: pd.DataFrame,
+    embeddings: np.ndarray,
+    embedding_model: SentenceTransformer,
+    stopwords: Optional[List[str]],
+    n_neighbors: int,
+    min_cluster_size: int,
+    session_dir: Path,
+    args: argparse.Namespace,
+    save_doc_topics: bool,
+) -> Dict[str, Any]:
+    texts = chunks[args.text_column].tolist()
+    eff_nn = min(int(n_neighbors), max(len(texts) - 1, 1))
+    eff_mcs = min(int(min_cluster_size), max(len(texts), 1))
+    tag = param_tag(int(n_neighbors), int(min_cluster_size))
+    run_dir = session_dir / "runs" / tag
+
+    LOGGER.info("Running %s (effective nn=%d, mcs=%d)", tag, eff_nn, eff_mcs)
+    t0 = time.perf_counter()
+    model = build_bertopic(
+        embedding_model=embedding_model,
+        stopwords=stopwords,
+        n_neighbors=eff_nn,
+        min_cluster_size=eff_mcs,
+        args=args,
+    )
+
+    topics, probs = model.fit_transform(texts, embeddings=embeddings)
+
+    if args.nr_topics is not None:
+        LOGGER.info("Reducing topics to %s for %s", args.nr_topics, tag)
+        model.reduce_topics(texts, nr_topics=int(args.nr_topics))
+        topics = list(model.topics_)
+        probs = getattr(model, "probabilities_", None)
+
+    topics_arr = np.asarray(topics)
+    n_noise = int((topics_arr == -1).sum())
+    n_docs = int(len(topics_arr))
+    noise_frac = n_noise / max(n_docs, 1)
+    topic_info = model.get_topic_info()
+    n_topics = int((topic_info["Topic"] != -1).sum())
+    coherence = compute_coherence(model, texts)
+
+    metrics: Dict[str, Any] = {
+        "n_neighbors": int(n_neighbors),
+        "effective_n_neighbors": int(eff_nn),
+        "min_cluster_size": int(min_cluster_size),
+        "effective_min_cluster_size": int(eff_mcs),
+        "n_topics": int(n_topics),
+        "n_noise": int(n_noise),
+        "n_docs": int(n_docs),
+        "noise_frac": round(float(noise_frac), 6),
+        "coherence": float(coherence),
+        "runtime_sec": round(float(time.perf_counter() - t0), 3),
+        "run_dir": str(run_dir),
+    }
+
+    save_run_outputs(
+        run_dir=run_dir,
+        tag=tag,
+        model=model,
+        chunks=chunks,
+        topics=topics,
+        probs=probs,
+        metrics=metrics,
+        embeddings=embeddings,
+        save_doc_topics=save_doc_topics,
+        args=args,
+    )
+
+    # Release memory between runs.
+    del model
+    gc.collect()
+    return metrics
+
+
+def greedy_grid_search(
+    *,
+    chunks: pd.DataFrame,
+    embeddings: np.ndarray,
+    embedding_model: SentenceTransformer,
+    stopwords: Optional[List[str]],
+    nn_grid: List[int],
+    mcs_grid: List[int],
+    session_dir: Path,
+    args: argparse.Namespace,
+) -> Tuple[List[Dict[str, Any]], int, int]:
+    alpha = float(args.coherence_weight)
+    default_mcs = mcs_grid[len(mcs_grid) // 2]
+    tested: Dict[Tuple[int, int], Dict[str, Any]] = {}
+
+    LOGGER.info("Phase 1: optimise n_neighbors with min_cluster_size=%d", default_mcs)
+    phase1: List[Dict[str, Any]] = []
+    for nn in nn_grid:
+        key = (int(nn), int(default_mcs))
+        metrics = run_one_config(
+            chunks=chunks,
+            embeddings=embeddings,
+            embedding_model=embedding_model,
+            stopwords=stopwords,
+            n_neighbors=int(nn),
+            min_cluster_size=int(default_mcs),
+            session_dir=session_dir,
+            args=args,
+            save_doc_topics=bool(args.save_all_run_doc_topics),
+        )
+        tested[key] = metrics
+        phase1.append(metrics)
+        LOGGER.info(
+            "Phase 1 result nn=%s mcs=%s topics=%s noise_frac=%.4f coherence=%.4f",
+            nn,
+            default_mcs,
+            metrics["n_topics"],
+            metrics["noise_frac"],
+            metrics["coherence"],
+        )
+
+    scores1 = composite_scores(phase1, alpha)
+    best_nn = int(phase1[int(np.argmax(scores1))]["n_neighbors"])
+    LOGGER.info("Phase 1 best n_neighbors=%d", best_nn)
+
+    LOGGER.info("Phase 2: optimise min_cluster_size with n_neighbors=%d", best_nn)
+    phase2: List[Dict[str, Any]] = []
+    for mcs in mcs_grid:
+        key = (int(best_nn), int(mcs))
+        if key in tested:
+            metrics = tested[key]
+            LOGGER.info("Reusing already tested %s", param_tag(*key))
+        else:
+            metrics = run_one_config(
+                chunks=chunks,
+                embeddings=embeddings,
+                embedding_model=embedding_model,
+                stopwords=stopwords,
+                n_neighbors=int(best_nn),
+                min_cluster_size=int(mcs),
+                session_dir=session_dir,
+                args=args,
+                save_doc_topics=bool(args.save_all_run_doc_topics),
+            )
+            tested[key] = metrics
+        phase2.append(metrics)
+        LOGGER.info(
+            "Phase 2 result nn=%s mcs=%s topics=%s noise_frac=%.4f coherence=%.4f",
+            best_nn,
+            mcs,
+            metrics["n_topics"],
+            metrics["noise_frac"],
+            metrics["coherence"],
+        )
+
+    all_results = list(tested.values())
+    final_scores = composite_scores(all_results, alpha)
+    for r, s in zip(all_results, final_scores):
+        r["composite_score"] = round(float(s), 6)
+
+    best_idx = int(np.argmax(final_scores))
+    best = all_results[best_idx]
+    best_nn = int(best["n_neighbors"])
+    best_mcs = int(best["min_cluster_size"])
+    LOGGER.info(
+        "Best compromise: nn=%d mcs=%d coherence=%.4f noise_frac=%.4f composite=%.4f",
+        best_nn,
+        best_mcs,
+        best["coherence"],
+        best["noise_frac"],
+        best["composite_score"],
+    )
+    return all_results, best_nn, best_mcs
+
+
+# ---------------------------------------------------------------------------
+# Best config export / rerun bridge
+# ---------------------------------------------------------------------------
+
+def best_config_payload(
+    *,
+    args: argparse.Namespace,
+    best_nn: int,
+    best_mcs: int,
+    best_result: Dict[str, Any],
+    chunks_path: Path,
+    embeddings_path: Path,
+    session_dir: Path,
+) -> Dict[str, Any]:
+    # Names here intentionally match run_bertopic_from_manifest.py argument names.
+    params = {
+        "embedding_model": args.embedding_model,
+        "embedding_device": args.embedding_device,
+        "embedding_revision": args.embedding_revision,
+        "stopwords": args.stopwords,
+        "extra_stopwords": args.extra_stopwords,
+        "name_stopwords_file": args.name_stopwords_file,
+        "use_names_dataset": bool(args.use_names_dataset),
+        "names_dataset_mode": args.names_dataset_mode,
+        "names_dataset_countries": args.names_dataset_countries,
+        "names_dataset_top_n": int(args.names_dataset_top_n),
+        "names_dataset_min_country_prob": float(args.names_dataset_min_country_prob),
+        "umap_n_neighbors": int(best_nn),
+        "umap_n_components": int(args.umap_n_components),
+        "umap_min_dist": float(args.umap_min_dist),
+        "umap_metric": args.umap_metric,
+        "umap_random_state": int(args.umap_random_state),
+        "hdbscan_min_cluster_size": int(best_mcs),
+        "hdbscan_min_samples": int(args.hdbscan_min_samples),
+        "hdbscan_metric": args.hdbscan_metric,
+        "hdbscan_cluster_selection_method": args.hdbscan_cluster_selection_method,
+        "vectorizer_ngram_min": int(args.vectorizer_ngram_min),
+        "vectorizer_ngram_max": int(args.vectorizer_ngram_max),
+        "vectorizer_min_df": int(args.vectorizer_min_df),
+        "vectorizer_max_df": float(args.vectorizer_max_df),
+        "nr_topics": args.nr_topics,
+        "calculate_probabilities": bool(args.calculate_probabilities or args.save_probs),
+        "save_probs": bool(args.save_probs),
+    }
+    return {
+        "created_at": now_iso(),
+        "purpose": "Best BERTopic parameters selected by greedy grid search over existing chunks.",
+        "chunks_path": str(chunks_path),
+        "common_chunks_dir": str(Path(args.common_chunks_dir).resolve()),
+        "embedding_cache_path": str(embeddings_path),
+        "grid_search_session_dir": str(session_dir),
+        "best_tag": param_tag(best_nn, best_mcs),
+        "best_metrics": best_result,
+        "run_bertopic_from_manifest_params": params,
+    }
+
+
+def cli_bool_flag(name: str, value: bool, *, negative: bool = True) -> List[str]:
+    flag = "--" + name.replace("_", "-")
+    if value:
+        return [flag]
+    return ["--no-" + name.replace("_", "-")] if negative else []
+
+
+def shell_quote(value: object) -> str:
+    if value is None:
+        return ""
+    s = str(value)
+    return "'" + s.replace("'", "'\\''") + "'"
+
+
+def best_params_cli(params: Dict[str, Any]) -> str:
+    parts: List[str] = []
+    scalar_keys = [
+        "embedding_model",
+        "embedding_device",
+        "embedding_revision",
+        "stopwords",
+        "extra_stopwords",
+        "name_stopwords_file",
+        "names_dataset_mode",
+        "names_dataset_countries",
+        "names_dataset_top_n",
+        "names_dataset_min_country_prob",
+        "umap_n_neighbors",
+        "umap_n_components",
+        "umap_min_dist",
+        "umap_metric",
+        "umap_random_state",
+        "hdbscan_min_cluster_size",
+        "hdbscan_min_samples",
+        "hdbscan_metric",
+        "hdbscan_cluster_selection_method",
+        "vectorizer_ngram_min",
+        "vectorizer_ngram_max",
+        "vectorizer_min_df",
+        "vectorizer_max_df",
+        "nr_topics",
+    ]
+    for key in scalar_keys:
+        value = params.get(key)
+        if value is None:
+            continue
+        parts.append(f"--{key.replace('_', '-')} {shell_quote(value)}")
+    parts.extend(cli_bool_flag("use_names_dataset", bool(params.get("use_names_dataset", True))))
+    parts.extend(cli_bool_flag("calculate_probabilities", bool(params.get("calculate_probabilities", False))))
+    if params.get("save_probs", False):
+        parts.append("--save-probs")
+    return " \\\n  ".join(parts)
+
+
+def write_best_exports(
+    *,
+    session_dir: Path,
+    args: argparse.Namespace,
+    best_nn: int,
+    best_mcs: int,
+    all_results: List[Dict[str, Any]],
+    chunks_path: Path,
+    embeddings_path: Path,
+) -> None:
+    best_result = next(
+        r for r in all_results
+        if int(r["n_neighbors"]) == int(best_nn) and int(r["min_cluster_size"]) == int(best_mcs)
+    )
+    payload = best_config_payload(
+        args=args,
+        best_nn=best_nn,
+        best_mcs=best_mcs,
+        best_result=best_result,
+        chunks_path=chunks_path,
+        embeddings_path=embeddings_path,
+        session_dir=session_dir,
+    )
+    best_config_path = session_dir / "best_config.json"
+    best_config_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+
+    params_cli = best_params_cli(payload["run_bertopic_from_manifest_params"])
+    (session_dir / "best_params_cli.txt").write_text(params_cli + "\n", encoding="utf-8")
+
+    template = f"""#!/usr/bin/env bash
+set -euo pipefail
+
+# Fill in these paths for your machine/server.
+MANIFEST="/home/fdai7991/podcast_projekt/outputs/state/manifest.parquet"
+MAIN_SCRIPT="/home/fdai7991/podcast_transcribe/pipeline/run_bertopic_from_manifest.py"
+BEST_OUTPUT_DIR="/home/fdai7991/podcast_projekt/outputs/bertopic_best_{param_tag(best_nn, best_mcs)}"
+COMMON_CHUNKS="{payload['chunks_path']}"
+
+mkdir -p "$BEST_OUTPUT_DIR"
+cp "$COMMON_CHUNKS" "$BEST_OUTPUT_DIR/chunks_input.parquet"
+
+python "$MAIN_SCRIPT" \\
+  --manifest "$MANIFEST" \\
+  --output-dir "$BEST_OUTPUT_DIR" \\
+  --chunk-episode-limit 0 \\
+  --train \\
+  --force-train \\
+  {params_cli}
+"""
+    rerun_sh = session_dir / "run_best_with_manifest_script.sh"
+    rerun_sh.write_text(template, encoding="utf-8")
+    rerun_sh.chmod(0o755)
+
+    LOGGER.info("Wrote best config: %s", best_config_path)
+    LOGGER.info("Wrote best CLI params: %s", session_dir / "best_params_cli.txt")
+    LOGGER.info("Wrote rerun template: %s", rerun_sh)
+
+
+def copy_best_run_folder(session_dir: Path, best_nn: int, best_mcs: int) -> None:
+    tag = param_tag(best_nn, best_mcs)
+    src = session_dir / "runs" / tag
+    dst = session_dir / f"best_{tag}"
+    if dst.exists():
+        shutil.rmtree(dst)
+    if src.exists():
+        shutil.copytree(src, dst)
+        LOGGER.info("Copied best run folder: %s", dst)
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    setup_logging()
+    args = parse_args()
+
+    if not 0.0 <= float(args.coherence_weight) <= 1.0:
+        raise ValueError("--coherence-weight must be between 0 and 1")
+
+    output_root = Path(args.output_dir).expanduser().resolve()
+    ts = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+    session_dir = output_root / f"{ts}_gridsearch_chunks"
+    session_dir.mkdir(parents=True, exist_ok=True)
+
+    command = "python " + " ".join(sys.argv)
+    (session_dir / "command.txt").write_text(command, encoding="utf-8")
+    (session_dir / "grid_search_args.json").write_text(
+        json.dumps(vars(args), ensure_ascii=False, indent=2, default=str),
+        encoding="utf-8",
+    )
+    LOGGER.info("Grid-search session: %s", session_dir)
+
+    chunks_path = resolve_chunks_path(args)
+    chunks = load_chunks(chunks_path, args)
+    if len(chunks) < 10:
+        raise RuntimeError(f"Only {len(chunks)} chunks available after filtering; too few for BERTopic.")
+
+    nn_grid = parse_int_grid(args.nn_grid, "--nn-grid")
+    mcs_grid = parse_int_grid(args.mcs_grid, "--mcs-grid")
+
+    stopwords, stopword_tag = build_stopword_list(args)
+    LOGGER.info("Stopword mode: %s", stopword_tag)
+
+    embedding_model, embeddings, embeddings_path = get_or_compute_embeddings(chunks_path, chunks, args)
+
+    all_results, best_nn, best_mcs = greedy_grid_search(
+        chunks=chunks,
+        embeddings=embeddings,
+        embedding_model=embedding_model,
+        stopwords=stopwords,
+        nn_grid=nn_grid,
+        mcs_grid=mcs_grid,
+        session_dir=session_dir,
+        args=args,
+    )
+
+    # Save final summary after composite scores are known.
+    summary = pd.DataFrame([{k: v for k, v in r.items() if k != "model"} for r in all_results])
+    summary = summary.sort_values("composite_score", ascending=False).reset_index(drop=True)
+    summary.to_csv(session_dir / "grid_search_results.csv", index=False)
+    summary.to_parquet(session_dir / "grid_search_results.parquet", index=False)
+    plot_grid_search_overview(all_results, session_dir / "grid_search_overview.html")
+
+    copy_best_run_folder(session_dir, best_nn, best_mcs)
+    write_best_exports(
+        session_dir=session_dir,
+        args=args,
+        best_nn=best_nn,
+        best_mcs=best_mcs,
+        all_results=all_results,
+        chunks_path=chunks_path,
+        embeddings_path=embeddings_path,
+    )
+
+    LOGGER.info("Best config: nn=%d, mcs=%d", best_nn, best_mcs)
+    LOGGER.info("All outputs: %s", session_dir)
+
+
+if __name__ == "__main__":
+    main()

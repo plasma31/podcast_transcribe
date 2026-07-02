@@ -35,12 +35,18 @@ chunks accumulate in `chunks_input.parquet`.
 
 For this corpus the procedure produced **191,183 chunks** from 4,400 episodes,
 with a mean length of **118.5 words** (median 97, 95th percentile 231). The
-distribution is right-skewed: most chunks reach paragraph length, with a tail
-flushed early by speaker changes.
+full-run chunk corpus is universal: the same `chunk_id` set is reused by the
+baseline, grid-search, and alternative embedding-model runs. The canonical
+handoff copy is `outputs/common_chunks/chunks_input.parquet`; the copies under
+`outputs/bertopic*/chunks_input.parquet` exist because the main runner expects a
+chunk file inside each output directory. Small `bertopic_test*` directories are
+partial experiments and are not used as thesis or application handoff corpora.
+The distribution is right-skewed: most chunks reach paragraph length, with a
+tail flushed early by speaker changes.
 
 ![Chunk length distribution](figures/fig_chunk_wordcount.png)
 
-### Data dictionary — chunk corpus (`chunks_input.parquet`)
+### 1.1 Data dictionary — chunk corpus (`chunks_input.parquet`)
 
 | Column | Type | Definition |
 |---|---|---|
@@ -52,6 +58,24 @@ flushed early by speaker changes.
 | `chunk_text` | str | Merged, whitespace-normalised text — the document fed to BERTopic. |
 | `word_count` | int | Words in `chunk_text`. |
 | `source_segment_count` | int | Number of transcript segments merged into the chunk. |
+
+### 1.2 Runner provenance and reuse boundary
+
+`run_bertopic_from_manifest.py` is the project-specific Stage 3 bridge: it reads
+the Stage 2 manifest, resolves each episode's Parquet paths, builds or reuses
+chunk documents, and then calls the BERTopic training routine. The modelling
+helpers (`build_model`, German stopword construction, and name-stopword loading)
+come from `pipeline/bertopic_typisierung.py`, which is an earlier standalone
+CSV-input BERTopic script adapted into reusable helper functions for this
+pipeline. In the current repository history both files enter together, so the
+visible provenance is: shared BERTopic helper logic in `bertopic_typisierung.py`,
+manifest/Parquet integration in `run_bertopic_from_manifest.py`.
+
+This boundary is also the handoff boundary: applications that need raw
+speaker-attributed transcripts consume Stage 2 segment Parquets; applications
+that need document-sized text units consume `chunks_input.parquet`; applications
+that need topic assignments consume `doc_topics.parquet` plus the topic summary
+tables of the selected run.
 
 ## 2. The BERTopic pipeline
 
@@ -76,8 +100,11 @@ German conversational corpus:
 
 ### 2.1 Baseline parameters and justification
 
-The reference run is `outputs/bertopic/` (folder `podcast_chunks_sw-de`). Its
-parameters, taken from `run_config.json`, and the reasoning behind them:
+The reference run is `outputs/bertopic/` (folder `podcast_chunks_sw-de`). It
+consumes the same universal chunk corpus as the other full runs; what differs
+between run folders is the embedding model, UMAP/HDBSCAN/vectorizer parameters,
+optional topic reduction, stopword regime, and post-hoc reassignment outputs.
+Its parameters, taken from `run_config.json`, and the reasoning behind them:
 
 | Component | Parameter | Baseline value | Justification |
 |---|---|---|---|
@@ -114,6 +141,24 @@ just one recurring guest, and reflects the corpus's German/Turkish/Eastern-
 European naming profile. (`--names-dataset-mode all` exists but can generate
 hundreds of thousands of stopwords and is avoided for speed.) The `sw-de` tag in
 the run-directory name records that German stopwords were active.
+
+### 2.3 Model-output tables
+
+The trained run directory is the unit that Samuel or any other downstream
+application should consume when topic assignments are required. The minimal
+application handoff is `doc_topics.parquet`, `topic_info.parquet`, and
+`topic_words.parquet`; the model and diagrams are supporting artefacts.
+
+| File | Key columns | Use |
+|---|---|---|
+| `doc_topics.parquet` | `doc_id`, `chunk_id`, `episode_id`, `speaker`, `gender`, `start`, `end`, `topic`, `chunk_text` | One row per chunk with its assigned topic. This is the main app-facing table. |
+| `topic_info.parquet` | `Topic`, `Count`, `Name`, `Representation`, `Representative_Docs` | Topic inventory and sizes, including topic `-1` for HDBSCAN outliers. |
+| `topic_words.parquet` | `topic`, `words`, `word_scores_json` | Human-readable top words and c-TF-IDF scores per topic. |
+| `representative_docs.parquet` | `topic`, `representative_doc_rank`, `representative_doc` | Example chunks used to inspect and label topics. |
+| `chunks_with_topics.parquet` | all chunk columns plus `doc_id` and `topic` | Full enriched chunk table; largely equivalent to `doc_topics.parquet` but retained for diagnostics. |
+| `run_config.json` | CLI arguments, runtime, chunk count, topic count, outlier count, paths | Reproducibility and run comparison. |
+| `bertopic_model/` | saved BERTopic model and topic embeddings | Reloading the trained model for further transforms or inspection. |
+| `topics_*.html` | Plotly visualisations | Interactive diagnostics and figure export. |
 
 ## 3. How the diagnostic diagrams work
 
