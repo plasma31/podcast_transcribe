@@ -1,4 +1,111 @@
 #!/usr/bin/env python3
+"""
+batch_podcast_runner.py
+
+Stage 2 resumable batch driver for the podcast corpus.
+
+Purpose
+-------
+This script scans a local podcast-audio directory, maintains a persistent job
+ledger, and processes selected episodes through `pipeline_core.PodcastPipeline`:
+
+    audio file -> Whisper transcription -> pyannote diarization
+    -> speaker matching -> optional F0 vocal-gender estimate
+    -> episode/segment/debug artefacts
+
+It is intentionally resumable. The manifest is saved before and after each
+episode, and failed attempts are appended to a separate failure log. Re-running
+the command does not duplicate known episodes because `episode_id` is derived
+from the absolute audio path.
+
+Typical command
+---------------
+
+    export PYANNOTE_TOKEN="<hugging-face-token>"
+
+    python pipeline/batch_podcast_runner.py \
+      --downloads /home/fdai7991/podcast_projekt/fyyd_downloads \
+      --out_root /home/fdai7991/podcast_projekt/outputs \
+      --state_dir /home/fdai7991/podcast_projekt/outputs/state \
+      --whisper_model small \
+      --limit 500 \
+      --gender
+
+Required inputs
+---------------
+
+--downloads
+    Root directory containing one subdirectory per podcast. Audio files are
+    discovered recursively below each podcast folder. Supported extensions are
+    defined in `pipeline_core.AUDIO_EXTS`.
+
+--out_root
+    Root directory for generated Stage 2 artefacts. The runner writes:
+
+        <out_root>/parquet/episodes/<episode_id>.parquet
+        <out_root>/parquet/segments/<episode_id>.parquet
+        <out_root>/json_debug/<episode_id>.json
+
+--state_dir
+    Directory for the resumability ledgers:
+
+        <state_dir>/manifest.parquet
+        <state_dir>/failures.parquet
+
+Environment inputs
+------------------
+
+PYANNOTE_TOKEN, HF_TOKEN, or HUGGINGFACE_TOKEN
+    Hugging Face access token for the gated pyannote diarization model. One of
+    these variables must be set before running the script.
+
+Main outputs
+------------
+
+manifest.parquet
+    Current job ledger. Tracks inventory fields, status, attempt count, errors,
+    runtime, and output paths.
+
+failures.parquet
+    Append-only failed-attempt log. A later successful retry updates the manifest
+    but does not remove historical failure rows.
+
+episodes/<episode_id>.parquet
+    One row per processed episode with full transcript, speaker counts, runtime,
+    Whisper language, and per-speaker gender JSON.
+
+segments/<episode_id>.parquet
+    One row per transcript segment with timing, speaker, text, and optional F0
+    gender fields.
+
+json_debug/<episode_id>.json
+    Raw/debug payload containing Whisper segments, diarization turns, matched
+    segments, and per-speaker F0 output.
+
+Parameter notes
+---------------
+
+--rebuild_manifest
+    Rescans the audio directory and merges it with the existing manifest. It does
+    not delete Stage 2 artefacts. Existing episode statuses are preserved by
+    `episode_id`.
+
+--skip_existing_outputs
+    Marks episodes as done when the expected episode and segment Parquet files
+    already exist. This is useful when rebuilding or repairing the manifest after
+    outputs were produced earlier.
+
+--retry_failed
+    Includes manifest rows with `status == failed` in the selected jobs. Without
+    this flag, only `pending` and `running` rows are eligible. `running` rows are
+    always retried so interrupted runs can recover.
+
+--gender
+    Enables the F0-based perceived vocal-gender estimate. Without this flag,
+    segments are still transcribed and diarized, but gender fields default to
+    `unknown` in downstream use.
+"""
+
 import os
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS", "1")
 
@@ -161,20 +268,128 @@ def select_jobs(df: pd.DataFrame, limit: int, retry_failed: bool, retry_running:
 
 
 def parse_args() -> argparse.Namespace:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--downloads", required=True, help="Root folder containing podcast folders.")
-    ap.add_argument("--out_root", required=True, help="Root folder for parquet/json outputs.")
-    ap.add_argument("--state_dir", required=True, help="Folder for manifest and failure logs.")
-    ap.add_argument("--whisper_model", default="small")
-    ap.add_argument("--limit", type=int, default=500, help="How many episodes to process in this run.")
-    ap.add_argument("--retry_failed", action="store_true", help="Include failed episodes in selection.")
-    ap.add_argument("--rebuild_manifest", action="store_true", help="Rescan downloads root and refresh manifest.")
-    ap.add_argument("--diar_gpu", action="store_true", help="Try to move pyannote to GPU.")
-    ap.add_argument("--gender", action="store_true", help="Enable F0-based vocal gender estimation.")
-    ap.add_argument("--max_speaker_sec", type=float, default=90.0)
-    ap.add_argument("--min_turn_sec", type=float, default=1.0)
-    ap.add_argument("--skip_existing_outputs", action="store_true", help="Mark episodes done if parquet outputs already exist.")
-    return ap.parse_args()
+    parser = argparse.ArgumentParser(
+        description=(
+            "Stage 2 resumable batch runner: scan podcast audio, maintain "
+            "manifest/failure ledgers, and write episode/segment/debug outputs."
+        ),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        epilog=(
+            "Outputs: <out_root>/parquet/episodes, <out_root>/parquet/segments, "
+            "<out_root>/json_debug, plus <state_dir>/manifest.parquet and "
+            "<state_dir>/failures.parquet. Requires PYANNOTE_TOKEN, HF_TOKEN, "
+            "or HUGGINGFACE_TOKEN for pyannote."
+        ),
+    )
+
+    required = parser.add_argument_group("required paths")
+    required.add_argument(
+        "--downloads",
+        required=True,
+        help=(
+            "Root folder containing one subdirectory per podcast. Audio files are "
+            "discovered recursively below each podcast folder."
+        ),
+    )
+    required.add_argument(
+        "--out_root",
+        required=True,
+        help=(
+            "Root folder for generated Stage 2 artefacts. The runner writes "
+            "parquet/episodes, parquet/segments, and json_debug below this path."
+        ),
+    )
+    required.add_argument(
+        "--state_dir",
+        required=True,
+        help=(
+            "Folder for resumability ledgers. The runner writes manifest.parquet "
+            "and failures.parquet here."
+        ),
+    )
+
+    processing = parser.add_argument_group("processing controls")
+    processing.add_argument(
+        "--whisper_model",
+        default="small",
+        help=(
+            "Whisper model size/name passed to whisper.load_model, for example "
+            "tiny, base, small, medium, large, or a compatible local model name."
+        ),
+    )
+    processing.add_argument(
+        "--limit",
+        type=int,
+        default=500,
+        help=(
+            "Maximum number of eligible episodes to process in this run. Eligible "
+            "means pending/running, plus failed when --retry_failed is set."
+        ),
+    )
+    processing.add_argument(
+        "--diar_gpu",
+        action="store_true",
+        help=(
+            "Try to move the pyannote diarization pipeline to CUDA. Whisper uses "
+            "CUDA automatically when torch.cuda.is_available() is true."
+        ),
+    )
+    processing.add_argument(
+        "--gender",
+        action="store_true",
+        help=(
+            "Enable F0-based perceived vocal-gender estimation per diarized speaker. "
+            "Without this flag, transcription and diarization still run, but gender "
+            "fields default to unknown in downstream outputs."
+        ),
+    )
+    processing.add_argument(
+        "--max_speaker_sec",
+        type=float,
+        default=90.0,
+        help=(
+            "Maximum number of seconds of diarized speech concatenated per speaker "
+            "for F0 estimation. Only relevant with --gender."
+        ),
+    )
+    processing.add_argument(
+        "--min_turn_sec",
+        type=float,
+        default=1.0,
+        help=(
+            "Minimum diarized turn duration, in seconds, included in the speaker F0 "
+            "sample. Shorter turns are skipped. Only relevant with --gender."
+        ),
+    )
+
+    resumability = parser.add_argument_group("resumability and retry controls")
+    resumability.add_argument(
+        "--retry_failed",
+        action="store_true",
+        help=(
+            "Include rows with status=failed when selecting jobs. Historical failure "
+            "rows remain in failures.parquet even if a retry later succeeds."
+        ),
+    )
+    resumability.add_argument(
+        "--rebuild_manifest",
+        action="store_true",
+        help=(
+            "Rescan --downloads and merge the inventory with the existing manifest. "
+            "This preserves known episode status by episode_id and does not delete outputs."
+        ),
+    )
+    resumability.add_argument(
+        "--skip_existing_outputs",
+        action="store_true",
+        help=(
+            "Before selecting jobs, mark episodes as done when the expected episode "
+            "and segment Parquet outputs already exist under --out_root. Useful after "
+            "rebuilding or repairing the manifest."
+        ),
+    )
+
+    return parser.parse_args()
 
 
 def main() -> None:
@@ -204,10 +419,13 @@ def main() -> None:
         for idx, row in manifest.iterrows():
             episode_path = out_root / "parquet" / "episodes" / f"{row['episode_id']}.parquet"
             segments_path = out_root / "parquet" / "segments" / f"{row['episode_id']}.parquet"
+            debug_path = out_root / "json_debug" / f"{row['episode_id']}.json"
             if episode_path.exists() and segments_path.exists():
                 manifest.at[idx, "status"] = "done"
                 manifest.at[idx, "output_episode_parquet"] = str(episode_path)
                 manifest.at[idx, "output_segments_parquet"] = str(segments_path)
+                if debug_path.exists():
+                    manifest.at[idx, "output_debug_json"] = str(debug_path)
         store.save_manifest(manifest)
 
     jobs = select_jobs(manifest, limit=args.limit, retry_failed=args.retry_failed)
