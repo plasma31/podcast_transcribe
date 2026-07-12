@@ -1,456 +1,191 @@
-# Podcast Transcription, Speaker Analysis, and BERTopic Pipeline
+# Podcast Transcription and Topic-Modelling Pipeline
 
-This repository builds a research corpus from podcast audio:
+This repository contains the code used to build a structured research corpus from podcast audio and to analyse that corpus with BERTopic.
 
-1. Download podcast episodes or provide local audio files.
-2. Transcribe each episode with OpenAI Whisper.
-3. Identify speaker turns with pyannote speaker diarization.
-4. Match transcript segments to speakers.
-5. Optionally estimate perceived vocal gender from median fundamental frequency
-   (F0).
-6. Merge transcript segments into speaker-consistent text chunks.
-7. Discover and describe topics with BERTopic.
-8. Optionally run a greedy BERTopic grid search to select better UMAP/HDBSCAN
-   parameters.
+The repository is organised around a three-stage data flow:
 
-The production pipeline is resumable. Stage 2 records every episode in a
-Parquet manifest, and Stage 3 maintains a separate chunk-building state file.
-Large audio files, Parquet outputs, logs, embedding caches, and trained models
-are intentionally excluded from Git.
+1. **Acquire podcast audio.**
+2. **Transcribe the audio and attach speaker information.**
+3. **Convert transcript segments into document-sized chunks and model their topics.**
 
-> This project analyzes an existing podcast corpus. It does not record, edit,
-> publish, or host a new podcast.
+The central rule for reading this repository is:
 
-## Contents
+> GitHub contains the code, configuration, source lists, and documentation. The large audio files, Parquet tables, embedding matrices, trained models, logs, and visualisations are generated during execution and are intentionally not committed.
 
-- [Pipeline overview](#pipeline-overview)
-- [Requirements](#requirements)
-- [Clone and install](#clone-and-install)
-- [Environment variables](#environment-variables)
-- [Stage 1: acquire audio](#stage-1-acquire-audio)
-- [Stage 2: transcribe, diarize, and estimate vocal gender](#stage-2-transcribe-diarize-and-estimate-vocal-gender)
-- [Stage 3: build chunks and train BERTopic](#stage-3-build-chunks-and-train-bertopic)
-- [Greedy BERTopic grid search](#greedy-bertopic-grid-search)
-- [Output files and handoff points](#output-files-and-handoff-points)
-- [Suggested S3 mirror layout](#suggested-s3-mirror-layout)
-- [Resuming, retrying, and adding audio](#resuming-retrying-and-adding-audio)
-- [Troubleshooting](#troubleshooting)
-- [Methodological notes](#methodological-notes)
-- [Further documentation](#further-documentation)
+This distinction is important because many paths shown in the documentation, such as `outputs/parquet/`, `outputs/common_chunks/`, and `outputs/bertopic*/`, do not appear in a fresh Git clone. They are runtime directories created on the machine where the pipeline is executed.
 
-## Pipeline overview
+## Reader guide
+
+Use this section before reading individual scripts.
+
+| Question | File or location to inspect |
+|---|---|
+| Which podcasts are selected? | `data_sources/list.xlsx` and the other tracked source lists |
+| Where are downloaded audio files stored? | Generated locally under `fyyd_downloads/<podcast>/` |
+| Where is Stage 2 progress recorded? | Generated locally in `outputs/state/manifest.parquet` |
+| Where are transcript segments stored? | Generated locally in `outputs/parquet/segments/<episode_id>.parquet` |
+| What is the direct input to the embedding model and BERTopic? | The `chunk_text` column in `outputs/common_chunks/chunks_input.parquet` |
+| Which file should another application consume before topic modelling? | `outputs/common_chunks/chunks_input.parquet` |
+| Which file should another application consume after topic modelling? | `doc_topics.parquet`, together with `topic_info.parquet` and `topic_words.parquet`, from the selected model run |
+| Are the S3 paths created automatically? | No. The documented S3 layout is a recommended manual or deployment-level mirror of local outputs |
+
+Detailed thesis-oriented documentation is in [`docs/thesis/`](docs/thesis/README.md).
+
+## 1. What is tracked and what is generated?
+
+### 1.1 Files committed to GitHub
+
+```text
+acquisition/        podcast discovery and download scripts
+pipeline/           transcription, diarization, chunking, BERTopic, and grid-search code
+data_sources/       tracked spreadsheet and CSV source lists
+docs/thesis/        methodological documentation and reproducibility notes
+tools/              audit and directory-report utilities
+requirements.*      dependency definitions and environment snapshots
+README.md            repository entry point
+```
+
+These files are small enough to version and are required to understand or reproduce the workflow.
+
+### 1.2 Files generated during execution
+
+```text
+fyyd_downloads/     downloaded podcast audio
+outputs/            manifests, transcripts, chunks, embeddings, and model outputs
+logs/               console logs and process logs
+artifacts/           acquisition reports and other generated support files
+dist/               generated PDF and archive exports
+```
+
+These directories are ignored by Git because they can be large, machine-specific, or contain derived research data. Their absence from GitHub does not mean that the pipeline step is missing. It means that the step must be run, or that the resulting files must be obtained from the project storage location.
+
+### 1.3 Local paths versus S3 paths
+
+The current Python scripts write to local or mounted filesystem paths. They do not upload to S3.
+
+When this documentation shows an S3 path, it describes a proposed handoff layout for shared storage. A separate copy or synchronisation step is required. Therefore:
+
+- `outputs/common_chunks/chunks_input.parquet` is an actual local pipeline artefact;
+- `s3://<bucket>/podcast_project/common_chunks/chunks_input.parquet` is a recommended shared copy of that artefact;
+- the S3 copy does not exist unless somebody explicitly creates it.
+
+## 2. Pipeline overview
 
 ```mermaid
 flowchart TD
-    A[data_sources lists, RSS, or local audio] --> B[fyyd_downloads/podcast/audio files]
-    B --> C[Stage 2 batch_podcast_runner.py]
-    C --> D[Whisper transcription]
-    C --> E[pyannote diarization]
-    D --> F[Match transcript segments to speaker turns]
-    E --> F
-    E --> G[Optional F0 vocal-gender estimate]
-    F --> H[Episode and segment Parquet files]
-    G --> H
-    H --> I[outputs/state/manifest.parquet]
-    I --> J[run_bertopic_from_manifest.py]
-    J --> K[chunks_input.parquet]
-    K --> L[SentenceTransformer/SBERT embeddings]
-    L --> M[UMAP]
-    M --> N[HDBSCAN]
-    N --> O[CountVectorizer + c-TF-IDF topic representation]
-    O --> P[BERTopic tables, model, and HTML visualizations]
-    K --> Q[greedy_grid_search_bertopic_from_chunks.py]
-    Q --> R[best_config.json and rerun script]
-    R --> J
+    A[Tracked podcast source lists] --> B[Stage 1 acquisition scripts]
+    B --> C[Generated local audio files]
+    C --> D[Stage 2 batch runner]
+    D --> E[Whisper transcript segments]
+    D --> F[pyannote speaker turns]
+    E --> G[Speaker-attributed transcript segments]
+    F --> G
+    G --> H[Episode and segment Parquet files]
+    H --> I[Stage 2 manifest]
+    I --> J[Stage 3 chunk construction]
+    J --> K[Canonical chunk corpus]
+    K --> L[SentenceTransformer embeddings]
+    L --> M[UMAP reduction]
+    M --> N[HDBSCAN clustering]
+    N --> O[c-TF-IDF topic descriptions]
+    O --> P[BERTopic result tables and model]
 ```
 
 The main entry points are:
 
-| File | Purpose |
+| File | Responsibility |
 |---|---|
-| `acquisition/fyyd_download.py` | Download episodes discovered through the fyyd API. |
-| `acquisition/rss_download.py` | Discover RSS feeds and download their episodes. |
-| `acquisition/podigee_scrape.py` | Collect Podigee episode URLs into a source CSV. |
-| `pipeline/pipeline_core.py` | Whisper, diarization, speaker matching, and F0 analysis. |
-| `pipeline/batch_podcast_runner.py` | Resumable Stage 2 batch runner and manifest manager. |
-| `pipeline/run_bertopic_from_manifest.py` | Project-specific adaptation of Samuel's BERTopic workflow for manifest + Parquet input. It builds chunks and trains BERTopic. |
-| `pipeline/bertopic_typisierung.py` | Samuel's shared BERTopic, vectorizer, and stopword helper logic reused by the adapted runner. |
-| `pipeline/greedy_grid_search_bertopic.py` | Samuel-style original greedy grid search for flat CSV/text input. |
-| `pipeline/greedy_grid_search_bertopic_from_chunks.py` | Podcast-pipeline adaptation of the grid search. It consumes existing `chunks_input.parquet`. |
-| `pipeline/rerun_best_bertopic_from_grid.py` | Bridge from a grid-search `best_config.json` back into `run_bertopic_from_manifest.py`. |
-| `pipeline/bertopic_extra_stopwords.txt` | Manual conversational, podcast, name, and ASR/noise stopwords. |
-| `pipeline/reassign_bertopic_outliers*.py` | Optional reassignment of topic `-1` chunks. |
-| `pipeline/compare_bertopic_runs.py` | Compare multiple BERTopic experiments. |
-| `tools/audit_missing_speaker_gender.py` | Audit outputs for missing speaker or gender data. |
-| `tools/report_directory_usage.py` | Report recursive file counts and disk usage. |
+| `acquisition/fyyd_download.py` | Search fyyd for each selected podcast and download episode audio |
+| `acquisition/rss_download.py` | Resolve RSS feeds and download episode audio |
+| `acquisition/podigee_scrape.py` | Collect Podigee episode and enclosure metadata |
+| `pipeline/pipeline_core.py` | Process one episode with Whisper, pyannote, segment matching, and optional F0 analysis |
+| `pipeline/batch_podcast_runner.py` | Run Stage 2 over many episodes and maintain the manifest |
+| `pipeline/run_bertopic_from_manifest.py` | Build chunks from Stage 2 outputs and optionally train BERTopic |
+| `pipeline/greedy_grid_search_bertopic_from_chunks.py` | Evaluate BERTopic parameter combinations using an existing chunk corpus |
+| `pipeline/rerun_best_bertopic_from_grid.py` | Run the selected grid-search configuration through the main Stage 3 runner |
 
-The repository separates maintained code, source inputs, and generated data:
+## 3. Stage 1: acquire podcast audio
 
-```text
-acquisition/       podcast discovery and download utilities
-data_sources/      tracked spreadsheet and CSV acquisition inputs
-pipeline/          transcription, diarization, gender, BERTopic, and grid-search code
-tools/             audit and directory-report utilities
-docs/thesis/       methodology and reproducibility helpers
-requirements.*     direct dependencies and full environment snapshots
-fyyd_downloads/    downloaded audio (ignored)
-outputs/           Parquet data, chunks, grid-search outputs, and trained models (ignored)
-logs/              batch and audit logs (ignored)
-artifacts/         generated acquisition and binary artifacts (ignored)
-dist/              generated PDF and ZIP exports (ignored)
-```
+Stage 1 creates the audio corpus that Stage 2 processes. Stage 2 does not require a particular download source. It only requires one directory per podcast and one or more supported audio files inside that directory.
 
-## Requirements
-
-### Base system requirements
-
-- Linux is the tested operating system.
-- Python 3.12 is recommended. The existing environments were built with
-  Python 3.12.3.
-- Git.
-- FFmpeg available on `PATH`.
-- Internet access for podcast downloads and the first model download.
-- A Hugging Face account and access token for pyannote.
-- Access to the terms of the gated pyannote models used by
-  `pyannote/speaker-diarization-3.1`.
-- Substantial free disk space for audio, Parquet files, embedding caches, and
-  BERTopic outputs.
-
-A CUDA-capable NVIDIA GPU is strongly recommended for a large corpus, but the
-pipeline can use CPU. Whisper automatically selects CUDA when
-`torch.cuda.is_available()` is true. pyannote remains on CPU unless
-`--diar_gpu` is passed.
-
-The versions observed in this workspace are:
-
-```text
-Python:             3.12.3
-Stage 2 PyTorch:    2.7.1+cu118 (legacy local environment)
-Stage 3 PyTorch:    2.3.1+cu118
-BERTopic:           0.17.4
-CUDA build:         11.8
-```
-
-The legacy Stage 2 environment can run the repository, but `pip check` reports
-that `pyannote-audio==4.0.3` requires PyTorch and Torchaudio 2.8.0. A clean
-installation should use the dependency-consistent 2.8.0 family shown below
-instead of reproducing that mismatch.
-
-### Why two virtual environments?
-
-Use:
-
-- `.venv` for downloading and Stage 2 audio processing.
-- `.venv_bertopic` for Stage 3 topic modelling and grid search.
-
-Keeping BERTopic separate avoids dependency conflicts between pyannote,
-TorchCodec, PyTorch, transformers, and sentence-transformers. The current
-all-in-one `.venv` can process audio, but its installed
-sentence-transformers/TorchCodec combination fails while importing the BERTopic
-runner. The dedicated `.venv_bertopic` is the reliable Stage 3 environment.
-
-`requirements.base.txt` pins the direct Stage 1 and Stage 2 dependencies.
-PyTorch is installed separately so its CUDA or CPU wheel can match the target
-machine. `requirements.venv.txt` and `requirements.venv_bertopic.txt` preserve
-the complete package snapshots from the two working environments for auditing
-and diagnostics.
-
-## Clone and install
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/plasma31/podcast_transcribe.git
-cd podcast_transcribe
-export PROJECT_ROOT="$PWD"
-```
-
-All commands below assume the repository root is the current directory.
-
-### 2. Install FFmpeg
-
-For Ubuntu or Debian:
-
-```bash
-sudo apt update
-sudo apt install -y ffmpeg
-ffmpeg -version
-```
-
-If FFmpeg was installed in a user-owned directory, add that directory to `PATH`:
-
-```bash
-export PATH="$HOME/local/bin:$PATH"
-command -v ffmpeg
-```
-
-### 3. Create the Stage 1 and Stage 2 environment
-
-For a dependency-consistent NVIDIA installation, the PyTorch 2.8.0 wheels are
-available for CUDA 12.6, 12.8, and 12.9. This example uses CUDA 12.6:
-
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install \
-  torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 \
-  --index-url https://download.pytorch.org/whl/cu126
-python -m pip install -r requirements.base.txt
-```
-
-For CPU-only installation, install the CPU PyTorch wheels instead of CUDA
-wheels:
-
-```bash
-python -m pip install \
-  torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 \
-  --index-url https://download.pytorch.org/whl/cpu
-```
-
-Verify the important imports:
-
-```bash
-python - <<'PY'
-import librosa
-import pandas
-import pyarrow
-import torch
-import whisper
-from pyannote.audio import Pipeline
-
-print("torch:", torch.__version__)
-print("CUDA available:", torch.cuda.is_available())
-print("Stage 2 imports: OK")
-PY
-
-python -m pip check
-```
-
-### 4. Create the Stage 3 BERTopic environment
-
-```bash
-deactivate
-python3.12 -m venv .venv_bertopic
-source .venv_bertopic/bin/activate
-
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install \
-  torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 \
-  --index-url https://download.pytorch.org/whl/cu118
-python -m pip install \
-  bertopic==0.17.4 \
-  hdbscan==0.8.42 \
-  names-dataset==3.3.1 \
-  pandas \
-  plotly==6.7.0 \
-  pyarrow \
-  pycountry \
-  safetensors \
-  sentence-transformers==3.4.1 \
-  stopwordsiso==0.6.1 \
-  umap-learn==0.5.12
-```
-
-For CPU-only use, replace the CUDA PyTorch command with:
-
-```bash
-python -m pip install \
-  torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 \
-  --index-url https://download.pytorch.org/whl/cpu
-```
-
-Verify Stage 3:
-
-```bash
-python pipeline/run_bertopic_from_manifest.py --help
-python pipeline/greedy_grid_search_bertopic_from_chunks.py --help
-```
-
-The committed `requirements.venv.txt` and `requirements.venv_bertopic.txt` files
-are full `pip freeze` snapshots. They are useful for exact diagnostics; the
-installation commands above are safer for a new machine because GPU wheels must
-match its driver and CUDA runtime.
-
-## Environment variables
-
-### Required for Stage 2
-
-Create a Hugging Face read token and export it before running the audio
-pipeline:
-
-```bash
-export PYANNOTE_TOKEN="hf_your_token_here"
-```
-
-The batch runner checks these names in order:
-
-1. `PYANNOTE_TOKEN`
-2. `HF_TOKEN`
-3. `HUGGINGFACE_TOKEN`
-
-Only one is required. `PYANNOTE_TOKEN` is recommended because its purpose is
-clear.
-
-Never commit the token. `.env` and `.envrc` are ignored by Git, but the scripts
-do not automatically load either file. If a local `.env` is used, export it
-through your shell before starting Python.
-
-### PATH
-
-`PATH` must include the FFmpeg executable:
-
-```bash
-export PATH="$HOME/local/bin:$PATH"
-command -v ffmpeg
-```
-
-If FFmpeg was installed with the operating system package manager, no custom
-`PATH` is normally needed.
-
-### Set internally by the pipeline
-
-Both production pipeline modules set:
-
-```text
-HF_HUB_DISABLE_SYMLINKS=1
-```
-
-This improves compatibility with mounted or restricted filesystems. It can also
-be exported manually, but that is not required.
-
-### Not required
-
-- The fyyd downloader does not require an API key.
-- BERTopic does not require `PYANNOTE_TOKEN` when all Stage 2 outputs already
-  exist.
-- No database server, web server, or cloud storage credentials are used.
-
-## Stage 1: acquire audio
-
-Stage 2 expects one directory per podcast:
+Expected generated layout:
 
 ```text
 fyyd_downloads/
-|-- Podcast A/
-|   |-- episode-001.mp3
-|   `-- episode-002.mp3
-`-- Podcast B/
-    `-- interview.wav
+├── Podcast A/
+│   ├── episode-001.mp3
+│   └── episode-002.mp3
+└── Podcast B/
+    └── interview.wav
 ```
 
-Supported extensions are:
+Supported extensions are `.mp3`, `.wav`, `.m4a`, `.flac`, `.ogg`, and `.aac`.
 
-```text
-.mp3 .wav .m4a .flac .ogg .aac
-```
+### 3.1 How `acquisition/fyyd_download.py` works
 
-You may use the scripts in `acquisition/` or manually place audio in this
-layout.
+The fyyd downloader exists because fyyd exposes a public API that can be queried by podcast name and podcast identifier. It was useful for the source list because a substantial share of the selected podcasts could be found there without writing a separate scraper for every hosting platform.
 
-### Option A: fyyd downloader
+The script follows this sequence:
 
-`acquisition/fyyd_download.py` reads `data_sources/list.xlsx`, searches fyyd by
-podcast name, selects the first search result, fetches up to 1,000 episodes, and
-downloads every episode enclosure into `fyyd_downloads/<podcast name>/`. It
-processes every spreadsheet row.
+1. Read `data_sources/list.xlsx` with pandas.
+2. Extract the podcast name from the `Podcast Name` column, or from `name` as a fallback.
+3. Call `fyyd_search_podcast()` with the full podcast name.
+4. Select the first search result returned by the API.
+5. Use that result's podcast identifier in `fyyd_get_episodes()`.
+6. Read each episode's audio URL from the `enclosure` field.
+7. Construct a local filename from the episode title and episode number.
+8. Download the audio into `fyyd_downloads/<podcast name>/`.
+9. Record successful and failed episodes in `artifacts/acquisition/fyyd_results.json`.
 
-Its repository-relative paths are constants at the top of the file:
+The current implementation takes the first fyyd search result because the query uses the full podcast name and the first result was treated as the most likely match. This is a practical shortcut, not a guarantee of identity. The result file must therefore be reviewed. A future robustness improvement would normalise names and score every returned candidate before selecting one.
 
-```python
-EXCEL_PATH = ROOT / "data_sources" / "list.xlsx"
-OUTPUT_DIR = ROOT / "fyyd_downloads"
-RESULTS_JSON = ROOT / "artifacts" / "acquisition" / "fyyd_results.json"
-```
+Downloads use `stream=True`. The response body is written incrementally in 256 KiB blocks instead of loading an entire episode into memory. The selected block size is an engineering trade-off: it keeps memory usage small while avoiding an excessive number of tiny disk writes. It is a project setting, not a format requirement.
 
-The input spreadsheet must contain either a `Podcast Name` column or a `name`
-column. The committed `data_sources/list.xlsx` uses `Podcast Name`.
+`download_with_retries()` performs up to three attempts. This was introduced because podcast hosting servers can time out or temporarily refuse a request even when the episode URL is valid. A two-second pause is used between attempts so that a brief hosting failure does not immediately become a permanent corpus failure.
+
+The script keeps two episode lists for each podcast:
+
+- `downloaded`: episodes that were written successfully;
+- `failed_ep`: episodes that could not be downloaded after all attempts.
+
+This audit information supports later recovery with the RSS or Podigee acquisition routes.
+
+Run the downloader from the repository root:
 
 ```bash
 source .venv/bin/activate
 python acquisition/fyyd_download.py
 ```
 
-For a detached run:
+### 3.2 Other acquisition routes
+
+RSS download:
 
 ```bash
-mkdir -p logs/batch
-nohup python acquisition/fyyd_download.py \
-  > logs/batch/fyyd_download.log 2>&1 &
-echo $! > logs/batch/fyyd_download.pid
-```
-
-Results are recorded in `artifacts/acquisition/fyyd_results.json`. Review the
-selected podcasts because fyyd search currently uses the first result rather
-than an exact-match scorer.
-
-### Option B: manually supplied audio
-
-The simplest and most predictable way to process your own corpus is:
-
-```bash
-mkdir -p "fyyd_downloads/My Podcast"
-cp /path/to/episodes/*.mp3 "fyyd_downloads/My Podcast/"
-```
-
-The directory does not have to be named `fyyd_downloads`; pass any root folder
-to `--downloads`. It must contain podcast subdirectories rather than audio files
-directly at its top level.
-
-### Option C: RSS downloader
-
-`acquisition/rss_download.py` can discover RSS feeds and download episodes from
-`data_sources/redownload_list.xlsx`:
-
-```bash
-source .venv/bin/activate
 python acquisition/rss_download.py \
   --xlsx data_sources/redownload_list.xlsx \
   --output-dir fyyd_downloads \
   --workers 3
 ```
 
-Use `--dry-run` first to inspect discovery without downloading:
+Podigee inventory:
 
 ```bash
-python acquisition/rss_download.py \
-  --xlsx data_sources/redownload_list.xlsx \
-  --output-dir fyyd_downloads \
-  --dry-run
-```
-
-Keep the number of workers low to avoid overloading podcast hosts. The run log
-is written to `artifacts/acquisition/rss_download.log`.
-
-### Option D: Podigee URL inventory
-
-`acquisition/podigee_scrape.py` probes its configured Podigee hosts and writes
-episode metadata and enclosure URLs to `data_sources/podigee_episodes.csv`:
-
-```bash
-source .venv/bin/activate
 python acquisition/podigee_scrape.py
 ```
 
-This utility creates an inventory; it does not download the audio files.
+The Podigee script creates an enclosure inventory. It does not perform Stage 2 processing.
 
-## Stage 2: transcribe, diarize, and estimate vocal gender
+## 4. Stage 2: transcribe, diarize, and attach speaker metadata
 
-Activate the Stage 2 environment and export the pyannote token:
+Stage 2 is driven by `pipeline/batch_podcast_runner.py`. It scans the audio tree, records every episode in a manifest, and processes eligible episodes one by one.
+
+A typical command is:
 
 ```bash
-export PATH="$HOME/local/bin:$PATH"
-source .venv/bin/activate
 export PYANNOTE_TOKEN="hf_your_token_here"
-```
+source .venv/bin/activate
 
-### First batch
-
-This command scans the downloads tree, creates or refreshes the manifest, and
-processes at most 250 episodes:
-
-```bash
 python pipeline/batch_podcast_runner.py \
   --downloads "$PROJECT_ROOT/fyyd_downloads" \
   --out_root "$PROJECT_ROOT/outputs" \
@@ -462,688 +197,305 @@ python pipeline/batch_podcast_runner.py \
   --rebuild_manifest
 ```
 
-If `PROJECT_ROOT` was not exported, use absolute paths or paths relative to the
-repository root.
+### 4.1 What Stage 2 reads
 
-### Long-running background batch
+Stage 2 reads audio files under the directory passed to `--downloads`.
 
-```bash
-mkdir -p logs/batch
-nohup python pipeline/batch_podcast_runner.py \
-  --downloads "$PROJECT_ROOT/fyyd_downloads" \
-  --out_root "$PROJECT_ROOT/outputs" \
-  --state_dir "$PROJECT_ROOT/outputs/state" \
-  --whisper_model small \
-  --limit 250 \
-  --gender \
-  --diar_gpu \
-  > logs/batch/output10.log 2>&1 &
+It also reads an existing `outputs/state/manifest.parquet` when one is present. This allows the runner to preserve completed work and select only pending, interrupted, or explicitly retried episodes.
 
-echo $! > logs/batch/output10.pid
+### 4.2 What Stage 2 does
+
+For each selected episode:
+
+1. Whisper produces timestamped transcript segments and a detected language code.
+2. pyannote produces anonymous speaker turns such as `SPEAKER_00` and `SPEAKER_01`.
+3. Each Whisper segment is assigned to the diarized speaker with the greatest temporal overlap.
+4. Optional F0 analysis estimates a perceived vocal-pitch category for each diarized speaker.
+5. Episode-level and segment-level tables are written.
+6. The manifest row is changed to `done` or `failed`.
+
+A Whisper segment is an ASR output unit with start time, end time, and text. It is not the same as a grammatical sentence and it is not yet the document used for BERTopic.
+
+### 4.3 What Stage 2 writes
+
+```text
+outputs/
+├── state/
+│   ├── manifest.parquet
+│   └── failures.parquet
+├── parquet/
+│   ├── episodes/<episode_id>.parquet
+│   └── segments/<episode_id>.parquet
+└── json_debug/<episode_id>.json
 ```
 
-Monitor it with:
+`manifest.parquet` is the authoritative index. Each successful row points to the episode and segment files through `output_episode_parquet` and `output_segments_parquet`.
 
-```bash
-tail -f logs/batch/output10.log
-ps -fp "$(cat logs/batch/output10.pid)"
+The segment Parquet is the direct Stage 3 source. Each row contains the episode identifier, timestamp, speaker label, vocal-pitch label, and transcript text for one matched Whisper segment.
+
+## 5. Stage 3: construct BERTopic input documents
+
+Stage 3 is the point that caused the most naming confusion, so the distinction is explicit here.
+
+### 5.1 What is the Stage 3 input?
+
+The input to chunk construction is **not** a single directory guessed by the runner. It is:
+
+1. `outputs/state/manifest.parquet`;
+2. only rows whose `status` is `done` by default;
+3. the `output_segments_parquet` and `output_episode_parquet` paths stored in each selected row.
+
+The runner therefore follows the manifest to the actual Stage 2 files.
+
+### 5.2 What comes out of chunk construction?
+
+The main output is a table named `chunks_input.parquet`.
+
+The filename means **input to the embedding and topic-modelling stage**. It does not mean input to the entire podcast pipeline.
+
+A clearer conceptual name is:
+
+```text
+BERTopic document input corpus
 ```
 
-The important Stage 2 options are:
+The physical filename remains `chunks_input.parquet` because the scripts already use it.
 
-| Option | Meaning |
-|---|---|
-| `--downloads` | Root containing one subdirectory per podcast. Audio files are discovered recursively below each podcast folder. |
-| `--out_root` | Root for generated Stage 2 artefacts: `parquet/episodes`, `parquet/segments`, and `json_debug`. |
-| `--state_dir` | Directory for `manifest.parquet` and `failures.parquet`. |
-| `--whisper_model` | Whisper model name, default `small`. |
-| `--limit` | Maximum eligible episodes selected in this invocation, default 500. |
-| `--rebuild_manifest` | Rescan the downloads tree and merge new audio into the manifest. Existing episode status is preserved by `episode_id`. |
-| `--retry_failed` | Include failed rows as well as pending and interrupted rows. |
-| `--skip_existing_outputs` | Mark rows done when expected episode and segment Parquet outputs already exist. |
-| `--diar_gpu` | Attempt to run pyannote diarization on CUDA. |
-| `--gender` | Enable F0-based perceived vocal-gender estimation. Without it, transcription and diarization still run. |
-| `--max_speaker_sec` | Maximum audio used per speaker for F0 analysis, default 90 seconds. |
-| `--min_turn_sec` | Ignore shorter diarized turns during F0 analysis, default 1 second. |
+The exact model input is the `chunk_text` column. Every row is one document passed to SentenceTransformer and then to BERTopic.
 
-Whisper uses the selected model for automatic transcription and language
-detection. pyannote identifies anonymous speakers such as `SPEAKER_00` and
-`SPEAKER_01`. Each Whisper segment is assigned to the diarized speaker with the
-greatest temporal overlap.
+### 5.3 How a chunk is constructed
 
-### Retry failed or interrupted episodes
+`build_chunks_resumable()` processes one completed episode at a time:
 
-```bash
-nohup python pipeline/batch_podcast_runner.py \
-  --downloads "$PROJECT_ROOT/fyyd_downloads" \
-  --out_root "$PROJECT_ROOT/outputs" \
-  --state_dir "$PROJECT_ROOT/outputs/state" \
-  --whisper_model small \
-  --limit 250 \
-  --gender \
-  --diar_gpu \
-  --retry_failed \
-  > logs/batch/failed_retry.log 2>&1 &
+1. Load the episode's segment Parquet.
+2. Join episode-level metadata when available.
+3. Sort segments by timestamp.
+4. Normalise whitespace.
+5. Remove segments shorter than `--min-segment-words`.
+6. Add consecutive segments to the current chunk.
+7. Finish the current chunk when the speaker changes, the target size has already been reached, or the next segment would exceed the maximum size.
+8. Discard completed chunks shorter than `--min-doc-words`.
+9. Assign a stable `chunk_id`.
+10. Append the rows to the accumulated chunk table.
+
+Default controls are:
+
+| Option | Default | Effect |
+|---|---:|---|
+| `--chunk-target-words` | 220 | Prefer to close a chunk after approximately this size |
+| `--chunk-max-words` | 320 | Close before adding a segment that would exceed this limit |
+| `--min-segment-words` | 2 | Remove near-empty ASR segments before construction |
+| `--min-doc-words` | 20 | Remove completed chunks that are too short for modelling |
+| `--speaker-consistent` | true | Close the chunk when the diarized speaker changes |
+
+The target is not always reached. Speaker changes can close a chunk earlier, which is why the observed mean chunk length is below the target.
+
+### 5.4 Where Stage 3 writes its first output
+
+The main runner writes to the directory supplied through `--output-dir`:
+
+```text
+<output-dir>/
+├── chunks_input.parquet
+├── chunks_input.csv
+├── chunk_build_state.parquet
+└── chunk_build_failures.parquet
 ```
 
-`--retry_failed` does not mean failed only. The current selector includes
-`pending`, `running`, and `failed` rows, sorts them by podcast and episode path,
-and then applies `--limit`. A row left as `running` after a terminated process is
-automatically eligible on the next run.
-
-Do not run multiple Stage 2 workers against the same `state_dir` at the same
-time. They can select the same episode and overwrite the shared manifest.
-
-### Inspect Stage 2 progress
+For example, with:
 
 ```bash
-source .venv/bin/activate
-python - <<'PY'
-import pandas as pd
-
-manifest = pd.read_parquet("outputs/state/manifest.parquet")
-print(manifest["status"].value_counts(dropna=False))
-
-failed = manifest[manifest["status"] == "failed"]
-if not failed.empty:
-    print(failed[["episode_path", "attempt_count", "last_error"]].tail(20))
-
-failures_path = "outputs/state/failures.parquet"
-try:
-    failures = pd.read_parquet(failures_path)
-    print("failure-log rows:", len(failures))
-except FileNotFoundError:
-    print("no failure log yet")
-PY
+--output-dir "$PROJECT_ROOT/outputs/bertopic_minilm_n100_t200"
 ```
 
-## Stage 3: build chunks and train BERTopic
+the chunk files are written to:
 
-Activate the dedicated environment:
+```text
+outputs/bertopic_minilm_n100_t200/
+```
+
+These paths are generated locally and are ignored by Git.
+
+### 5.5 Why does `chunks_input.parquet` appear more than once?
+
+There are two roles:
+
+1. **Runner-local chunk file**  
+   `<output-dir>/chunks_input.parquet` is created by `run_bertopic_from_manifest.py` because that runner combines chunk construction and model training.
+
+2. **Canonical shared chunk file**  
+   `outputs/common_chunks/chunks_input.parquet` is the agreed exchange copy reused by grid search, final model runs, search systems, and other applications.
+
+The contents may be identical, but the roles are different. The canonical shared copy prevents every model experiment from rebuilding or redefining the document corpus.
+
+The grid-search script can copy a completed runner-local file into `outputs/common_chunks/`. It writes `COMMON_CHUNKS_MANIFEST.json` when it performs that copy so that the source path and checksum can be audited.
+
+### 5.6 Recommended Stage 3 commands
+
+Build chunks without training:
 
 ```bash
 source .venv_bertopic/bin/activate
-```
 
-Stage 3 reads only manifest rows whose status is `done` by default. It builds
-speaker-consistent chunks from the segment Parquet files and then trains:
-
-```text
-SentenceTransformer/SBERT -> UMAP -> HDBSCAN -> CountVectorizer + c-TF-IDF -> BERTopic tables
-```
-
-The default embedding model is:
-
-```text
-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
-```
-
-`pipeline/run_bertopic_from_manifest.py` is the project-specific adaptation of
-Samuel's BERTopic workflow. Samuel's original script expected a flat CSV/text
-input. This adapted runner consumes the podcast pipeline's manifest and Parquet
-outputs instead, builds `chunks_input.parquet`, and reuses the BERTopic helper
-logic from `pipeline/bertopic_typisierung.py`.
-
-### Fresh full-corpus run
-
-Use a new output directory for each experiment. On a fresh directory, omit
-`--chunk-episode-limit` to process every eligible episode:
-
-```bash
 python pipeline/run_bertopic_from_manifest.py \
   --manifest "$PROJECT_ROOT/outputs/state/manifest.parquet" \
-  --output-dir "$PROJECT_ROOT/outputs/bertopic_minilm_n100_t200" \
-  --embedding-model "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2" \
-  --embedding-device cuda \
-  --train \
-  --no-use-names-dataset \
-  --name-stopwords-file "$PROJECT_ROOT/pipeline/bertopic_extra_stopwords.txt" \
-  --umap-n-neighbors 100 \
-  --umap-n-components 5 \
-  --umap-min-dist 0.0 \
-  --hdbscan-min-cluster-size 50 \
-  --hdbscan-min-samples 1 \
-  --vectorizer-ngram-min 1 \
-  --vectorizer-ngram-max 3 \
-  --vectorizer-min-df 10 \
-  --vectorizer-max-df 0.95 \
-  --nr-topics 200
-```
-
-Add `--force-train` when intentionally replacing an already completed model in
-the same output directory.
-
-### Incremental chunk building
-
-Build chunks for up to 600 new episodes without training:
-
-```bash
-python pipeline/run_bertopic_from_manifest.py \
-  --manifest "$PROJECT_ROOT/outputs/state/manifest.parquet" \
-  --output-dir "$PROJECT_ROOT/outputs/bertopic_minilm_n100_t200" \
+  --output-dir "$PROJECT_ROOT/outputs/bertopic_chunk_build" \
   --chunk-episode-limit 600 \
   --no-train
 ```
 
-Repeat until all eligible episodes are chunked, then run the full modelling
-command with `--train`. Existing episode IDs in `chunk_build_state.parquet` are
-skipped.
+Repeat until all completed episodes are represented. To process all remaining episodes in one invocation, omit `--chunk-episode-limit`.
 
-The original commands sometimes used `--chunk-episode-limit 0`. In the current
-implementation, `0` means that zero not-yet-chunked episodes are selected. It
-does not mean unlimited. Omit the option for all episodes, or pass a positive
-batch size.
+Do not use `--chunk-episode-limit 0` to mean unlimited. In the current implementation it selects zero new episodes.
 
-### Long-running BERTopic job
-
-```bash
-mkdir -p logs/batch
-nohup .venv_bertopic/bin/python \
-  pipeline/run_bertopic_from_manifest.py \
-  --manifest "$PROJECT_ROOT/outputs/state/manifest.parquet" \
-  --output-dir "$PROJECT_ROOT/outputs/bertopic_minilm_n100_t200" \
-  --embedding-device cuda \
-  --train \
-  > logs/batch/bertopic_minilm.log 2>&1 &
-
-echo $! > logs/batch/bertopic_minilm.pid
-```
-
-### Important BERTopic options
-
-| Option | Default | Meaning |
-|---|---:|---|
-| `--status` | `done` | Manifest status to include; use `all` only with care. |
-| `--chunk-episode-limit` | unlimited | Positive maximum number of new episodes to chunk. |
-| `--rebuild-chunks` | off | Delete chunk input/state and rebuild from source Parquet files. |
-| `--train` / `--no-train` | train | Train after chunk building or stop after chunking. |
-| `--force-train` | off | Ignore an existing completion marker and retrain. |
-| `--chunk-target-words` | 220 | Flush a chunk after reaching approximately this size. |
-| `--chunk-max-words` | 320 | Start a new chunk before exceeding this size. |
-| `--min-segment-words` | 2 | Exclude very short transcript segments. |
-| `--min-doc-words` | 20 | Exclude short completed chunks. |
-| `--speaker-consistent` | on | Flush a chunk when the speaker changes. |
-| `--embedding-model` | MiniLM | SentenceTransformer/SBERT model name or local path. |
-| `--embedding-device` | `auto` | Select `auto`, `cpu`, or `cuda`. |
-| `--stopwords` | `de` | Use German stopwords or no built-in stopwords. |
-| `--use-names-dataset` | on | Add person names from `names-dataset`. |
-| `--name-stopwords-file` | none | Add one stopword per line from a local file. |
-| `--umap-n-neighbors` | 30 | UMAP local-neighbourhood size. |
-| `--hdbscan-min-cluster-size` | 50 | Minimum HDBSCAN cluster size. |
-| `--hdbscan-min-samples` | 1 | HDBSCAN conservativeness/noise control. |
-| `--vectorizer-min-df` | 5 | Minimum document frequency for topic-word extraction. |
-| `--vectorizer-max-df` | 0.95 | Maximum document frequency for topic-word extraction. |
-| `--nr-topics` | none | Optionally reduce discovered topics to a target count. |
-| `--save-probs` | off | Save the potentially very large document-topic matrix. |
-
-`--chunk-min-words` is accepted by the current argument parser but is not used
-by the chunk-building implementation. `--min-doc-words` is the active minimum
-chunk-length control.
-
-### Stopword strategies
-
-There are two common approaches:
-
-1. Use the built-in German list plus `names-dataset`:
-
-   ```bash
-   --stopwords de \
-   --use-names-dataset \
-   --names-dataset-mode top \
-   --names-dataset-top-n 20000
-   ```
-
-2. Disable `names-dataset` and use the curated local file:
-
-   ```bash
-   --stopwords de \
-   --no-use-names-dataset \
-   --name-stopwords-file pipeline/bertopic_extra_stopwords.txt
-   ```
-
-Edit the stopword file for language noise, host names, recurring guests, and
-conversational fillers in your own corpus.
-
-## Greedy BERTopic grid search
-
-There are two grid-search scripts in the repository.
-
-```text
-pipeline/greedy_grid_search_bertopic.py
-pipeline/greedy_grid_search_bertopic_from_chunks.py
-```
-
-`greedy_grid_search_bertopic.py` is Samuel's original BERTopic grid-search
-script. It expects a flat CSV/text input, applies token filtering/splitting,
-embeds the texts, and searches over UMAP `n_neighbors` and HDBSCAN
-`min_cluster_size` to balance topic coherence against HDBSCAN noise/outliers.
-
-`greedy_grid_search_bertopic_from_chunks.py` is the adaptation for this podcast
-pipeline. The modelling logic stays the same, but the input layer was changed
-from flat CSV text to the existing `chunks_input.parquet`. This means it can use
-the chunked podcast corpus produced by `run_bertopic_from_manifest.py` without
-re-transcribing, re-diarizing, or re-chunking.
-
-The main input parameters are:
-
-| Parameter | Purpose |
-|---|---|
-| `--chunks-path` | Path to `chunks_input.parquet`, `chunks_input.csv`, or JSONL. |
-| `--common-chunks-dir` | Shared folder for the canonical reusable chunk corpus. |
-| `--output-dir` | Root folder for grid-search outputs. |
-| `--text-column` | Text column to model, usually `chunk_text`. |
-| `--metadata-columns` | Metadata columns to preserve in output tables. |
-| `--min-doc-words` | Drop already-created chunks below this word count. |
-| `--max-docs` | Optional sample size for a faster exploratory search. |
-| `--embedding-model` | SentenceTransformer/SBERT model. |
-| `--embedding-device` | `auto`, `cpu`, or `cuda`. |
-| `--embedding-batch-size` | Batch size for embedding computation. |
-| `--embedding-cache-path` | Exact `.npy` embedding cache to reuse. |
-| `--force-embeddings` | Recompute embeddings even when a cache exists. |
-| `--nn-grid` | Comma-separated UMAP `n_neighbors` values. |
-| `--mcs-grid` | Comma-separated HDBSCAN `min_cluster_size` values. |
-| `--hdbscan-min-samples` | HDBSCAN noise/conservativeness parameter. |
-| `--coherence-weight` | Weight for coherence in the coherence-vs-noise composite score. |
-| `--name-stopwords-file` / `--extra-stopwords` | Additional label-cleaning stopwords. |
-| `--vectorizer-min-df`, `--vectorizer-max-df` | CountVectorizer document-frequency bounds. |
-| `--use-keybert` | Use BERTopic's `KeyBERTInspired` representation model when available. |
-
-The adapted script preserves podcast metadata in the outputs, including
-`chunk_id`, `episode_id`, `podcast_folder`, `episode_path`, `speaker`, `gender`,
-`start`, `end`, `word_count`, and `source_segment_count`. It writes tested run
-folders, metrics, topic words, topic distributions, `grid_search_results.csv`,
-and the final `best_config.json` / `best_params_cli.txt`.
-
-A practical exploratory run is:
+Copy or seed the canonical shared corpus through the grid-search input resolver:
 
 ```bash
 python pipeline/greedy_grid_search_bertopic_from_chunks.py \
-  --embedding-model "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2" \
-  --embedding-device cuda \
-  --embedding-batch-size 256 \
-  --chunks-path "$PROJECT_ROOT/outputs/common_chunks/chunks_input.parquet" \
-  --output-dir "$PROJECT_ROOT/outputs/bertopic_gridsearch_minilm" \
-  --min-doc-words 50 \
-  --max-docs 50000 \
-  --nn-grid "5,10,15,20,30" \
-  --mcs-grid "10,15,20,30,50" \
-  --hdbscan-min-samples 10 \
-  --coherence-weight 0.8 \
-  --use-keybert \
-  --name-stopwords-file "$PROJECT_ROOT/pipeline/bertopic_extra_stopwords.txt" \
-  --vectorizer-min-df 1 \
-  --vectorizer-max-df 1.0
+  --source-run-dir "$PROJECT_ROOT/outputs/bertopic_chunk_build" \
+  --common-chunks-dir "$PROJECT_ROOT/outputs/common_chunks" \
+  --output-dir "$PROJECT_ROOT/outputs/bertopic_gridsearch" \
+  --max-docs 50000
 ```
 
-For a full-corpus run, remove `--max-docs` or provide a matching embedding cache
-via `--embedding-cache-path`.
-
-The resulting `best_config.json` can be rerun with:
-
-```bash
-python pipeline/rerun_best_bertopic_from_grid.py \
-  --best-config "$PROJECT_ROOT/outputs/bertopic_gridsearch_minilm/<session>/best_config.json" \
-  --manifest "$PROJECT_ROOT/outputs/state/manifest.parquet" \
-  --main-script "$PROJECT_ROOT/pipeline/run_bertopic_from_manifest.py" \
-  --output-dir "$PROJECT_ROOT/outputs/bertopic_best_from_grid" \
-  --copy-mode copy \
-  --execute
-```
-
-So the grid-search adaptation is ready to use out of the box once
-`chunks_input.parquet` exists. Users only need to choose the embedding model and
-parameter grids. The script handles embedding computation/reuse, BERTopic runs,
-coherence/noise scoring, best-config export, and final rerun handoff.
-
-## Output files and handoff points
-
-The generated local layout is:
-
-```text
-outputs/
-|-- parquet/
-|   |-- episodes/<episode_id>.parquet
-|   `-- segments/<episode_id>.parquet
-|-- json_debug/<episode_id>.json
-|-- state/
-|   |-- manifest.parquet
-|   `-- failures.parquet
-|-- common_chunks/
-|   |-- chunks_input.parquet
-|   |-- chunks_input.csv
-|   |-- chunks_input_clean.parquet          # optional filtered corpus variant
-|   |-- chunks_excluded_noise.parquet       # optional filtering audit
-|   |-- chunks_cleaning_stats.csv           # optional filtering audit summary
-|   |-- COMMON_CHUNKS_MANIFEST.json
-|   `-- embedding_cache/
-|-- bertopic_gridsearch*/
-|   |-- <timestamp>_gridsearch_chunks/
-|   |   |-- runs/nn<m>_mcs<n>/
-|   |   |-- best_nn<m>_mcs<n>/
-|   |   |-- grid_search_results.csv
-|   |   |-- best_config.json
-|   |   |-- best_params_cli.txt
-|   |   `-- run_best_with_manifest_script.sh
-`-- bertopic*/
-    |-- chunks_input.parquet
-    |-- chunks_input.csv
-    |-- chunk_build_state.parquet
-    |-- chunk_build_failures.parquet
-    `-- podcast_chunks_sw-de/
-        |-- chunks_with_topics.parquet
-        |-- doc_topics.parquet
-        |-- topic_info.parquet
-        |-- topic_words.parquet
-        |-- representative_docs.parquet
-        |-- doc_topic_probs.parquet          # optional
-        |-- bertopic_model/
-        |-- run_config.json
-        |-- _TRAINING_COMPLETE.json
-        |-- topics_overview.html
-        |-- topics_barchart.html
-        `-- topics_hierarchy.html
-```
-
-CSV copies are also written for the main BERTopic tables.
-
-### Stage 2 raw transcript handoff
-
-Samuel or another downstream application can consume the Stage 2 Parquet files
-if it needs raw transcript segments, speaker labels, timings, or wants to build
-its own chunking.
-
-- `outputs/parquet/episodes/<episode_id>.parquet`: one row per episode,
-  including detected Whisper language, full transcript, runtime, speaker count,
-  and per-speaker vocal-gender measurements as JSON.
-- `outputs/parquet/segments/<episode_id>.parquet`: one row per Whisper segment,
-  including start/end time, assigned speaker, transcript text, gender label,
-  confidence, median F0, voiced ratio, and F0 interquartile range.
-- `outputs/json_debug/<episode_id>.json`: raw/debug payload for auditing.
-- `outputs/state/manifest.parquet`: authoritative job ledger with paths to the
-  output files.
-- `outputs/state/failures.parquet`: append-only failed-attempt log.
-
-### Universal chunk handoff
-
-For search, embeddings, topic modelling, or application-level document browsing,
-the preferred handoff is:
+After the common copy exists, later runs should point directly to:
 
 ```text
 outputs/common_chunks/chunks_input.parquet
 ```
 
-This is the universal chunk-level document corpus. Chunking should not be
-repeated per model unless the chunking parameters or cleaning strategy are being
-changed intentionally.
+## 6. What is passed to BERTopic?
 
-The `chunks_input.parquet` files inside individual `outputs/bertopic*/` model
-folders are runner-local compatibility copies or snapshots. Treat
-`outputs/common_chunks/chunks_input.parquet` as the canonical shared version.
+BERTopic receives a list of strings taken from `chunk_text`.
 
-### Model-output handoff
+The processing sequence is:
 
-If the downstream application wants already assigned topics, use:
+```text
+chunk_text
+  -> SentenceTransformer embedding vector
+  -> UMAP reduced vector
+  -> HDBSCAN topic cluster or outlier label -1
+  -> CountVectorizer and c-TF-IDF topic words
+```
 
-- `doc_topics.parquet`: every chunk and its assigned topic.
-- `chunks_with_topics.parquet`: full chunk table plus topic assignment.
-- `topic_info.parquet`: topic ID, count, name, and representation.
-- `topic_words.parquet`: top c-TF-IDF terms and scores.
-- `representative_docs.parquet`: example chunks for each topic.
+The embedding model is not given the Stage 2 manifest, raw audio, or whole Parquet row. It receives the text of one chunk at a time. Metadata such as `episode_id`, `speaker`, `gender`, `start`, and `end` is retained beside the text so that results can later be traced back to the source.
 
-Topic `-1` means HDBSCAN outlier/noise: the model did not confidently assign
-that chunk to a dense topic cluster.
+Default embedding model:
 
-## Suggested S3 mirror layout
+```text
+sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+```
 
-The S3 structure should mirror the local output structure and separate the
-handoff layers clearly:
+## 7. BERTopic outputs
+
+A trained run writes model-specific results under:
+
+```text
+<output-dir>/podcast_chunks_sw-de/
+```
+
+Important files are:
+
+| File | Meaning | Primary consumer |
+|---|---|---|
+| `doc_topics.parquet` | One row per chunk with its assigned topic | Applications and thesis analyses |
+| `chunks_with_topics.parquet` | Full chunk table plus topic assignment | Detailed analysis and debugging |
+| `topic_info.parquet` | Topic identifiers, sizes, names, and representations | Topic inventory and labelling |
+| `topic_words.parquet` | Top c-TF-IDF words and scores for each topic | Interpretation and reporting |
+| `representative_docs.parquet` | Example chunks for each topic | Manual validation |
+| `bertopic_model/` | Saved model | Reloading and further transformation |
+| `run_config.json` | Exact parameters and result counts | Reproducibility |
+| `topics_*.html` | Interactive visualisations | Inspection and figure preparation |
+
+Topic `-1` is the HDBSCAN outlier class. It means that the chunk was not assigned confidently to a dense topic cluster.
+
+## 8. Downstream handoff contracts
+
+Consumers should choose one level and not mix files from different levels without an explicit join.
+
+| Handoff level | Canonical files | Use this when |
+|---|---|---|
+| Raw transcript level | `outputs/state/manifest.parquet` and `outputs/parquet/segments/*.parquet` | The consumer needs timestamps, speaker turns, or custom chunking |
+| Pre-model document level | `outputs/common_chunks/chunks_input.parquet` | The consumer needs stable text documents for search, embeddings, or independent modelling |
+| Topic-result level | `doc_topics.parquet`, `topic_info.parquet`, `topic_words.parquet` | The consumer needs the selected model's assignments and labels |
+
+The recommended handoff before BERTopic is:
+
+```text
+outputs/common_chunks/chunks_input.parquet
+```
+
+The recommended handoff after BERTopic is the selected run's:
+
+```text
+podcast_chunks_sw-de/
+```
+
+## 9. Optional S3 mirror
+
+S3 is a storage and collaboration concern, not a pipeline stage implemented by the current scripts.
+
+A clear mirror is:
 
 ```text
 s3://<bucket>/podcast_project/
-|-- stage2_transcripts/
-|   |-- state/
-|   |   |-- manifest.parquet
-|   |   `-- failures.parquet
-|   |-- parquet/
-|   |   |-- episodes/<episode_id>.parquet
-|   |   `-- segments/<episode_id>.parquet
-|   |-- json_debug/<episode_id>.json
-|   `-- README_STAGE2_SCHEMA.md
-|
-|-- common_chunks/
-|   |-- chunks_input.parquet
-|   |-- chunks_input.csv
-|   |-- chunks_input_clean.parquet
-|   |-- chunks_excluded_noise.parquet
-|   |-- chunks_cleaning_stats.csv
-|   |-- COMMON_CHUNKS_MANIFEST.json
-|   `-- embedding_cache/
-|       |-- embeddings_<hash>.npy
-|       `-- embeddings_<hash>.json
-|
-`-- bertopic_runs/
-    `-- <run_id>/
-        |-- chunk_source_manifest.json
-        |-- run_config.json
-        |-- best_config.json              # if selected from grid search
-        |-- grid_search_results.csv       # if this is a grid-search export
-        |-- chunks_input.parquet          # optional copy; otherwise pointer only
-        `-- podcast_chunks_sw-de/
-            |-- doc_topics.parquet
-            |-- topic_info.parquet
-            |-- topic_words.parquet
-            |-- representative_docs.parquet
-            |-- chunks_with_topics.parquet
-            |-- doc_topic_probs.parquet    # optional
-            |-- bertopic_model/
-            |-- topics_overview.html
-            |-- topics_barchart.html
-            `-- topics_hierarchy.html
+├── stage2_transcripts/
+│   ├── state/manifest.parquet
+│   └── parquet/
+│       ├── episodes/
+│       └── segments/
+├── common_chunks/
+│   ├── chunks_input.parquet
+│   └── COMMON_CHUNKS_MANIFEST.json
+└── bertopic_runs/
+    └── <run_id>/
+        ├── run_config.json
+        └── podcast_chunks_sw-de/
 ```
 
-Each model run should include a small `chunk_source_manifest.json`, even if the
-file is created manually, so that consumers know whether two model runs used the
-same chunk corpus. Recommended fields:
+The documentation must not say that a local file is in S3 unless the project has actually copied it and recorded the bucket path. A deployment note should record:
 
-```json
-{
-  "chunks_path": "s3://<bucket>/podcast_project/common_chunks/chunks_input.parquet",
-  "chunks_sha256": "<sha256>",
-  "n_chunks": 191183,
-  "cleaning_variant": "raw|min_doc_words_50|clean",
-  "created_from_stage2_manifest": "s3://<bucket>/podcast_project/stage2_transcripts/state/manifest.parquet",
-  "notes": "Canonical chunk corpus reused across model runs."
-}
-```
+- the exact source file;
+- the exact destination URI;
+- the file checksum;
+- the number of rows;
+- the cleaning or filtering variant;
+- the date of transfer.
 
-## Resuming, retrying, and adding audio
+## 10. Resuming and auditing
 
-### Resume Stage 2
+Stage 2 resumability is controlled by `outputs/state/manifest.parquet`.
 
-Run the same batch command again. Completed episodes are not selected. Rows left
-as `running` after interruption are selected again.
+Stage 3 chunk resumability is controlled by `<output-dir>/chunk_build_state.parquet`.
 
-### Add new audio
+BERTopic training is corpus-level. `_TRAINING_COMPLETE.json` prevents accidental retraining in a completed run directory. Use a new output directory for a new experiment, or use `--force-train` deliberately.
 
-1. Place new files under the appropriate podcast subdirectories.
-2. Refresh the Stage 2 manifest with `--rebuild_manifest`.
-3. Run Stage 2 until the new rows are `done`.
-4. Run Stage 3 again to append chunks for newly completed episode IDs.
-5. Add `--force-train` if the BERTopic output directory already contains
-   `_TRAINING_COMPLETE.json` and the trained model must include the new chunks.
-
-### Recover outputs after a lost manifest
-
-If episode and segment Parquet files still exist:
+Useful checks:
 
 ```bash
-python pipeline/batch_podcast_runner.py \
-  --downloads "$PROJECT_ROOT/fyyd_downloads" \
-  --out_root "$PROJECT_ROOT/outputs" \
-  --state_dir "$PROJECT_ROOT/outputs/state" \
-  --limit 1 \
-  --rebuild_manifest \
-  --skip_existing_outputs
+python tools/audit_missing_speaker_gender.py \
+  --manifest outputs/state/manifest.parquet
+
+python tools/report_directory_usage.py outputs
 ```
 
-Check the resulting status counts before launching more processing.
+## 11. Environment setup
 
-### Episode identity
+The project uses separate environments because the audio stack and BERTopic stack have different dependency constraints.
 
-`episode_id` is the SHA-1 hash of the resolved absolute audio path. It is stable
-while the file remains at the same absolute path. Moving the repository or audio
-tree changes the ID even when the audio content is unchanged.
+- `.venv`: acquisition and Stage 2 audio processing;
+- `.venv_bertopic`: Stage 3 chunking, embeddings, grid search, and BERTopic.
 
-## Troubleshooting
+System requirements:
 
-### `Missing Hugging Face token. Export PYANNOTE_TOKEN.`
+- Linux;
+- Python 3.12;
+- FFmpeg on `PATH`;
+- a Hugging Face token with access to the pyannote models;
+- sufficient local or mounted storage;
+- an NVIDIA GPU for practical large-corpus execution, although CPU execution is possible.
 
-```bash
-export PYANNOTE_TOKEN="hf_your_token_here"
-```
-
-Confirm that the token is visible in the same shell that launches Python.
-
-### pyannote returns an authorization or model-access error
-
-Log into Hugging Face, accept the terms for the gated pyannote model and its
-required dependencies, and use a token from the same account.
-
-### `ffmpeg not found`, decoding failure, or unsupported audio
-
-```bash
-command -v ffmpeg
-ffmpeg -version
-ffmpeg -v error -i path/to/episode.mp3 -f null -
-```
-
-Corrupt or truncated audio should appear as `failed` in the manifest. Replace
-the file, refresh the manifest if its path changed, and retry.
-
-### TorchCodec warning during Stage 2
-
-pyannote may warn that TorchCodec cannot load FFmpeg shared libraries. The
-production diarization code loads audio through librosa and passes an in-memory
-waveform to pyannote, so this warning can be non-fatal. Confirm by processing a
-small batch before launching the full corpus.
-
-### BERTopic fails while importing TorchCodec
-
-Use `.venv_bertopic`, not the combined `.venv`:
-
-```bash
-source .venv_bertopic/bin/activate
-python pipeline/run_bertopic_from_manifest.py --help
-```
-
-### CUDA out-of-memory during Stage 2
-
-- Omit `--diar_gpu` so pyannote stays on CPU.
-- Use a smaller Whisper model such as `base` or `tiny`.
-- Process one batch runner at a time.
-
-### CUDA error during BERTopic embeddings
-
-Retry with:
-
-```bash
---embedding-device cpu
-```
-
-This is slower but avoids CUDA kernel and memory compatibility problems.
-
-### `No audio files found in downloads root`
-
-Ensure the structure is:
-
-```text
-downloads-root/podcast-folder/episode.mp3
-```
-
-Audio files directly inside `downloads-root/` are not discovered.
-
-### `No chunks available`
-
-Common causes:
-
-- no manifest rows have status `done`;
-- Stage 2 output paths in the manifest are missing;
-- `--chunk-episode-limit 0` selected zero new episodes;
-- every segment or chunk was below the configured word minimum;
-- a fresh BERTopic output directory has no existing `chunks_input.parquet`.
-
-### BERTopic says the model is already completed
-
-The completion marker prevents accidental retraining. Use a new output directory
-for a new experiment, or deliberately pass:
-
-```bash
---force-train
-```
-
-### Grid search embedding cache mismatch
-
-`greedy_grid_search_bertopic_from_chunks.py` checks that a forced embedding cache
-has the same row count as the current chunk table. If it fails, rerun with the
-same `--chunks-path`, `--min-doc-words`, `--max-docs`, and
-`--sample-random-state`, or omit `--embedding-cache-path` so embeddings are
-computed again.
-
-## Methodological notes
-
-### Vocal-gender labels
-
-The `--gender` option does not infer identity or self-described gender. It
-estimates perceived vocal pitch from median F0 for each diarized speaker:
-
-```text
-median F0 < 155 Hz   -> male
-median F0 > 185 Hz   -> female
-155 Hz to 185 Hz     -> borderline
-insufficient voicing -> unknown
-```
-
-These labels are an acoustic proxy with important limitations. Preserve the
-`borderline`, `unknown`, confidence, F0, and voiced-ratio fields when reporting
-results.
-
-### Diarization labels
-
-Labels such as `SPEAKER_00` are local to an episode. They do not identify the
-same person across episodes and should not be treated as names.
-
-### Topic outliers
-
-HDBSCAN assigns topic `-1` to low-density chunks. A high outlier rate is not
-automatically a processing error. Conversational transitions, greetings, and
-short off-topic exchanges often lack a stable corpus-level topic.
-
-Optional scripts can reassign outliers, but reassignment trades topic coverage
-against topic purity. Keep original and reassigned tables separate.
-
-### Rights, privacy, and research ethics
-
-Before downloading or processing a podcast corpus:
-
-- confirm that collection and analysis are permitted by applicable law,
-  licenses, platform terms, and institutional research rules;
-- avoid redistributing copyrighted audio or full transcripts without permission;
-- protect access tokens and potentially sensitive transcripts;
-- document sampling, failed episodes, model versions, and parameter choices;
-- report the limitations of transcription, diarization, vocal-gender estimation,
-  and unsupervised topic modelling.
-
-## Further documentation
-
-The thesis documentation contains the detailed methodology, data dictionaries,
-corpus statistics, topic-model rationale, and experiment comparisons:
-
-- [`docs/thesis/README.md`](docs/thesis/README.md)
-- [`docs/thesis/01_pipeline_and_data.md`](docs/thesis/01_pipeline_and_data.md)
-- [`docs/thesis/02_topic_modeling.md`](docs/thesis/02_topic_modeling.md)
-- [`docs/thesis/03_results_and_figures.md`](docs/thesis/03_results_and_figures.md)
-
-Show all current CLI options with:
+See the command help for the complete current interface:
 
 ```bash
 source .venv/bin/activate
@@ -1154,17 +506,12 @@ python pipeline/run_bertopic_from_manifest.py --help
 python pipeline/greedy_grid_search_bertopic_from_chunks.py --help
 ```
 
-Maintenance and thesis-export commands:
+## 12. Methodological cautions
 
-```bash
-python tools/audit_missing_speaker_gender.py \
-  --manifest outputs/state/manifest.parquet
-
-python tools/report_directory_usage.py outputs
-
-python -m pip install Markdown==3.10.2 fpdf2==2.8.7
-python docs/thesis/_build_pdf.py
-```
-
-The generated thesis PDF is written to `dist/thesis_documentation.pdf`. The full
-`requirements.venv.txt` snapshot already contains the PDF dependencies.
+- Whisper segments are ASR units, not guaranteed sentences.
+- pyannote speaker labels are anonymous and local to one episode.
+- F0 categories are acoustic estimates, not self-identified gender.
+- A chunk is a constructed document unit, not a naturally occurring paragraph.
+- Topic count and outlier rate depend on embedding, UMAP, HDBSCAN, vectorizer, and chunking decisions.
+- Lower outlier rate is not automatically better if it is achieved by forcing unrelated text into broad topics.
+- All reported corpus counts and model results should be tied to a manifest, chunk checksum, and run configuration.

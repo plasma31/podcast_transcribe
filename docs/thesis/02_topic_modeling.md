@@ -1,199 +1,415 @@
 # Chapter: Topic Modelling
 
-> How the topic models were built and run: the chunking that turns transcripts
-> into documents, the BERTopic pipeline and its parameters with justifications,
-> how the diagnostic diagrams are produced and read, and the outlier-reassignment
-> step. Parameter values are taken verbatim from the persisted
-> `run_config.json` of each run.
+## 1. Scope of this chapter
 
-## 1. From transcript segments to documents (chunking)
+This chapter begins after Stage 3 has produced the canonical chunk corpus:
 
-BERTopic is a *document*-clustering method, so the unit of analysis must be
-chosen before modelling. Whisper segments are far too short and syntactically
-incomplete to embed meaningfully (often a single clause), while whole episodes
-are too long and topically heterogeneous to belong to one topic. The pipeline
-therefore merges consecutive segments into **chunks** of roughly paragraph
-length.
+```text
+outputs/common_chunks/chunks_input.parquet
+```
 
-`run_bertopic_from_manifest.py` builds chunks with the following rules
-(defaults shown):
+The purpose is to explain exactly what BERTopic receives, what each modelling component contributes, why the parameters matter, which files are written, and how a downstream consumer should interpret the results.
 
-| Parameter | Value | Rationale |
+The modelling sequence is:
+
+```text
+chunk_text
+  -> SentenceTransformer embedding
+  -> UMAP dimensionality reduction
+  -> HDBSCAN clustering
+  -> CountVectorizer and c-TF-IDF topic representation
+  -> document-topic and topic-summary tables
+```
+
+The raw audio, Whisper segments, Stage 2 manifest, and episode Parquet files are not passed directly into the embedding model. They are used earlier to construct the chunk rows.
+
+## 2. The modelling document
+
+### 2.1 Why Whisper segments are not used directly
+
+Whisper segments are created for speech recognition and timestamp alignment. They are frequently short, incomplete, and dependent on surrounding speech. A segment can contain only a phrase, backchannel, or partial sentence.
+
+Embedding every segment separately would create many weak semantic vectors and would overrepresent brief conversational fragments.
+
+### 2.2 Why full episodes are not used directly
+
+A podcast episode can contain several topics, speakers, introductions, advertisements, and transitions. Representing a complete episode with one vector would require the clustering step to assign one dominant topic to material that is often topically mixed.
+
+### 2.3 Why chunks are used
+
+Chunks provide a middle level between the two extremes.
+
+A chunk contains consecutive transcript segments from one episode and normally one diarized speaker. It is long enough to carry topical information but short enough to preserve local changes in discussion.
+
+The main modelling table is:
+
+```text
+outputs/common_chunks/chunks_input.parquet
+```
+
+The main modelling column is:
+
+```text
+chunk_text
+```
+
+Each row is treated as one BERTopic document.
+
+### 2.4 Meaning of the filename
+
+`chunks_input.parquet` means **input to the embedding and topic-modelling process**.
+
+It should not be interpreted as the input to the complete podcast pipeline. The complete pipeline starts with source lists and audio. The chunk file appears near the end of data preparation.
+
+A clearer conceptual label is:
+
+```text
+canonical BERTopic document corpus
+```
+
+The physical filename remains unchanged because it is used by the existing scripts.
+
+### 2.5 Chunk metadata retained beside the text
+
+The embedding model only needs `chunk_text`, but the table preserves additional columns:
+
+- `chunk_id` for stable joins;
+- `episode_id` for episode provenance;
+- `podcast_folder` and `episode_path` for source tracing;
+- `speaker` and `gender` for subgroup analysis;
+- `start` and `end` for locating the text in the episode;
+- `word_count` and `source_segment_count` for quality and length checks.
+
+This separation is important. Metadata is retained for interpretation and joins, but it does not automatically become part of the semantic embedding.
+
+## 3. Embedding with SentenceTransformer
+
+### 3.1 What an embedding represents
+
+SentenceTransformer converts each chunk into a fixed-length numeric vector. Chunks with similar language and meaning should occupy nearby positions in the embedding space.
+
+The vector is not a topic label. It is a machine-readable semantic representation used by the later dimensionality-reduction and clustering steps.
+
+### 3.2 Default model
+
+The default model in `run_bertopic_from_manifest.py` is:
+
+```text
+sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+```
+
+It was selected as the practical baseline because the corpus is predominantly German, the model supports multiple languages, and it is computationally light enough for repeated experiments over approximately 191,000 documents.
+
+Larger models were tested separately. A larger parameter count does not guarantee a better topic model because the final result also depends on how the embedding geometry interacts with UMAP and HDBSCAN.
+
+### 3.3 Device selection
+
+`--embedding-device` accepts:
+
+- `auto`;
+- `cpu`;
+- `cuda`.
+
+GPU execution is substantially more practical for the full corpus. CPU remains useful for compatibility, small tests, or systems without a supported CUDA environment.
+
+### 3.4 Embedding cache
+
+The grid-search workflow can store and reuse embedding matrices under:
+
+```text
+outputs/common_chunks/embedding_cache/
+```
+
+This avoids recomputing the most expensive shared input when only UMAP or HDBSCAN parameters change.
+
+A cache is valid only for the exact ordered chunk table and embedding configuration used to create it. Row count alone is not sufficient provenance. The source chunk checksum, model name, filtering settings, sampling settings, and row order should be preserved with the cache metadata.
+
+## 4. UMAP dimensionality reduction
+
+### 4.1 Why dimensionality is reduced
+
+SentenceTransformer embeddings contain many dimensions. HDBSCAN can operate more effectively and efficiently after the vectors are projected into a smaller space that preserves relevant neighbourhood structure.
+
+UMAP performs this projection.
+
+### 4.2 Main parameters
+
+| Parameter | Baseline | Interpretation |
+|---|---:|---|
+| `n_neighbors` | 30 | Size of the local neighbourhood used when learning the reduced geometry |
+| `n_components` | 5 | Number of dimensions supplied to HDBSCAN |
+| `min_dist` | 0.0 | Allows nearby points to be packed tightly in the reduced space |
+| `metric` | cosine | Measures similarity in the original embedding space |
+| `random_state` | 42 | Fixes the stochastic projection for reproducibility |
+
+### 4.3 Why `n_neighbors` matters
+
+A smaller value gives more weight to local structure and can produce finer clusters. A larger value incorporates broader neighbourhood information and can encourage larger, more globally stable groupings.
+
+The parameter does not directly specify the number of topics. It changes the geometry on which HDBSCAN later operates.
+
+### 4.4 Why a fixed random state is used
+
+UMAP is stochastic. Without a fixed seed, repeated executions with identical data and parameters can produce different reduced coordinates and therefore different clusters.
+
+A fixed random state does not make every library and hardware operation perfectly deterministic, but it removes a major source of avoidable variation.
+
+## 5. HDBSCAN clustering
+
+### 5.1 What HDBSCAN does
+
+HDBSCAN searches the reduced vectors for dense regions. Each dense region becomes a candidate topic cluster.
+
+Documents that do not belong confidently to a sufficiently dense region receive:
+
+```text
+topic = -1
+```
+
+The outlier class is an explicit model result, not a missing value.
+
+### 5.2 Main parameters
+
+| Parameter | Baseline | Interpretation |
+|---|---:|---|
+| `min_cluster_size` | 50 | Minimum size of a reported dense cluster |
+| `min_samples` | 1 | Controls how conservative density membership is |
+| `metric` | euclidean | Distance measure in the reduced UMAP space |
+| `cluster_selection_method` | `eom` | Selects stable clusters from the density hierarchy |
+
+### 5.3 Why `min_cluster_size` matters
+
+Lower values permit more small clusters. This increases topic granularity but can create fragmented or highly specific topics.
+
+Higher values require more supporting documents. This can produce fewer and broader topics, while moving small thematic groups into larger clusters or the outlier class.
+
+The parameter therefore expresses a substantive decision about the minimum amount of corpus evidence required before a theme is reported as a topic.
+
+### 5.4 Why `min_samples` matters
+
+A higher value makes HDBSCAN more conservative. Borderline documents are more likely to become outliers.
+
+A low value of 1 was used in the baseline to avoid unnecessarily rejecting conversational documents from an already heterogeneous corpus.
+
+### 5.5 Why outliers are retained
+
+Podcast speech contains greetings, transitions, jokes, advertisements, personal exchanges, and fragments that may not form a stable corpus-level theme.
+
+Forcing every chunk into a topic would improve numeric coverage but could reduce topic purity. The outlier rate must therefore be interpreted together with topic coherence and representative documents.
+
+A lower outlier rate is not automatically evidence of a better model.
+
+## 6. Topic representation with CountVectorizer and c-TF-IDF
+
+### 6.1 Why clustering alone is insufficient
+
+HDBSCAN produces numeric cluster assignments. It does not explain what the clusters mean.
+
+BERTopic groups all documents assigned to a topic and uses class-based TF-IDF to identify words and phrases that are especially characteristic of that topic compared with the other topics.
+
+### 6.2 Vectorizer parameters
+
+| Parameter | Baseline | Interpretation |
+|---|---:|---|
+| `ngram_range` | 1 to 3 | Allow single words, two-word phrases, and three-word phrases |
+| `min_df` | 10 | A term must appear in at least ten documents |
+| `max_df` | 0.95 | Terms present in more than 95% of documents are excluded |
+
+The n-gram range allows multi-word expressions to appear in a topic representation. This is useful when meaning is carried by a phrase rather than an isolated token.
+
+### 6.3 Stopwords and person names
+
+Conversational transcripts contain frequent function words, address terms, fillers, host names, and guest names. Without filtering, these tokens can dominate the topic labels even when they do not describe the substantive theme.
+
+The pipeline can combine:
+
+- German stopwords;
+- manually curated conversational and corpus-specific stopwords;
+- an optional person-name list;
+- a local file such as `pipeline/bertopic_extra_stopwords.txt`.
+
+Name removal must be applied carefully. A name can be noise when it identifies a recurring host, but it can also be substantively important when the research question concerns a public person or organisation.
+
+The final stopword regime must therefore be recorded in `run_config.json` and treated as part of the model specification.
+
+## 7. Optional topic reduction
+
+`--nr-topics` can merge the discovered topics to a target count after the initial model has been fitted.
+
+This step changes granularity. It does not replace the embedding or HDBSCAN stages and does not directly eliminate outliers.
+
+A fixed target can make a result easier to report or compare, but it also introduces a researcher-selected level of aggregation. The unreduced model remains useful for inspecting the data-driven cluster structure.
+
+## 8. Main runner and grid-search runner
+
+### 8.1 `run_bertopic_from_manifest.py`
+
+This is the canonical Stage 3 runner. It can:
+
+- read the Stage 2 manifest;
+- construct or resume chunks;
+- train one BERTopic configuration;
+- write model tables, visualisations, and a saved model.
+
+It writes runner-local chunk files to the selected `--output-dir` and model files to:
+
+```text
+<output-dir>/podcast_chunks_sw-de/
+```
+
+### 8.2 `greedy_grid_search_bertopic_from_chunks.py`
+
+This script starts after chunk construction. It does not download, transcribe, diarize, or rebuild chunks.
+
+Its preferred input is:
+
+```text
+outputs/common_chunks/chunks_input.parquet
+```
+
+It evaluates combinations of:
+
+- UMAP `n_neighbors`;
+- HDBSCAN `min_cluster_size`;
+- the fixed supporting parameters supplied through the command line.
+
+It can reuse a common embedding matrix so that parameter comparisons are based on the same document vectors.
+
+### 8.3 Why the common chunk corpus is necessary
+
+Model comparisons are meaningful only when the document population is held constant.
+
+If each run rebuilt chunks independently, a difference in topic count or outlier rate could be caused by different document boundaries rather than the embedding or clustering parameters.
+
+The canonical common file therefore defines the experiment population:
+
+```text
+outputs/common_chunks/chunks_input.parquet
+```
+
+Each run should record its source checksum or provenance manifest.
+
+## 9. Model output files
+
+A completed run writes the following files under `podcast_chunks_sw-de/`.
+
+| File | Main contents | Reader question answered |
 |---|---|---|
-| `--chunk-target-words` | 220 | A chunk is flushed once it reaches ~220 words — long enough to carry stable topical signal, short enough to stay on one theme. |
-| `--chunk-max-words` | 320 | Hard cap; a segment that would exceed it starts a new chunk. |
-| `--min-segment-words` | 2 | Drop near-empty segments (backchannels, "mhm") before chunking. |
-| `--min-doc-words` | 20 | Discard chunks below 20 words as too sparse to cluster. |
-| `--speaker-consistent` | true | A chunk is flushed on speaker change, so each chunk belongs to one speaker (and one gender) wherever possible. |
+| `doc_topics.parquet` | One row per chunk with its assigned topic | Which topic was assigned to this document? |
+| `chunks_with_topics.parquet` | Full chunk table plus `doc_id` and `topic` | What source metadata belongs to each assignment? |
+| `topic_info.parquet` | Topic identifier, count, name, representation, examples | Which topics exist and how large are they? |
+| `topic_words.parquet` | Top terms and c-TF-IDF scores | Which words distinguish this topic? |
+| `representative_docs.parquet` | Example chunks for each topic | What does the topic look like in context? |
+| `doc_topic_probs.parquet` | Optional probability matrix | How strongly does each document relate to topics when probabilities are enabled? |
+| `bertopic_model/` | Saved model artefacts | How can the trained model be reloaded? |
+| `run_config.json` | Parameters, paths, runtime, counts | How was this result produced? |
+| `_TRAINING_COMPLETE.json` | Completion marker | Has this run already finished? |
+| `topics_overview.html` | Intertopic map | Which topics are close or distant? |
+| `topics_barchart.html` | Topic-term score charts | Which terms support each label? |
+| `topics_hierarchy.html` | Topic dendrogram | Which topics merge at low or high distance? |
 
-When a chunk nonetheless spans more than one speaker or gender (e.g. tightly
-interleaved turns) it is labelled `mixed`. This design means **every chunk
-carries a speaker and a gender label**, which is what makes gendered topic
-analysis possible downstream. Chunk building is itself resumable: processed
-episodes are recorded in `chunk_build_state.parquet` and skipped on re-runs, and
-chunks accumulate in `chunks_input.parquet`.
+### 9.1 `doc_topics.parquet`
 
-For this corpus the procedure produced **191,183 chunks** from 4,400 episodes,
-with a mean length of **118.5 words** (median 97, 95th percentile 231). The
-full-run chunk corpus is universal: the same `chunk_id` set is reused by the
-baseline, grid-search, and alternative embedding-model runs. The canonical
-handoff copy is `outputs/common_chunks/chunks_input.parquet`; the copies under
-`outputs/bertopic*/chunks_input.parquet` exist because the main runner expects a
-chunk file inside each output directory. Small `bertopic_test*` directories are
-partial experiments and are not used as thesis or application handoff corpora.
-The distribution is right-skewed: most chunks reach paragraph length, with a
-tail flushed early by speaker changes.
+This is the most useful application-facing result table.
 
-![Chunk length distribution](figures/fig_chunk_wordcount.png)
+Important columns:
 
-### 1.1 Data dictionary — chunk corpus (`chunks_input.parquet`)
+| Column | Meaning |
+|---|---|
+| `doc_id` | Row identifier assigned during model fitting |
+| `chunk_id` | Stable join key back to the canonical chunk corpus |
+| `episode_id` | Source episode |
+| `speaker`, `gender` | Retained chunk metadata |
+| `start`, `end` | Source time range |
+| `topic` | Topic identifier or `-1` |
+| `chunk_text` | Text that was embedded and clustered |
 
-| Column | Type | Definition |
-|---|---|---|
-| `chunk_id` | str | SHA-1 of `(episode_id, start, end, index, text[:200])`; primary key. |
-| `episode_id`, `podcast_folder`, `episode_path` | str | Provenance of the chunk. |
-| `speaker` | str | Single speaker label, or `mixed`. |
-| `gender` | str | `male` / `female` / `borderline` / `unknown` / `mixed`. |
-| `start`, `end` | float | Start of the first and end of the last source segment (seconds). |
-| `chunk_text` | str | Merged, whitespace-normalised text — the document fed to BERTopic. |
-| `word_count` | int | Words in `chunk_text`. |
-| `source_segment_count` | int | Number of transcript segments merged into the chunk. |
+`doc_id` is run-specific. `chunk_id` is the safer cross-run key.
 
-### 1.2 Runner provenance and reuse boundary
+### 9.2 `topic_info.parquet`
 
-`run_bertopic_from_manifest.py` is the project-specific Stage 3 bridge: it reads
-the Stage 2 manifest, resolves each episode's Parquet paths, builds or reuses
-chunk documents, and then calls the BERTopic training routine. The modelling
-helpers (`build_model`, German stopword construction, and name-stopword loading)
-come from `pipeline/bertopic_typisierung.py`, which is an earlier standalone
-CSV-input BERTopic script adapted into reusable helper functions for this
-pipeline. In the current repository history both files enter together, so the
-visible provenance is: shared BERTopic helper logic in `bertopic_typisierung.py`,
-manifest/Parquet integration in `run_bertopic_from_manifest.py`.
+This table describes the topic inventory and includes the outlier row when topic `-1` exists.
 
-This boundary is also the handoff boundary: applications that need raw
-speaker-attributed transcripts consume Stage 2 segment Parquets; applications
-that need document-sized text units consume `chunks_input.parquet`; applications
-that need topic assignments consume `doc_topics.parquet` plus the topic summary
-tables of the selected run.
+The generated topic name is an automatic representation based on high-scoring terms. It should be treated as evidence for interpretation, not as a final human label.
 
-## 2. The BERTopic pipeline
+### 9.3 `topic_words.parquet`
 
-BERTopic (Grootendorst, 2022) is a modular topic model that clusters documents
-in embedding space and then derives interpretable topic descriptions from the
-clusters. The pipeline has four exchangeable components, each chosen here for a
-German conversational corpus:
+This table preserves the terms and their scores. It is more informative than a single concatenated topic name because it allows the researcher to inspect the relative evidence behind the label.
 
-1. **Embedding** — a multilingual Sentence-BERT model (Reimers & Gurevych,
-   2019) maps each chunk to a dense semantic vector. The baseline uses
-   `paraphrase-multilingual-MiniLM-L12-v2`; alternatives (`mpnet`, `e5-large`)
-   were evaluated (see Chapter "Results").
-2. **Dimensionality reduction** — **UMAP** (McInnes et al., 2018) reduces the
-   embeddings to a low-dimensional space in which density-based clustering is
-   well-behaved.
-3. **Clustering** — **HDBSCAN** (Campello et al., 2013) finds variable-density
-   clusters and, crucially, **does not force every document into a topic**:
-   documents in low-density regions are labelled as outliers (topic `-1`).
-4. **Topic representation** — a `CountVectorizer` plus **class-based TF-IDF
-   (c-TF-IDF)** extracts the words that are characteristic of each cluster,
-   producing the human-readable topic labels.
+### 9.4 `representative_docs.parquet`
 
-### 2.1 Baseline parameters and justification
+Representative chunks are necessary for substantive validation. A topic cannot be assessed reliably from top words alone, especially when words are polysemous or transcript errors are present.
 
-The reference run is `outputs/bertopic/` (folder `podcast_chunks_sw-de`). It
-consumes the same universal chunk corpus as the other full runs; what differs
-between run folders is the embedding model, UMAP/HDBSCAN/vectorizer parameters,
-optional topic reduction, stopword regime, and post-hoc reassignment outputs.
-Its parameters, taken from `run_config.json`, and the reasoning behind them:
+## 10. Reading the diagnostic visualisations
 
-| Component | Parameter | Baseline value | Justification |
-|---|---|---|---|
-| Embedding | model | `paraphrase-multilingual-MiniLM-L12-v2` | Strong multilingual sentence embeddings with good German coverage at low cost; fast enough to embed ~191 k chunks repeatedly during experimentation. |
-| UMAP | `n_neighbors` | 30 | Balances local vs. global structure; higher than the BERTopic default (15) to favour broader, more stable topics over micro-clusters in a large corpus. |
-| UMAP | `n_components` | 5 | Standard BERTopic working dimensionality — enough to preserve cluster structure while keeping HDBSCAN tractable. |
-| UMAP | `min_dist` | 0.0 | Packs points tightly, which sharpens the density contrast HDBSCAN relies on. |
-| UMAP | `metric` | cosine | Cosine is the natural geometry of sentence embeddings. |
-| UMAP | `random_state` | 42 | Fixed seed for reproducibility. |
-| HDBSCAN | `min_cluster_size` | 50 | A topic must contain ≥ 50 chunks to be reported — filters noise and keeps topics interpretable at corpus scale. This is the single most influential knob (see §4). |
-| HDBSCAN | `min_samples` | 1 | Low value makes clustering less conservative, assigning more borderline points to topics rather than to the outlier class. |
-| HDBSCAN | `metric` / selection | euclidean / `eom` | Euclidean on the UMAP space; *excess of mass* selects the most stable clusters. |
-| Vectorizer | `ngram_range` | (1, 3) | Unigrams to trigrams capture multi-word German concepts (e.g. *soziale Medien*). |
-| Vectorizer | `min_df` | 10 | A term must occur in ≥ 10 chunks to enter a topic label — removes idiosyncratic tokens. |
-| Vectorizer | `max_df` | 0.95 | Drops terms appearing in > 95 % of chunks (corpus-wide filler). |
-| Topics | `nr_topics` | none | The baseline does **not** merge topics post-hoc; topic count is data-driven. |
+### 10.1 Intertopic distance map
 
-### 2.2 German stopwords and name suppression
+`topics_overview.html` displays topics as circles in a two-dimensional projection.
 
-Because the corpus is conversational German, topic labels are easily dominated
-by function words and — importantly — by **speakers' personal names**. The
-vectorizer's stopword list (`build_stopwords`) is therefore assembled from three
-sources:
+- circle size represents topic frequency;
+- proximity suggests similarity between topic representations;
+- overlap or crowding can indicate closely related topics;
+- isolated circles suggest more distinct representations.
 
-1. the `stopwords-iso` German list;
-2. manual podcast/address terms (`herr`, `frau`, `hr`, `fr`, control-character
-   artefacts, etc.) plus a small set of recurring host surnames;
-3. **person-name stopwords** from the `names-dataset` library — the top-N
-   (default 20,000) first and last names per country for
-   `DE, AT, CH, TR, PL, RO, RU, UA, FR, IT, ES, PT, NL, BE, GB, US`.
+The two-dimensional layout is a diagnostic projection. Exact distances should not be interpreted as a direct physical scale.
 
-Suppressing names prevents the model from "discovering" topics that are really
-just one recurring guest, and reflects the corpus's German/Turkish/Eastern-
-European naming profile. (`--names-dataset-mode all` exists but can generate
-hundreds of thousands of stopwords and is avoided for speed.) The `sw-de` tag in
-the run-directory name records that German stopwords were active.
+### 10.2 Topic-word bar charts
 
-### 2.3 Model-output tables
+`topics_barchart.html` shows the highest c-TF-IDF terms for selected topics.
 
-The trained run directory is the unit that Samuel or any other downstream
-application should consume when topic assignments are required. The minimal
-application handoff is `doc_topics.parquet`, `topic_info.parquet`, and
-`topic_words.parquet`; the model and diagrams are supporting artefacts.
+The chart answers: which words make this topic different from other topics?
 
-| File | Key columns | Use |
-|---|---|---|
-| `doc_topics.parquet` | `doc_id`, `chunk_id`, `episode_id`, `speaker`, `gender`, `start`, `end`, `topic`, `chunk_text` | One row per chunk with its assigned topic. This is the main app-facing table. |
-| `topic_info.parquet` | `Topic`, `Count`, `Name`, `Representation`, `Representative_Docs` | Topic inventory and sizes, including topic `-1` for HDBSCAN outliers. |
-| `topic_words.parquet` | `topic`, `words`, `word_scores_json` | Human-readable top words and c-TF-IDF scores per topic. |
-| `representative_docs.parquet` | `topic`, `representative_doc_rank`, `representative_doc` | Example chunks used to inspect and label topics. |
-| `chunks_with_topics.parquet` | all chunk columns plus `doc_id` and `topic` | Full enriched chunk table; largely equivalent to `doc_topics.parquet` but retained for diagnostics. |
-| `run_config.json` | CLI arguments, runtime, chunk count, topic count, outlier count, paths | Reproducibility and run comparison. |
-| `bertopic_model/` | saved BERTopic model and topic embeddings | Reloading the trained model for further transforms or inspection. |
-| `topics_*.html` | Plotly visualisations | Interactive diagnostics and figure export. |
+Terms such as different grammatical forms of the same word can appear separately because the vectorizer does not automatically reduce every German word to a common lemma. This is a representation choice, not evidence that the model considers the forms unrelated in every semantic sense.
 
-## 3. How the diagnostic diagrams work
+### 10.3 Hierarchical topic view
 
-Each run saves three interactive **Plotly** HTML diagrams. They are interactive
-by design (hover, zoom); to include them in the thesis, open the HTML in a
-browser and export a static image, or use the camera icon in the Plotly
-toolbar. Each is read as follows.
+`topics_hierarchy.html` builds a dendrogram from topic representations.
 
-**`topics_overview.html` — Intertopic Distance Map.** BERTopic projects the
-per-topic c-TF-IDF vectors into 2-D and draws each topic as a circle.
-*Position* encodes topic similarity (nearby circles are semantically related),
-and *circle area* encodes topic size (number of chunks). It is read to judge
-whether topics are well separated or overlapping, and which themes dominate.
+- topics joined at a low distance are relatively similar;
+- topics joined at a high distance are more distinct;
+- a branch indicates a possible broader family of topics;
+- the diagram can support a decision about post-hoc merging.
 
-**`topics_barchart.html` — Topic word scores.** A small-multiples grid of
-horizontal bar charts, one panel per topic, showing the top c-TF-IDF terms and
-their scores. It is the primary tool for *labelling* and *validating* topics:
-the bars are the evidence for what a topic "is".
+The hierarchy is not a manually defined taxonomy. It is derived from similarity among the model's topic representations.
 
-**`topics_hierarchy.html` — Hierarchical dendrogram.** Topics are agglomerated by
-the cosine distance between their c-TF-IDF vectors, producing a dendrogram.
-Reading the merge heights shows which fine-grained topics are near-duplicates and
-suggests a sensible level at which to merge them (informing the `nr_topics`
-choice).
+## 11. How to judge a model
 
-For reproducible, static reporting this thesis supplements the native diagrams
-with matplotlib figures generated directly from the saved topic tables
-(`docs/thesis/_make_stats_and_figures.py`); these are used in Chapter
-"Results".
+There is no labelled gold-standard topic assignment for this corpus. Evaluation must combine several forms of evidence.
 
-## 4. The outlier problem
+| Criterion | Question |
+|---|---|
+| Coverage | What proportion of chunks receives a non-outlier topic? |
+| Granularity | Are there too few broad topics or too many fragmented topics? |
+| Coherence | Do the high-scoring words belong together? |
+| Representative documents | Do actual chunks support the topic interpretation? |
+| Stability | Do repeated or nearby configurations recover similar themes? |
+| Usefulness | Does the topic resolution answer the thesis and application questions? |
+| Runtime | Is the configuration practical to reproduce and extend? |
 
-HDBSCAN's refusal to force-classify low-density documents is desirable for
-purity but produces a large **outlier class** (topic `-1`) on this corpus. In
-the baseline run, **109,942 of 191,183 chunks (57.5 %)** are outliers. This is
-expected for spontaneous speech — much podcast talk is greetings, transitions,
-and chit-chat with no stable topic — but it must be reported and, where useful,
-mitigated.
+A selected model should therefore be described as the most defensible compromise for the research purpose, not as an objectively best model.
+
+## 12. Outlier reassignment
+
+The repository contains optional scripts for reassigning topic `-1` documents.
+
+Reassignment can increase coverage, but it changes the interpretation of the model by forcing previously uncertain documents toward existing topics.
+
+The original assignments must be preserved. Reassigned outputs should use separate filenames and should be presented as a sensitivity analysis rather than silently replacing the HDBSCAN result.
+
+## 13. Reproducibility requirements
+
+A reported topic-model result should identify:
+
+- the canonical chunk file and checksum;
+- the number of chunk rows;
+- any filtering or sampling step;
+- the embedding model and revision;
+- UMAP parameters;
+- HDBSCAN parameters;
+- vectorizer and stopword settings;
+- optional topic-reduction target;
+- whether probabilities were calculated;
+- the output run directory;
+- the resulting topic and outlier counts.
+
+These values are persisted in `run_config.json` and should be treated as part of the result, not as incidental implementation details.
