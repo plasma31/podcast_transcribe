@@ -57,17 +57,33 @@ artifacts/           acquisition reports and other generated support files
 dist/               generated PDF and archive exports
 ```
 
-These directories are ignored by Git because they can be large, machine-specific, or contain derived research data. Their absence from GitHub does not mean that the pipeline step is missing. It means that the step must be run, or that the resulting files must be obtained from the project storage location.
+These directories are ignored by Git because they can be large, machine-specific, or contain derived research data. Their absence from GitHub does not mean that the pipeline step is missing. It means that the step must be run, or that the resulting files must be obtained from the project storage location, or you can access it from the S3 storage where all the output is being stored for reuse.
 
 ### 1.3 Local paths versus S3 paths
 
 The current Python scripts write to local or mounted filesystem paths. They do not upload to S3.
+The S3 storage in this project is only used for data transfer purposes. 
+The only files uploaded on the S3 storage (MinIO) are the runtime generated output when delevoping this pipeline, so another reasearcher who continues on this research has all outputs readily available.
+When this documentation shows an S3 path, it describes a proposed handoff layout for shared storage. 
+Therefore:
 
-When this documentation shows an S3 path, it describes a proposed handoff layout for shared storage. A separate copy or synchronisation step is required. Therefore:
+- `outputs/common_chunks/chunks_input.parquet` is an actual local pipeline artefact present in the S3 bucket not in this github repository, that has generated chunks which can be used as input to Bertopic.
+- the S3 copy does not exist unless somebody explicitly creates it manually, there is no automated code to copy output files to S3 storage. It is a manual process.
+- Manually MinIO AIStor Command Line (CLI) client was used to transfer files to S3 storage. Further documentation about the client is here (https://docs.min.io/aistor/reference/cli/)
+- The exact command used to copy files from local server to S3 server is below  
+- The exact command used to copy the Parquet and JSON output files from the local server to the S3 server is shown below:
 
-- `outputs/common_chunks/chunks_input.parquet` is an actual local pipeline artefact;
-- `s3://<bucket>/podcast_project/common_chunks/chunks_input.parquet` is a recommended shared copy of that artefact;
-- the S3 copy does not exist unless somebody explicitly creates it.
+```bash
+BUCKET="podcast-project"
+PREFIX="outputs"
+
+cd /home/fdai7991/podcast_projekt
+
+find outputs -type f \( -name "*.parquet" -o -name "*.json" \) -print0 |
+while IFS= read -r -d '' file; do
+  ~/tools/mc cp "$file" "bigdata-s3/$BUCKET/$PREFIX/$file"
+done
+```
 
 ## 2. Pipeline overview
 
