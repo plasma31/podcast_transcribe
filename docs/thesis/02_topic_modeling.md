@@ -388,7 +388,15 @@ There is no labelled gold-standard topic assignment for this corpus. Evaluation 
 
 A selected model should therefore be described as the most defensible compromise for the research purpose, not as an objectively best model.
 
-## 12. Reproducibility requirements
+## 12. Outlier reassignment
+
+The repository contains optional scripts for reassigning topic `-1` documents.
+
+Reassignment can increase coverage, but it changes the interpretation of the model by forcing previously uncertain documents toward existing topics.
+
+The original assignments must be preserved. Reassigned outputs should use separate filenames and should be presented as a sensitivity analysis rather than silently replacing the HDBSCAN result.
+
+## 13. Reproducibility requirements
 
 A reported topic-model result should identify:
 
