@@ -27,7 +27,7 @@ Use this section before reading individual scripts.
 | What is the direct input to the embedding model and BERTopic? | The `chunk_text` column in `outputs/common_chunks/chunks_input.parquet` |
 | Which file should another application consume before topic modelling? | `outputs/common_chunks/chunks_input.parquet` |
 | Which file should another application consume after topic modelling? | `doc_topics.parquet`, together with `topic_info.parquet` and `topic_words.parquet`, from the selected model run |
-| Are the S3 paths created automatically? | No. The documented S3 layout is a recommended manual or deployment-level mirror of local outputs |
+| Are the S3 paths created automatically? | No. The documented S3 layout is a recommended manual or deployment-level mirror of local outputs which has been uploaded by me in the college's MinIO S3 bucket. The directory structure uploaded on the s3 is the same as what is depicted here ()|
 
 Detailed thesis-oriented documentation is in [`docs/thesis/`](docs/thesis/README.md).
 
