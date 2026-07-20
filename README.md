@@ -173,7 +173,7 @@ The script follows this sequence:
 8. Download the audio into `fyyd_downloads/<podcast name>/`.
 9. Record successful and failed episodes in `artifacts/acquisition/fyyd_results.json`.
 
-The current implementation takes the first fyyd search result because the query uses the full podcast name and the first result was treated as the most likely match. This is a practical shortcut, not a guarantee of identity. The result file must therefore be reviewed. A future robustness improvement would normalise names and score every returned candidate before selecting one.
+The current implementation takes the first fyyd search result because the query uses the full podcast name and the first result was treated as the most likely match. A future robustness improvement would normalise names and score every returned candidate before selecting one.
 
 Downloads use `stream=True`. The response body is written incrementally in 256 KiB blocks instead of loading an entire episode into memory. The selected block size is an engineering trade-off: it keeps memory usage small while avoiding an excessive number of tiny disk writes. It is a project setting, not a format requirement.
 
