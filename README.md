@@ -33,6 +33,284 @@ Use this section before reading individual scripts.
 
 Detailed thesis-oriented documentation is in [`docs/thesis/`](docs/thesis/README.md).
 
+## Installation Guide
+
+### 1. System requirements
+
+- Linux is the tested operating system.
+- Python 3.12 is recommended; the recorded project environments used Python 3.12.3.
+- Git is required to clone the code.
+- FFmpeg must be available on `PATH` for audio decoding.
+- Internet access is needed for initial package and model downloads.
+- Stage 2 requires a Hugging Face account, accepted pyannote model conditions, and a read token.
+- The full corpus requires substantial disk space for audio, Parquet tables, caches, embeddings, and models.
+- An NVIDIA GPU is strongly recommended for full-corpus execution, but CPU execution is supported.
+
+The project deliberately uses two Python environments:
+
+| Environment      | Used for                                                                  | Dependency source                                                                      |
+| ---------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `.venv`          | Acquisition, Whisper transcription, pyannote diarization, and F0 analysis | `requirements.base.txt`, after installing a suitable PyTorch 2.8.0 build               |
+| `.venv_bertopic` | Chunking, SentenceTransformer embeddings, grid search, and BERTopic       | Minimal commands below; `requirements.venv_bertopic.txt` is the recorded full snapshot |
+
+`requirements.venv.txt` and `requirements.venv_bertopic.txt` are machine-specific `pip freeze` snapshots. They are useful for auditing an existing environment, but they are not the preferred clean-install entry points because their CUDA packages reflect the machine on which they were captured.
+
+### 2. Clone the code and define the data root
+
+The documented server separates the Git repository from generated research data:
+
+```text
+code:  /home/fdai7991/podcast_transcribe
+data:  /home/fdai7991/podcast_projekt
+```
+
+For a new user, the equivalent setup is:
+
+```bash
+cd "$HOME"
+git clone https://github.com/plasma31/podcast_transcribe.git
+
+export REPOSITORY_ROOT="$HOME/podcast_transcribe"
+export PROJECT_ROOT="$HOME/podcast_projekt"
+
+mkdir -p "$PROJECT_ROOT"
+cd "$REPOSITORY_ROOT"
+```
+
+All Python commands below are run from `$REPOSITORY_ROOT`. Audio and generated outputs are placed under `$PROJECT_ROOT` by passing absolute paths to the runners.
+
+### 3. Install and verify FFmpeg
+
+On Ubuntu or Debian with administrator access:
+
+```bash
+sudo apt update
+sudo apt install -y ffmpeg
+command -v ffmpeg
+ffmpeg -version
+```
+
+On the original server, FFmpeg was installed without administrator access under the user's home directory. If another user-owned installation is used, add its `bin` directory to `PATH`:
+
+```bash
+export PATH="$HOME/local/bin:$PATH"
+command -v ffmpeg
+ffmpeg -version
+```
+
+Add that `export PATH=...` line to the shell profile if it must persist across logins.
+
+### 4. Create the Stage 1 and Stage 2 environment
+
+Create the environment:
+
+```bash
+cd "$REPOSITORY_ROOT"
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+```
+
+The project dependency file requires the PyTorch 2.8.0 family to be installed first. For the CUDA 12.8 configuration recorded in the earlier environment commit:
+
+```bash
+python -m pip install \
+  torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 \
+  --index-url https://download.pytorch.org/whl/cu128
+
+python -m pip install -r requirements.base.txt
+```
+
+For a CPU-only installation, use:
+
+```bash
+python -m pip install \
+  torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 \
+  --index-url https://download.pytorch.org/whl/cpu
+
+python -m pip install -r requirements.base.txt
+```
+
+For a different GPU or driver, choose a supported PyTorch 2.8.0 wheel from the official [PyTorch previous-version installation table](https://pytorch.org/get-started/previous-versions/) rather than changing only the local CUDA toolkit.
+
+Verify the Stage 2 environment:
+
+```bash
+python - <<'PY'
+import librosa
+import pandas
+import pyarrow
+import torch
+import whisper
+from pyannote.audio import Pipeline
+
+print("torch:", torch.__version__)
+print("torchaudio:", __import__("torchaudio").__version__)
+print("CUDA available:", torch.cuda.is_available())
+print("Stage 2 imports: OK")
+PY
+
+python -m pip check
+python pipeline/batch_podcast_runner.py --help
+```
+
+`requirements.base.txt` currently pins the direct acquisition and Stage 2 packages, including `openai-whisper==20250625`, `pyannote-audio==4.0.3`, `librosa==0.11.0`, `pandas==2.3.3`, and `pyarrow==23.0.1`.
+
+### 5. Configure pyannote model access
+
+The current pipeline loads `pyannote/speaker-diarization-3.1`. Before the first Stage 2 run:
+
+1. sign in to Hugging Face;
+2. accept the conditions for [`pyannote/segmentation-3.0`](https://huggingface.co/pyannote/segmentation-3.0);
+3. accept the conditions for [`pyannote/speaker-diarization-3.1`](https://huggingface.co/pyannote/speaker-diarization-3.1);
+4. create a Hugging Face read token;
+5. export the token in the shell that starts the runner.
+
+```bash
+export PYANNOTE_TOKEN="hf_your_token_here"
+```
+
+The batch runner checks `PYANNOTE_TOKEN`, then `HF_TOKEN`, then `HUGGINGFACE_TOKEN`. Only one is needed; `PYANNOTE_TOKEN` is recommended for clarity.
+
+Never hard-code or commit the token. Earlier repository history includes a token-removal commit; any token ever committed should be revoked and replaced rather than reused from Git history.
+
+### 6. Create the Stage 3 BERTopic environment
+
+The Stage 3 environment is separate because its recorded, working combination uses a different PyTorch and SentenceTransformer stack:
+
+```bash
+deactivate
+cd "$REPOSITORY_ROOT"
+python3.12 -m venv .venv_bertopic
+source .venv_bertopic/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+```
+
+Install the CUDA 11.8 PyTorch family recorded in `requirements.venv_bertopic.txt`:
+
+```bash
+python -m pip install \
+  torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 \
+  --index-url https://download.pytorch.org/whl/cu118
+
+python -m pip install \
+  bertopic==0.17.4 \
+  hdbscan==0.8.42 \
+  names-dataset==3.3.1 \
+  pandas \
+  plotly==6.7.0 \
+  pyarrow \
+  pycountry \
+  safetensors \
+  sentence-transformers==3.4.1 \
+  stopwordsiso==0.6.1 \
+  umap-learn==0.5.12
+```
+
+For CPU-only Stage 3 execution, replace only the PyTorch command with:
+
+```bash
+python -m pip install \
+  torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 \
+  --index-url https://download.pytorch.org/whl/cpu
+```
+
+Verify Stage 3:
+
+```bash
+python - <<'PY'
+import bertopic
+import hdbscan
+import pandas
+import pyarrow
+import sentence_transformers
+import torch
+import umap
+
+print("torch:", torch.__version__)
+print("CUDA available:", torch.cuda.is_available())
+print("BERTopic:", bertopic.__version__)
+print("SentenceTransformer:", sentence_transformers.__version__)
+print("Stage 3 imports: OK")
+PY
+
+python -m pip check
+python pipeline/run_bertopic_from_manifest.py --help
+python pipeline/greedy_grid_search_bertopic_from_chunks.py --help
+```
+
+### 7. Prepare input data
+
+For a fresh run, Stage 2 expects one directory per podcast under the chosen downloads root:
+
+```text
+$PROJECT_ROOT/fyyd_downloads/
+├── Podcast A/
+│   ├── episode-001.mp3
+│   └── episode-002.mp3
+└── Podcast B/
+    └── interview.wav
+```
+
+Create the root before using an acquisition script or copying audio:
+
+```bash
+mkdir -p "$PROJECT_ROOT/fyyd_downloads"
+```
+
+The acquisition scripts default to paths inside the repository, so for a strict code/data separation either move their completed downloads to `$PROJECT_ROOT/fyyd_downloads` or use the RSS downloader's `--output-dir` option. Stage 2 itself accepts any downloads root through `--downloads`.
+
+To continue from the existing MinIO handoff, first verify the required objects described in Section 9. Stage 3 cannot read S3 objects directly: the manifest, episode tables, and segment tables must exist on a local or mounted filesystem. Because the existing manifest contains absolute paths under `/home/fdai7991/podcast_projekt/`, a researcher using a different data root must update `output_episode_parquet` and `output_segments_parquet` in their local manifest copy before chunking.
+
+### 8. Run a one-episode Stage 2 smoke test
+
+After placing at least one supported audio file in a podcast subdirectory:
+
+```bash
+cd "$REPOSITORY_ROOT"
+source .venv/bin/activate
+export PATH="$HOME/local/bin:$PATH"
+export PYANNOTE_TOKEN="hf_your_token_here"
+
+python pipeline/batch_podcast_runner.py \
+  --downloads "$PROJECT_ROOT/fyyd_downloads" \
+  --out_root "$PROJECT_ROOT/outputs" \
+  --state_dir "$PROJECT_ROOT/outputs/state" \
+  --whisper_model small \
+  --limit 1 \
+  --gender \
+  --rebuild_manifest
+```
+
+The smoke test intentionally omits `--diar_gpu`; pyannote therefore stays on CPU while Whisper uses CUDA when available. After it succeeds, inspect the manifest:
+
+```bash
+python - <<PY
+import pandas as pd
+
+path = "$PROJECT_ROOT/outputs/state/manifest.parquet"
+manifest = pd.read_parquet(path)
+print("manifest:", path)
+print(manifest["status"].value_counts(dropna=False))
+print(manifest[["episode_id", "status", "output_episode_parquet", "output_segments_parquet"]].head())
+PY
+```
+
+Once at least one row is `done`, activate `.venv_bertopic` and use the Stage 3 command in Section 5.6.
+
+### 9. Installation troubleshooting
+
+| Problem                                                   | Check or correction                                                                                            |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `ffmpeg` is not found                                     | Run `command -v ffmpeg`; install it or add its user-owned `bin` directory to `PATH`                            |
+| `Missing Hugging Face token`                              | Export `PYANNOTE_TOKEN` in the same shell that starts Stage 2                                                  |
+| pyannote returns `401`, `403`, or gated-repository errors | Confirm that both model conditions were accepted by the same Hugging Face account that issued the token        |
+| `torch.cuda.is_available()` is `False`                    | Confirm the NVIDIA driver with `nvidia-smi` and install the appropriate official PyTorch wheel for that driver |
+| Stage 2 imports conflict with BERTopic packages           | Use `.venv` only for Stages 1–2 and `.venv_bertopic` for Stage 3                                               |
+| BERTopic reports a CUDA kernel or memory error            | Re-run with `--embedding-device cpu`                                                                           |
+| `No audio files found in downloads root`                  | Put files inside podcast subdirectories, not directly in the downloads root                                    |
+| Stage 3 reports missing Parquet files after an S3 restore | Restore the complete Stage 2 tree and correct the absolute paths stored in the local manifest copy             |
+
 ## 1. What is tracked and what is generated?
 
 ### 1.1 Files committed to GitHub
@@ -627,285 +905,7 @@ python tools/audit_missing_speaker_gender.py \
 python tools/report_directory_usage.py outputs
 ```
 
-## 11. Installation Guide
-
-### 11.1 System requirements
-
-- Linux is the tested operating system.
-- Python 3.12 is recommended; the recorded project environments used Python 3.12.3.
-- Git is required to clone the code.
-- FFmpeg must be available on `PATH` for audio decoding.
-- Internet access is needed for initial package and model downloads.
-- Stage 2 requires a Hugging Face account, accepted pyannote model conditions, and a read token.
-- The full corpus requires substantial disk space for audio, Parquet tables, caches, embeddings, and models.
-- An NVIDIA GPU is strongly recommended for full-corpus execution, but CPU execution is supported.
-
-The project deliberately uses two Python environments:
-
-| Environment      | Used for                                                                  | Dependency source                                                                      |
-| ---------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `.venv`          | Acquisition, Whisper transcription, pyannote diarization, and F0 analysis | `requirements.base.txt`, after installing a suitable PyTorch 2.8.0 build               |
-| `.venv_bertopic` | Chunking, SentenceTransformer embeddings, grid search, and BERTopic       | Minimal commands below; `requirements.venv_bertopic.txt` is the recorded full snapshot |
-
-`requirements.venv.txt` and `requirements.venv_bertopic.txt` are machine-specific `pip freeze` snapshots. They are useful for auditing an existing environment, but they are not the preferred clean-install entry points because their CUDA packages reflect the machine on which they were captured.
-
-### 11.2 Clone the code and define the data root
-
-The documented server separates the Git repository from generated research data:
-
-```text
-code:  /home/fdai7991/podcast_transcribe
-data:  /home/fdai7991/podcast_projekt
-```
-
-For a new user, the equivalent setup is:
-
-```bash
-cd "$HOME"
-git clone https://github.com/plasma31/podcast_transcribe.git
-
-export REPOSITORY_ROOT="$HOME/podcast_transcribe"
-export PROJECT_ROOT="$HOME/podcast_projekt"
-
-mkdir -p "$PROJECT_ROOT"
-cd "$REPOSITORY_ROOT"
-```
-
-All Python commands below are run from `$REPOSITORY_ROOT`. Audio and generated outputs are placed under `$PROJECT_ROOT` by passing absolute paths to the runners.
-
-### 11.3 Install and verify FFmpeg
-
-On Ubuntu or Debian with administrator access:
-
-```bash
-sudo apt update
-sudo apt install -y ffmpeg
-command -v ffmpeg
-ffmpeg -version
-```
-
-On the original server, FFmpeg was installed without administrator access under the user's home directory. If another user-owned installation is used, add its `bin` directory to `PATH`:
-
-```bash
-export PATH="$HOME/local/bin:$PATH"
-command -v ffmpeg
-ffmpeg -version
-```
-
-Add that `export PATH=...` line to the shell profile if it must persist across logins.
-
-### 11.4 Create the Stage 1 and Stage 2 environment
-
-Create the environment:
-
-```bash
-cd "$REPOSITORY_ROOT"
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip setuptools wheel
-```
-
-The project dependency file requires the PyTorch 2.8.0 family to be installed first. For the CUDA 12.8 configuration recorded in the earlier environment commit:
-
-```bash
-python -m pip install \
-  torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 \
-  --index-url https://download.pytorch.org/whl/cu128
-
-python -m pip install -r requirements.base.txt
-```
-
-For a CPU-only installation, use:
-
-```bash
-python -m pip install \
-  torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 \
-  --index-url https://download.pytorch.org/whl/cpu
-
-python -m pip install -r requirements.base.txt
-```
-
-For a different GPU or driver, choose a supported PyTorch 2.8.0 wheel from the official [PyTorch previous-version installation table](https://pytorch.org/get-started/previous-versions/) rather than changing only the local CUDA toolkit.
-
-Verify the Stage 2 environment:
-
-```bash
-python - <<'PY'
-import librosa
-import pandas
-import pyarrow
-import torch
-import whisper
-from pyannote.audio import Pipeline
-
-print("torch:", torch.__version__)
-print("torchaudio:", __import__("torchaudio").__version__)
-print("CUDA available:", torch.cuda.is_available())
-print("Stage 2 imports: OK")
-PY
-
-python -m pip check
-python pipeline/batch_podcast_runner.py --help
-```
-
-`requirements.base.txt` currently pins the direct acquisition and Stage 2 packages, including `openai-whisper==20250625`, `pyannote-audio==4.0.3`, `librosa==0.11.0`, `pandas==2.3.3`, and `pyarrow==23.0.1`.
-
-### 11.5 Configure pyannote model access
-
-The current pipeline loads `pyannote/speaker-diarization-3.1`. Before the first Stage 2 run:
-
-1. sign in to Hugging Face;
-2. accept the conditions for [`pyannote/segmentation-3.0`](https://huggingface.co/pyannote/segmentation-3.0);
-3. accept the conditions for [`pyannote/speaker-diarization-3.1`](https://huggingface.co/pyannote/speaker-diarization-3.1);
-4. create a Hugging Face read token;
-5. export the token in the shell that starts the runner.
-
-```bash
-export PYANNOTE_TOKEN="hf_your_token_here"
-```
-
-The batch runner checks `PYANNOTE_TOKEN`, then `HF_TOKEN`, then `HUGGINGFACE_TOKEN`. Only one is needed; `PYANNOTE_TOKEN` is recommended for clarity.
-
-Never hard-code or commit the token. Earlier repository history includes a token-removal commit; any token ever committed should be revoked and replaced rather than reused from Git history.
-
-### 11.6 Create the Stage 3 BERTopic environment
-
-The Stage 3 environment is separate because its recorded, working combination uses a different PyTorch and SentenceTransformer stack:
-
-```bash
-deactivate
-cd "$REPOSITORY_ROOT"
-python3.12 -m venv .venv_bertopic
-source .venv_bertopic/bin/activate
-python -m pip install --upgrade pip setuptools wheel
-```
-
-Install the CUDA 11.8 PyTorch family recorded in `requirements.venv_bertopic.txt`:
-
-```bash
-python -m pip install \
-  torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 \
-  --index-url https://download.pytorch.org/whl/cu118
-
-python -m pip install \
-  bertopic==0.17.4 \
-  hdbscan==0.8.42 \
-  names-dataset==3.3.1 \
-  pandas \
-  plotly==6.7.0 \
-  pyarrow \
-  pycountry \
-  safetensors \
-  sentence-transformers==3.4.1 \
-  stopwordsiso==0.6.1 \
-  umap-learn==0.5.12
-```
-
-For CPU-only Stage 3 execution, replace only the PyTorch command with:
-
-```bash
-python -m pip install \
-  torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 \
-  --index-url https://download.pytorch.org/whl/cpu
-```
-
-Verify Stage 3:
-
-```bash
-python - <<'PY'
-import bertopic
-import hdbscan
-import pandas
-import pyarrow
-import sentence_transformers
-import torch
-import umap
-
-print("torch:", torch.__version__)
-print("CUDA available:", torch.cuda.is_available())
-print("BERTopic:", bertopic.__version__)
-print("SentenceTransformer:", sentence_transformers.__version__)
-print("Stage 3 imports: OK")
-PY
-
-python -m pip check
-python pipeline/run_bertopic_from_manifest.py --help
-python pipeline/greedy_grid_search_bertopic_from_chunks.py --help
-```
-
-### 11.7 Prepare input data
-
-For a fresh run, Stage 2 expects one directory per podcast under the chosen downloads root:
-
-```text
-$PROJECT_ROOT/fyyd_downloads/
-├── Podcast A/
-│   ├── episode-001.mp3
-│   └── episode-002.mp3
-└── Podcast B/
-    └── interview.wav
-```
-
-Create the root before using an acquisition script or copying audio:
-
-```bash
-mkdir -p "$PROJECT_ROOT/fyyd_downloads"
-```
-
-The acquisition scripts default to paths inside the repository, so for a strict code/data separation either move their completed downloads to `$PROJECT_ROOT/fyyd_downloads` or use the RSS downloader's `--output-dir` option. Stage 2 itself accepts any downloads root through `--downloads`.
-
-To continue from the existing MinIO handoff, first verify the required objects described in Section 9. Stage 3 cannot read S3 objects directly: the manifest, episode tables, and segment tables must exist on a local or mounted filesystem. Because the existing manifest contains absolute paths under `/home/fdai7991/podcast_projekt/`, a researcher using a different data root must update `output_episode_parquet` and `output_segments_parquet` in their local manifest copy before chunking.
-
-### 11.8 Run a one-episode Stage 2 smoke test
-
-After placing at least one supported audio file in a podcast subdirectory:
-
-```bash
-cd "$REPOSITORY_ROOT"
-source .venv/bin/activate
-export PATH="$HOME/local/bin:$PATH"
-export PYANNOTE_TOKEN="hf_your_token_here"
-
-python pipeline/batch_podcast_runner.py \
-  --downloads "$PROJECT_ROOT/fyyd_downloads" \
-  --out_root "$PROJECT_ROOT/outputs" \
-  --state_dir "$PROJECT_ROOT/outputs/state" \
-  --whisper_model small \
-  --limit 1 \
-  --gender \
-  --rebuild_manifest
-```
-
-The smoke test intentionally omits `--diar_gpu`; pyannote therefore stays on CPU while Whisper uses CUDA when available. After it succeeds, inspect the manifest:
-
-```bash
-python - <<PY
-import pandas as pd
-
-path = "$PROJECT_ROOT/outputs/state/manifest.parquet"
-manifest = pd.read_parquet(path)
-print("manifest:", path)
-print(manifest["status"].value_counts(dropna=False))
-print(manifest[["episode_id", "status", "output_episode_parquet", "output_segments_parquet"]].head())
-PY
-```
-
-Once at least one row is `done`, activate `.venv_bertopic` and use the Stage 3 command in Section 5.6.
-
-### 11.9 Installation troubleshooting
-
-| Problem                                                   | Check or correction                                                                                            |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `ffmpeg` is not found                                     | Run `command -v ffmpeg`; install it or add its user-owned `bin` directory to `PATH`                            |
-| `Missing Hugging Face token`                              | Export `PYANNOTE_TOKEN` in the same shell that starts Stage 2                                                  |
-| pyannote returns `401`, `403`, or gated-repository errors | Confirm that both model conditions were accepted by the same Hugging Face account that issued the token        |
-| `torch.cuda.is_available()` is `False`                    | Confirm the NVIDIA driver with `nvidia-smi` and install the appropriate official PyTorch wheel for that driver |
-| Stage 2 imports conflict with BERTopic packages           | Use `.venv` only for Stages 1–2 and `.venv_bertopic` for Stage 3                                               |
-| BERTopic reports a CUDA kernel or memory error            | Re-run with `--embedding-device cpu`                                                                           |
-| `No audio files found in downloads root`                  | Put files inside podcast subdirectories, not directly in the downloads root                                    |
-| Stage 3 reports missing Parquet files after an S3 restore | Restore the complete Stage 2 tree and correct the absolute paths stored in the local manifest copy             |
-
-## 12. Methodological cautions
+## 11. Methodological cautions
 
 - Whisper segments are ASR units, not guaranteed sentences.
 - pyannote speaker labels are anonymous and local to one episode.
